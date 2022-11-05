@@ -6,7 +6,7 @@ This package implements the general formulas, recursive relationships and shortc
 
 - Each module introduces the formulas (incrementally) used, with usage examples.
 
-- The SOA sample questions released in August 2022 are solved in the executable Google Colab notebook.
+- The SOA sample questions released in August 2022 are solved in an [executable Google Colab notebook](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing).
 
 Enjoy!
 
@@ -18,7 +18,7 @@ MIT License. Copyright 2022, Terence Lim
 
 - Documentation and formulas: [faml.pdf](https://terence-lim.github.io/notes/faml.pdf)
 
-- This executable colab notebook: [mathlc.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
+- Executable colab notebook: [mathlc.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
 
 - Github repo: [https://github.com/terence-lim/mathlc.git](https://github.com/terence-lim/mathlc.git)
 
