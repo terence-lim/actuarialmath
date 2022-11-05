@@ -8,6 +8,7 @@ from typing import Optional, Dict
 import math
 from mathlc.sult import SULT
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 class Select(SULT):
@@ -239,7 +240,7 @@ class Select(SULT):
 
     def p_x(self, x: int, s: int = 0, t: int = 1) -> float:
         """t_p_[x]+s by chain rule: prod(1_p_[x]+s+y) for y in range(t)"""
-        return math.prod([1 - self.get_sel(x, s+y, 'q') for y in range(t)])
+        return np.prod([1 - self.get_sel(x, s+y, 'q') for y in range(t)])
 
     def q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0) -> float:
         """t|u_q_[x]+s = [x]+s survives u years, does not survive next t"""
