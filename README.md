@@ -16,12 +16,12 @@ MIT License. Copyright 2022, Terence Lim
 
 Sources:
 
-Documentation and formulas: [faml.pdf](https://terence-lim.github.io/notes/faml.pdf)
+Documentation and formulas: (faml.pdf)[https://terence-lim.github.io/notes/faml.pdf]
 
-This executable colab notebook: [mathlc.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
+This executable colab notebook: (mathlc.ipynb)[https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
 
-Github repo: (https://github.com/terence-lim/mathlc.git)
+Github repo: [https://github.com/terence-lim/mathlc.git]
 
-SOA FAM-L Sample Solutions: copy retrieved Aug 2022 https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf
+SOA FAM-L Sample Solutions: (copy retrieved Aug 2022)[https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf]
 
-SOA FAM-L Sample Questions: copy retrieved Aug 2022 https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf
+SOA FAM-L Sample Questions: (copy retrieved Aug 2022)[https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf]
