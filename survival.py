@@ -5,7 +5,7 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from typing import Callable, Tuple, Any, List, Optional, Union
-from faml import FAML
+from mathlc.faml import FAML
 import math
 
 class Survival(FAML):

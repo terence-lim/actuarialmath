@@ -24,13 +24,16 @@ class FAML:
     LIFES = 100000  # default initial number of lifes in life table
     verbose = False
 
+    _doc = ['variance', 'covariance', 'bernoulli', 'binomial', 'mixture',
+            'conditional_variance', 'portfolio_percentile', 'solve', 
+            'add_term', 'max_term', 'Interest']
     def __init__(self, interest: Dict = dict(i=0)):
         self.set_interest(**interest)
-        self._help = ['solve', 'max_term']
 
-    def __str__(self):
-        return "\n".join(f"{s}():\n  {getattr(self, s).__doc__}\n" 
-                         for s in self._help)
+    @classmethod
+    def doc(self):
+        return "\n".join(f"{s}(**args):\n  {getattr(self, s).__doc__}\n" 
+                         for s in self._doc)
 
     def set_interest(self, **interest):
         """Initialize interest rate object, given any form of interest rate"""
@@ -40,7 +43,7 @@ class FAML:
     # Interest rate store and math
     #
     class Interest:
-        """Class for interest rate and math"""
+        """Class for interest rate conversion and math"""
         def __init__(self, i: float = -1., delta: float = -1., d: float = -1., 
                     v: float = -1., i_m: float = -1., d_m: float = -1., 
                     m: int = 0, v_t: Optional[Callable[[float], float]] = None):
@@ -141,11 +144,10 @@ class FAML:
         mean1 = FAML.binomial(p1, N)
         mean2 = FAML.binomial(p2, N)
         if variance:
-            FAML.bernoulli(p, )
-            # var1 = FAML.binomial(p1, N, variance=True)
-            # var2 = FAML.binomial(p2, N, variance=True)
-            # return (FAML.bernoulli(p, mean1**2 + var1, mean2**2 + var2)
-            #         - FAML.bernoulli(p, mean1, mean2)**2)
+            var1 = FAML.binomial(p1, N, variance=True)
+            var2 = FAML.binomial(p2, N, variance=True)
+            return (FAML.bernoulli(p, mean1**2 + var1, mean2**2 + var2)
+                    - FAML.bernoulli(p, mean1, mean2)**2)
         else:
             return FAML.bernoulli(p, mean1, mean2)
         
@@ -234,10 +236,6 @@ class FAML:
 
 
 if __name__ == "__main__":
-
-    print(FAML())
-
-    raise Exception
     print("SOA Question 2.2: (D) 400")
     p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
     p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
