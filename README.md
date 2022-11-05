@@ -16,7 +16,7 @@ MIT License. Copyright 2022, Terence Lim
 
 ## Sources:
 
-- Documentation and formulas: [faml.pdf](https://terence-lim.github.io/notes/faml.pdf)
+- Documentation and formulas: [mathlc.pdf](https://terence-lim.github.io/notes/mathlc.pdf)
 
 - Executable colab notebook: [mathlc.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
 
