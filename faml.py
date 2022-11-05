@@ -32,8 +32,8 @@ class FAML:
 
     @classmethod
     def doc(self):
-        return "\n".join(f"{s}(**args):\n  {getattr(self, s).__doc__}\n" 
-                         for s in self._doc)
+        print("\n".join(f"{s}(**args):\n  {getattr(self, s).__doc__}\n" 
+                         for s in self._doc))
 
     def set_interest(self, **interest):
         """Initialize interest rate object, given any form of interest rate"""
