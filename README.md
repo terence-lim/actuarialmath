@@ -20,7 +20,7 @@ Documentation and formulas: [faml.pdf](https://terence-lim.github.io/notes/faml.
 
 This executable colab notebook: [mathlc.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
 
-Github repo: (https://github.com/terence-lim/mathlc.git)
+Github repo: [https://github.com/terence-lim/mathlc.git](https://github.com/terence-lim/mathlc.git)
 
 SOA FAM-L Sample Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
 
