@@ -29,7 +29,7 @@ class Reserves(PolicyValues):
         if T:
             self.T = T
         if V:
-            self._reserves['V'] |= V
+            self._reserves['V'].update(V)
             self.T = max(len(V) - 1, self.T)
         self._reserves['V'][0] = 0  # initial reserve is 0 by equivalence
         self._reserves['V'][self.T] = endowment  # n_V is 0 or endowment
