@@ -43,7 +43,7 @@ class FAML:
         """Class for interest rate and math"""
         def __init__(self, i: float = -1., delta: float = -1., d: float = -1., 
                     v: float = -1., i_m: float = -1., d_m: float = -1., 
-                    m: int = 0, v_t: Optional(Callable[[float], float]) = None):
+                    m: int = 0, v_t: Optional[Callable[[float], float]] = None):
             if i_m >= 0:  # given interest rate mthly compounded
                 i = self.mthly(m=m, i_m=i_m)
             if d_m >= 0:  # given discount rate mthly compounded
