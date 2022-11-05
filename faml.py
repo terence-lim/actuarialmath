@@ -4,7 +4,7 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from typing import Callable, Dict, Any, Tuple, List, Optional
+from typing import Callable, Dict, Any, Tuple, List, Optional, Union
 from scipy.integrate import quad
 from scipy.optimize import fsolve
 from scipy.misc import derivative
@@ -202,8 +202,8 @@ class FAML:
         return derivative(f, x0=x, dx=1)
 
     @classmethod
-    def solve(self, f: Callable[[float], float], target: int | float, 
-              guess: float | Tuple | List, args: Tuple = tuple()) -> float:
+    def solve(self, f: Callable[[float], float], target: float, 
+              guess: Union[float, Tuple, List], args: Tuple = tuple()) -> float:
         """Wrapper to solve root of equation"""
         verbose = self.verbose
         self.verbose = False
