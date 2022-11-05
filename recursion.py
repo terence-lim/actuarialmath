@@ -802,5 +802,3 @@ if __name__ == "__main__":
     L = life1.gross_policy_value(x, t=0, n=2, policy=policy)
     print(L)
     print()
-    
-    print(Recursion.doc())

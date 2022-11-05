@@ -22,13 +22,7 @@ class Insurance(Fractional):
 
     def E_x(self, x: int, s: int = 0, t: int = 1, endowment: int = 1,
             moment: int = 1) -> float:
-        """Pure endowment: t_E_x
-
-        Examples:
-
-        >>> pure_endowment = E_x(x, t)
-        >>> pure_endowment_variance = E_x(x, t, moment=Insurance.VARIANCE)
-        """
+        """Pure endowment: t_E_x"""
         if t < 0:  # t infinite => EPV(t) = 0
             return 0   
         if t == 0:    # t = 0 => EPV(0) = 1

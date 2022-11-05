@@ -27,8 +27,9 @@ class Adjust:
 
     @classmethod
     def doc(self):
-        return "\n".join(f"{s}(**args):\n  {getattr(self, s).__doc__}\n"
-                         for s in self._doc)
+        print("\n".join(f"{s}(**args):\n  {getattr(self, s).__doc__}\n"
+                        for s in self._doc))
+        
     def __getitem__(self, col: str) -> Dict[int, float]:
         """Return adjusted survival or mortality, in a dict keyed by age"""
         fn = {'q': self.q_x, 'p': self.p_x}.get(col)
@@ -85,5 +86,3 @@ if __name__ == "__main__":
     life = SULT()
     adjust = Adjust(life=life)(extra=0.05, adjust=Adjust.ADD_FORCE)
     print(life.p_x(45), adjust.p_x(45))
-
-    print(Adjust.doc())

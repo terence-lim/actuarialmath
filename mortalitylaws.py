@@ -8,6 +8,9 @@ import math
 from mathlc.reserves import Reserves
 
 class MortalityLaws(Reserves):
+    """Shortcuts for special mortality laws"""
+    _doc = ['l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r']
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._doc = ['l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r']

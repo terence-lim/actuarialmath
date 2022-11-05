@@ -253,5 +253,3 @@ if __name__ == "__main__":
     delta = 0.05
     life = Annuity(interest=dict(delta=delta), mu=lambda *x: mu)
     print(life.decreasing_annuity(0, t=5, discrete=False))  # 6.94
-
-    print(Annuity().doc())

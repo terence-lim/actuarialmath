@@ -147,5 +147,3 @@ if __name__ == "__main__":
     print(mthly.temporary_annuity(35, t=30))
     print(1000 * mthly.temporary_annuity(35, t=30))
     print()
-
-    print(Woolhouse.doc())

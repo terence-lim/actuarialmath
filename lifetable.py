@@ -286,5 +286,3 @@ if __name__ == "__main__":
     table = LifeTable(l={age:l for age,l in zip(range(70, 77), l)}, 
                       interest=dict(i=0.08), maxage=76)
     print(1e6*table.whole_life_annuity(70, variance=True)) #1743784
-
-    print(LifeTable.doc())
