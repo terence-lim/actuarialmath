@@ -19,9 +19,7 @@ Terence Lim
 
 MIT License. Copyright 2022, Terence Lim
 
-```{image} FAM-L.png
-:name: label
-```
+![actuarialmath](FAM-L.png)
 
 
 ## Sources:
