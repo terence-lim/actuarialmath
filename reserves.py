@@ -25,7 +25,7 @@ class Reserves(PolicyValues):
     #
     def set_reserves(self, T: int = 0, endowment: int = 0,
                      V: Optional[Dict] = None) -> "Reserves":
-        # To check that V[0] = 0 if equivalence, and V[MAXAGE] consistent
+        """Set the reserves given"""
         if T:
             self.T = T
         if V:
@@ -38,6 +38,7 @@ class Reserves(PolicyValues):
     def fill_reserves(self, x: int, reserve_benefit: bool = False,
             policy: PolicyValues.Policy = PolicyValues.Policy(),  
             max_iter: int = 4):
+        """Fill in missing reserves"""
         for _ in range(max_iter):
             for t in range(self.T + 1):
                 if self._reserves['V'].get(t, None) is not None:
@@ -63,6 +64,7 @@ class Reserves(PolicyValues):
                     self._reserves['V'][t] = v
 
     def V_plot(self, verbose: bool = True, color: str = 'r'):
+        """Plot reserves over time"""
         fig, ax = plt.subplots(1, 1)
         y = [self._reserves['V'].get(t, None) for t in range(self.T + 1)]
         ax.plot(list(range(self.T + 1)), y, '.', color=color)
