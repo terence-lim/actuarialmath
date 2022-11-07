@@ -4,7 +4,7 @@
 
 This `actuarialmath` package implements the general formulas, recursive relationships and
 shortcut equations for Fundamentals of Long Term Actuarial Mathematics, to
-solve the SOA sample FAM-L exam questions and more.
+solve the SOA sample FAM-L exam questions, and more, with Python.
 
 - The concepts are developed hierarchically in object-oriented Python.
 
