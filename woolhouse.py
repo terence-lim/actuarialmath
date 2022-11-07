@@ -4,13 +4,17 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.mthly import Mthly
-from mathlc.fractional import Fractional
+from actuarialmath.mthly import Mthly
+from actuarialmath.fractional import Fractional
 import math
 from typing import Callable, Union, Optional
 
 class Woolhouse(Mthly):
-    """Woolhouse mthly shortcuts"""
+    """Woolhouse 1/Mthly Shortcuts"""
+    _help = ['mu_x', 'insurance_twin', 'whole_life_insurance', 'term_insurance', 
+             'deferred_insurance', 'whole_life_annuity', 'temporary_annuity',
+             'deferred_annuity']
+    
     def __init__(self, m: int, life: Fractional, three_term: bool = False,
                  approximate_mu: Union[Callable[[int, int], float], bool] = True):
         super().__init__(m=m, life=life)
@@ -93,9 +97,11 @@ class Woolhouse(Mthly):
         return a * b
 
 if __name__ == "__main__":
-    from sult import SULT
-    from recursion import Recursion
-
+    from actuarialmath.sult import SULT
+    from actuarialmath.recursion import Recursion
+    from actuarialmath.udd import UDD
+    print(Woolhouse.help())
+    
     print("SOA Question 7.7:  (D) 1110")
     x = 0
     life = Recursion(interest=dict(i=0.05)).set_A(0.4, x=x+10)
@@ -126,8 +132,6 @@ if __name__ == "__main__":
      
 
     print("SOA Question 6.15:  (B) 1.002")
-    from udd import UDD
-    from recursion import Recursion
     life = Recursion(interest=dict(i=0.05)).set_a(3.4611, x=0)
     A = life.insurance_twin(3.4611)
     udd = UDD(m=4, life=life)
@@ -138,7 +142,6 @@ if __name__ == "__main__":
     print()
      
     print("SOA Question 5.7:  (C) 17376.7")
-    from recursion import Recursion
     life = Recursion(interest=dict(i=0.04))
     life.set_A(0.188, x=35)
     life.set_A(0.498, x=65)

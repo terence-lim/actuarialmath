@@ -4,13 +4,14 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.lifetable import LifeTable
+from actuarialmath.lifetable import LifeTable
 import math
 import numpy as np
 import pandas as pd
 
 class SULT(LifeTable):
     """Standard Ultimate Life Table"""
+    _help = ['frame']
 
     def __init__(self, interest = dict(i=0.05), lifes=LifeTable.LIFES, 
                  A: float = 0.00022, B: float = 0.0000027, c: float = 1.124,
@@ -22,7 +23,7 @@ class SULT(LifeTable):
                          **kwargs)
 
     def frame(self):
-        """Displays tables used for FAM-L exam"""
+        """Displays SULT table used in FAM-L exam"""
         tab = pd.DataFrame(dict(l_x=self._table['l'])).sort_index()
         t = {'q_x': self['q'],
              'a_x': self['a'],
@@ -41,6 +42,7 @@ class SULT(LifeTable):
         return tab.loc[20:100]
 
 if __name__ == "__main__":
+    print(SULT.help())
     
     print("SOA Question 6.52:  (D) 50.80")
     sult = SULT()

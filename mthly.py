@@ -5,17 +5,17 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from typing import Callable
-from mathlc.premiums import Premiums
-from mathlc.adjustmortality import Adjust
+from actuarialmath.premiums import Premiums
+from actuarialmath.adjustmortality import Adjust
 import math
 import pandas as pd
 
 class Mthly(Adjust):
     """1/Mthly insurance and annuities"""
-    _doc = ['v_m', 'p_m', 'q_m', 'Z_m', 'E_x', 'A_x', 'whole_life_insurance',
-            'term_insurance', 'deferred_insurance', 'endowment_insurance',
-            'immediate_annuity', 'annuity_twin', 'annuity_variance',
-            'whole_life_annuity', 'temporary_annuity', 'deferred_annuity']
+    _help = ['v_m', 'p_m', 'q_m', 'Z_m', 'E_x', 'A_x', 'whole_life_insurance',
+             'term_insurance', 'deferred_insurance', 'endowment_insurance',
+             'immediate_annuity', 'annuity_twin', 'annuity_variance',
+             'whole_life_annuity', 'temporary_annuity', 'deferred_annuity']
             
     def __init__(self, m: int, life: Premiums):
         self.life = life
@@ -172,6 +172,9 @@ class Mthly(Adjust):
             return a
 
 if __name__ == "__main__":
+    from actuarialmath.lifetable import LifeTable
+    print(Mthly.help())
+    
     print("SOA Question 6.4:  (E) 1893.9")
     mthly = Mthly(m=12, life=Premiums(interest=dict(i=0.06)))
     A1, A2 = 0.4075, 0.2105
@@ -182,7 +185,6 @@ if __name__ == "__main__":
     print()
     
     print("SOA Question 4.2:  (D) 0.18")
-    from lifetable import LifeTable
     life = LifeTable(q={0: .16, 1: .23}, interest=dict(i_m=.18, m=2),
                      udd=False).fill()
     mthly = Mthly(m=2, life=life)

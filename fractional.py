@@ -1,15 +1,15 @@
-"""Fractional ages
+"""Fractional Ages
 
 Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.lifetime import Lifetime
+from actuarialmath.lifetime import Lifetime
 import math
 
 class Fractional(Lifetime):
-    """Compute survival and lifetimes with fractional ages"""
-    _doc = ['E_r', 'l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r', 'e_curtate']
+    """Compute Survival and Lifetimes with Fractional Ages"""
+    _help = ['E_r', 'l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r', 'e_curtate']
 
     def __init__(self, udd: bool = False, **kwargs):
         super().__init__(**kwargs)   
@@ -140,3 +140,6 @@ class Fractional(Lifetime):
             return e - 0.5
         else:
             return e_curtate + 0.5
+
+if __name__ == "__main__":
+    print(Fractional.help())

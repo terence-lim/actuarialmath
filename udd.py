@@ -5,14 +5,14 @@ Copyright 2022, Terence Lim
 MIT License
 """
 import pandas as pd
-from mathlc.fractional import Fractional
-from mathlc.mthly import Mthly
+from actuarialmath.fractional import Fractional
+from actuarialmath.mthly import Mthly
 
 class UDD(Mthly):
-    """UDD mthly shortcuts"""
-    _doc = ['alpha', 'beta', 'whole_life_insurance', 'term_insurance', 
-            'deferred_insurance', 'whole_life_annuity', 'temporary_annuity',
-            'deferred_annuity', 'frame']
+    """UDD 1/Mthly Shortcuts"""
+    _help = ['alpha', 'beta', 'whole_life_insurance', 'term_insurance', 
+             'deferred_insurance', 'whole_life_annuity', 'temporary_annuity',
+             'deferred_annuity', 'frame']
 
     def __init__(self, m: int, life: Fractional, **kwargs):
         super().__init__(m=m, life=life, **kwargs)
@@ -119,7 +119,7 @@ class UDD(Mthly):
 
     @staticmethod
     def frame(i: float = 0.05):
-        """Construct 1/mthly UDD interest function values"""
+        """Display 1/mthly UDD interest function values"""
         interest = Fractional.Interest(i=i)
         out = pd.DataFrame(columns=["i(m)", "d(m)", "i/i(m)", "d/d(m)", 
                                     "alpha(m)", "beta(m)"],
@@ -135,9 +135,10 @@ class UDD(Mthly):
 
 
 if __name__ == "__main__":
-    from sult import SULT
-    from recursion import Recursion
-
+    from actuarialmath.sult import SULT
+    from actuarialmath.recursion import Recursion
+    print(UDD.help())
+    
     print("SOA Question 7.9:  (A) 38100")
     sult = SULT(udd=True)
     x, n, t = 45, 20, 10

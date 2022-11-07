@@ -6,13 +6,13 @@ MIT License
 """
 import math
 from scipy.stats import norm
-from mathlc.mortalitylaws import MortalityLaws
+from actuarialmath.mortalitylaws import MortalityLaws
 
 class ConstantForce(MortalityLaws):
-    """Memoryless exponential distribution of deaths"""
+    """Constant Force of Mortality: memoryless exponential distribution of deaths"""
 
-    _doc = ['e_x', 'E_x', 'whole_life_insurance', 'temporary_annuity',
-            'term_insurance', 'Z_t', 'Y_t']
+    _help = ['e_x', 'E_x', 'whole_life_insurance', 'temporary_annuity',
+             'term_insurance', 'Z_t', 'Y_t']
 
     def __init__(self, mu: float, udd: bool = False, **kwargs):
         super().__init__(udd=udd, **kwargs)
@@ -116,6 +116,8 @@ class ConstantForce(MortalityLaws):
         return math.ceil(t) if discrete else t    # opposite of insurance
 
 if __name__ == "__main__":
+    print(ConstantForce.help())
+    
     print("SOA Question 6.36:  (B) 500")
     life = ConstantForce(mu=0.04, interest=dict(delta=0.08))
     a = life.temporary_annuity(50, t=20, discrete=False)

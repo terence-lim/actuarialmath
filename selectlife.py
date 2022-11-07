@@ -6,7 +6,7 @@ MIT License
 """
 from typing import Optional, Dict
 import math
-from mathlc.sult import SULT
+from actuarialmath.sult import SULT
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -20,7 +20,7 @@ class Select(SULT):
 
     Ultimate: after several years, selection has no effect on mortality.
     """
-    _doc = ['fill', 'l_x', 'p_x', 'q_x', 'e_x', 'A_x', 'a_x']
+    _help = ['fill', 'l_x', 'p_x', 'q_x', 'e_x', 'A_x', 'a_x']
 
     def __init__(self, n: int = 0, minage: int = 9999, maxage: int = 0, 
                  A: Optional[Dict] = None, a: Optional[Dict] = None, 
@@ -260,7 +260,8 @@ class Select(SULT):
             .sort_index(axis=0).sort_index(axis=1).rename_axis(col)
 
 if __name__ == "__main__":
-
+    print(Select.help())
+    
     print("SOA Question 3.2:  (D) 14.7")
     e_curtate = Select.e_curtate(e=15)
     life = Select(l={65: [1000, None,],

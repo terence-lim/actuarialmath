@@ -5,15 +5,15 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from typing import Callable, Tuple, Any, List, Optional, Union
-from mathlc.faml import FAML
+from actuarialmath.life import Life
 import math
 
-class Survival(FAML):
-    """Fundamental survival functions"""
+class Survival(Life):
+    """Fundamental Survival Functions"""
 
-    _doc = ['l_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'survival_curve']
+    _help = ['l_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'survival_curve']
 
-    def __init__(self, maxage: int = FAML.MAXAGE, minage: int = FAML.MINAGE,
+    def __init__(self, maxage: int = Life.MAXAGE, minage: int = Life.MINAGE,
                  S: Callable[[int, float, float], float] = None, 
                  f: Callable[[int, float, float], float] = None, 
                  l: Callable[[int, float], float] = None, 
@@ -87,7 +87,7 @@ class Survival(FAML):
         """Number of lives age ([x]+s): l_[x]+s"""
         if self.l is not None:
             return self.l(x, s)
-        return FAML.LIFES * self.p_x(x=self.MINAGE, s=0, t=s+x-self.MINAGE)
+        return Life.LIFES * self.p_x(x=self.MINAGE, s=0, t=s+x-self.MINAGE)
 
     def p_x(self, x: int, s: int = 0, t: int = 1) -> float:
         """Probability that (x) lives t years: t_p_x"""
@@ -117,7 +117,8 @@ class Survival(FAML):
         return x, [self.p_x(self.MINAGE, t=s) for s in x]
 
 if __name__ == "__main__":
-
+    print(Survival.help())
+    
     print("SOA Question 2.3: (A) 0.0483")
     B, c = 0.00027, 1.1
     life = Survival(S=lambda x,s,t: (math.exp(-B * c**(x+s) 

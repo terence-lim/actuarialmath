@@ -6,15 +6,15 @@ MIT License
 """
 import math
 import numpy as np
-from mathlc.policyvalues import PolicyValues
+from actuarialmath.policyvalues import PolicyValues
 import matplotlib.pyplot as plt
 from typing import Callable, Dict, Optional
 
 class Reserves(PolicyValues):
     """Recursive, Interim and Modified Reserves"""
-    _doc = ['set_reserves', 'fill_reserves', 'V_plot', 't_V_forward', 
-            't_V_backward', 't_V', 'r_V_forward', 'r_V_backward',
-            'FPT_premium', 'FPT_policy_value']
+    _help = ['set_reserves', 'fill_reserves', 'V_plot', 't_V_forward', 
+             't_V_backward', 't_V', 'r_V_forward', 'r_V_backward',
+             'FPT_premium', 'FPT_policy_value']
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -187,7 +187,8 @@ class Reserves(PolicyValues):
 
 
 if __name__ == "__main__":
-    from sult import SULT
+    from actuarialmath.sult import SULT
+    print(Reserves.help())
 
     print("SOA Question 7.31:  (E) 0.310")
     x = 0

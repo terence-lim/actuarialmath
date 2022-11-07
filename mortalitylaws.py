@@ -5,11 +5,11 @@ Copyright 2022, Terence Lim
 MIT License
 """
 import math
-from mathlc.reserves import Reserves
+from actuarialmath.reserves import Reserves
 
 class MortalityLaws(Reserves):
-    """Shortcuts for special mortality laws"""
-    _doc = ['l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r']
+    """Shortcuts for Special Mortality Laws"""
+    _help = ['l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r']
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -175,7 +175,8 @@ class Gompertz(Makeham):
         super().__init__(A=0., B=B, c=c)
 
 if __name__ == "__main__":
-
+    print(MortalityLaws.help())
+    
     print('Beta')
     life = Beta(omega=100, alpha=0.5)
     print(life.q_x(25, t=1, u=10))     # 0.0072

@@ -5,17 +5,17 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from typing import Callable, Any, Optional
-from mathlc.insurance import Insurance
+from actuarialmath.insurance import Insurance
 import math
 import matplotlib.pyplot as plt
 import numpy as np
 
 class Annuity(Insurance):
     """Life Annuities"""
-    _doc = ['a_x', 'immediate_annuity', 'annuity_twin', 'whole_life_annuity',
-            'temporary_annuity', 'deferred_annuity', 'certain_life_annuity',
-            'increasing_annuity', 'decreasing_annuity', 'Y_t', 'Y_from_t', 
-            'Y_from_prob', 'Y_to_prob', 'Y_x', 'Y_plot']
+    _help = ['a_x', 'immediate_annuity', 'annuity_twin', 'whole_life_annuity',
+             'temporary_annuity', 'deferred_annuity', 'certain_life_annuity',
+             'increasing_annuity', 'decreasing_annuity', 'Y_t', 'Y_from_t', 
+             'Y_from_prob', 'Y_to_prob', 'Y_x', 'Y_plot']
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -209,6 +209,7 @@ class Annuity(Insurance):
         return z
 
 if __name__ == "__main__":
+    print(Annuity.help())
 
     print("SOA Question 5.6:  (D) 1200")
     life = Annuity(interest=dict(i=0.05))

@@ -4,14 +4,14 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.reserves import Reserves
+from actuarialmath.reserves import Reserves
 from typing import Tuple, Optional
 
 class Recursion(Reserves):
-    """Apply recursion and alternate formulas"""
-
+    """Recursion and Alternate Formulas"""
+    _help = ['set_q', 'set_p', 'set_e', 'set_E', 'set_A', 'set_IA', 'set_DA', 'set_a']
     _depth = 6
-    _doc = ['set_q', 'set_p', 'set_e', 'set_E', 'set_A', 'set_IA', 'set_DA', 'set_a']
+
     def __init__(self, depth: int = 6, verbose: bool = True, **kwargs):
         super().__init__(**kwargs)
         self.db = {}
@@ -759,8 +759,9 @@ class Recursion(Reserves):
 
 
 if __name__ == "__main__":
-    from constantforce import ConstantForce
-
+    from actuarialmath.constantforce import ConstantForce
+    print(Recursion.help())
+    
     print("SOA Question 6.48:  (A) 3195")
     life = Recursion(interest=dict(i=0.06), depth=5)
     x = 0

@@ -7,15 +7,15 @@ MIT License
 import math
 import numpy as np
 import scipy
-from mathlc.premiums import Premiums
+from actuarialmath.premiums import Premiums
 import matplotlib.pyplot as plt
 from typing import Dict, Any, Optional
 
 class PolicyValues(Premiums):
     """Policy Values"""
-    _doc = ['net_future_loss', 'net_variance_loss', 'net_policy_variance', 
-            'gross_future_loss', 'gross_policy_variance', 'gross_policy_value',
-            'L_from_t', 'L_to_t', 'L_from_prob', 'L_to_prob', 'L_plot']
+    _help = ['net_future_loss', 'net_variance_loss', 'net_policy_variance', 
+             'gross_future_loss', 'gross_policy_variance', 'gross_policy_value',
+             'L_from_t', 'L_to_t', 'L_from_prob', 'L_to_prob', 'L_plot']
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -305,8 +305,9 @@ class PolicyValues(Premiums):
         return z
 
 if __name__ == "__main__":
-    from sult import SULT
-
+    from actuarialmath.sult import SULT
+    print(PolicyValues.help())
+    
     print("SOA Question 6.24:  (E) 0.30")
     life = PolicyValues(interest=dict(delta=0.07))
     x, A1 = 0, 0.30   # Policy for first insurance

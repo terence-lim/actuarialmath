@@ -4,7 +4,7 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.survival import Survival
+from actuarialmath.survival import Survival
 from typing import Dict
 import math
 
@@ -14,7 +14,7 @@ class Adjust:
     MULTIPLY_FORCE = 2
     ADD_AGE = 3
     MULTIPLY_RATE = 4
-    _doc = ['q_x', 'p_x']
+    _help = ['q_x', 'p_x']
 
     def __init__(self, life: Survival):
         self.life = life
@@ -26,9 +26,11 @@ class Adjust:
         return self
 
     @classmethod
-    def doc(self):
-        print("\n".join(f"{s}(**args):\n  {getattr(self, s).__doc__}\n"
-                        for s in self._doc))
+    def help(self):
+        line = '-' * len(self.__doc__.split('\n')[0])
+        return (f"{self.__doc__}\n{line}\n\n" \
+                + "\n".join(f"{s}():\n  {getattr(self, s).__doc__}\n"
+                            for s in self._help))
         
     def __getitem__(self, col: str) -> Dict[int, float]:
         """Return adjusted survival or mortality, in a dict keyed by age"""
@@ -58,9 +60,10 @@ class Adjust:
             return self.extra * self.life.q_x(x, s=s)
 
 if __name__ == "__main__":
-    from selectlife import Select
-    from sult import SULT
-
+    from actuarialmath.selectlife import Select
+    from actuarialmath.sult import SULT
+    print(Adjust.help())
+    
     print("SOA Question 5.5: (A) 1699.6")
     life = SULT()
     adjust = Adjust(life=life)
@@ -82,7 +85,6 @@ if __name__ == "__main__":
     print()
     
     print("Other usage examples")
-    from sult import SULT
     life = SULT()
     adjust = Adjust(life=life)(extra=0.05, adjust=Adjust.ADD_FORCE)
     print(life.p_x(45), adjust.p_x(45))

@@ -4,13 +4,13 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.annuity import Annuity
+from actuarialmath.annuity import Annuity
 from typing import Optional
 
 class Premiums(Annuity):
     """Premiums"""
-    _doc = ['net_premium', 'gross_premium', 'insurance_equivalence',
-            'annuity_equivalence', 'premium_equivalence']
+    _help = ['net_premium', 'gross_premium', 'insurance_equivalence',
+             'annuity_equivalence', 'premium_equivalence']
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -93,7 +93,8 @@ class Premiums(Annuity):
 
 if __name__ == "__main__":
     import numpy as np
-
+    print(Premiums.help())
+    
     print("SOA Question 6.29  (B) 20.5")
     life = Premiums(interest=dict(i=0.035))
     def fun(a):

@@ -5,17 +5,17 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from typing import Callable, Any, Optional
-from mathlc.fractional import Fractional
+from actuarialmath.fractional import Fractional
 import math
 import matplotlib.pyplot as plt
 import numpy as np
 
 class Insurance(Fractional):
-    """Life insurance"""
-    _doc = ['E_x', 'A_x', 'insurance_variance', 'insurance_twin', 'whole_life_insurance', 
-            'term_insurance', 'deferred_insurance', 'endowment_insurance', 
-            'increasing_insurance', 'decreasing_insurance', 'Z_t', 'Z_from_t',
-            'Z_to_t', 'Z_from_prob','Z_to_prob', 'Z_x','Z_plot']
+    """Life Insurance"""
+    _help = ['E_x', 'A_x', 'insurance_variance', 'insurance_twin', 'whole_life_insurance', 
+             'term_insurance', 'deferred_insurance', 'endowment_insurance', 
+             'increasing_insurance', 'decreasing_insurance', 'Z_t', 'Z_from_t',
+             'Z_to_t', 'Z_from_prob','Z_to_prob', 'Z_x','Z_plot']
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -225,7 +225,8 @@ class Insurance(Fractional):
         return z
 
 if __name__ == "__main__":
-
+    print(Insurance.help())
+    
     print("SOA Question 6.33:  (B) 0.13")
     life = Insurance(mu=lambda x,t: 0.02*t, interest=dict(i=0.03))
     x = 0
@@ -347,3 +348,5 @@ if __name__ == "__main__":
                      S=lambda x,s,t: 1 - (0.02*t + 0.0008*(t**2)))
     print(life.A_x(0)*10000)  #3647
     print()
+    plt.show()
+    

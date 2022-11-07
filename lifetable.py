@@ -5,7 +5,7 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from typing import Dict, Optional
-from mathlc.reserves import Reserves
+from actuarialmath.reserves import Reserves
 import math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,7 @@ import pandas as pd
 
 class LifeTable(Reserves):
     """Life Tables"""
-    _doc = ['fill', 'l_x', 'd_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'e_x', 'E_x']
+    _help = ['fill', 'l_x', 'd_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'e_x', 'E_x', 'frame']
 
     def __init__(self, minage: int = -1, maxage: int = -1, 
                  l: Optional[Dict[int, float]] = None,
@@ -192,11 +192,13 @@ class LifeTable(Reserves):
         return self.interest.v_t(t)**(moment-1) * self.E_x(x, s=s, t=t)
     
     def frame(self) -> pd.DataFrame:
-        """Return life table values in a  DataFrame"""
+        """Return life table values in a DataFrame"""
         return pd.DataFrame.from_dict(self._table).sort_index(axis=0)
 
 
 if __name__ == "__main__":
+    print(LifeTable.help())
+    
     print("SOA Question 6.53:  (D) 720")
     x = 0
     life = LifeTable(interest=dict(i=0.08), q={x:.1, x+1:.1, x+2:.1}).fill()

@@ -4,12 +4,12 @@ Copyright 2022, Terence Lim
 
 MIT License
 """
-from mathlc.survival import Survival
+from actuarialmath.survival import Survival
 import math
 
 class Lifetime(Survival):
-    """Expected future lifetime"""
-    _doc = ['e_x']
+    """Expected Future Lifetime"""
+    _help = ['e_x']
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -36,7 +36,8 @@ class Lifetime(Survival):
         return e2   # return second moment
 
 if __name__ == "__main__":
-
+    print(Lifetime.help())
+    
     print("SOA Question 2.1: (B) 2.5")
     def fun(omega):  # Solve first for omega, given mu_65 = 1/180
         life = Lifetime(l=lambda x,s: (1 - (x+s)/omega)**0.25)
