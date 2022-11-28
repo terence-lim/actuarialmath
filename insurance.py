@@ -11,8 +11,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Insurance(Fractional):
-    """Life Insurance"""
-    _help = ['E_x', 'A_x', 'insurance_variance', 'insurance_twin', 'whole_life_insurance', 
+    """Insurance: life insurance
+    """
+    _help = ['E_x', 'A_x', 'insurance_variance', 'whole_life_insurance', 
              'term_insurance', 'deferred_insurance', 'endowment_insurance', 
              'increasing_insurance', 'decreasing_insurance', 'Z_t', 'Z_from_t',
              'Z_to_t', 'Z_from_prob','Z_to_prob', 'Z_x','Z_plot']
@@ -22,7 +23,13 @@ class Insurance(Fractional):
 
     def E_x(self, x: int, s: int = 0, t: int = 1, endowment: int = 1,
             moment: int = 1) -> float:
-        """Pure endowment: t_E_x"""
+        """Pure endowment: t_E_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of pure endowment
+        - endowment (int) : amount of pure endowment
+        - moment (int) : compute first or second moment
+        """
         if t < 0:  # t infinite => EPV(t) = 0
             return 0   
         if t == 0:    # t = 0 => EPV(0) = 1
@@ -36,7 +43,17 @@ class Insurance(Fractional):
     def A_x(self, x: int, s: int = 0, t: int = Fractional.WHOLE, u: int = 0,
             benefit: Callable = lambda x,t: 1., endowment: float = 0.,
             moment: int = 1, discrete: bool = True) -> float:
-        """Numerically compute APV of insurance from survival functions"""
+        """Numerically compute EPV of insurance from basic survival functions
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : year deferred
+        - t (int) : term of insurance
+        - benefit (Callable) : benefit as a function of age and year
+        - endowment (int) : amount of endowment for endowment insurance
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
+
         assert moment >= 1
         if t >=0 and endowment > 0:
             E = self.E_x(x, s=s, t=t+u, moment=moment) * endowment
@@ -54,18 +71,22 @@ class Insurance(Fractional):
 
     @staticmethod
     def insurance_variance(A2: float, A1: float, b: float = 1) -> float:
-        """Compute variance of insurance given its two moments and benefit"""
+        """Compute variance of insurance given its two moments and benefit
+        - A2 (float) : second moment of insurance r.v.
+        - A1 (float) : first moment of insurance r.v.
+        - b (float) : benefit amount
+        """
         return b**2 * (A2 - A1**2)
 
-    def insurance_twin(self, a: float, moment: int = 1, 
-                       discrete: bool = True) -> float:
-        """Returns WL or Endowment Insurance twin from annuity"""
-        assert moment in [1]
-        return 1 - a*(self.interest.d if discrete else self.interest.delta)
-  
     def whole_life_insurance(self, x: int, s: int = 0, moment: int = 1, 
                              b: int = 1, discrete: bool = True) -> float:
-        """Whole life insurance: A_x"""
+        """Whole life insurance: A_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - b (int) : amount of benefit
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         if moment == self.VARIANCE:
             A2 = self.whole_life_insurance(x, s=s, moment=2, discrete=discrete)
             A1 = self.whole_life_insurance(x, s=s, discrete=discrete)**2
@@ -75,7 +96,14 @@ class Insurance(Fractional):
 
     def term_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1, 
                        moment: int = 1, discrete: bool = True) -> float:
-        """Term life insurance: A_x:t^1"""
+        """Term life insurance: A_x:t^1
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - b (int) : amount of benefit
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         if moment == self.VARIANCE:
             A2 = self.term_insurance(x, s=s, t=t, moment=2, discrete=discrete)
             A2 = self.term_insurance(x, s=s, t=t, discrete=discrete)**2
@@ -92,7 +120,15 @@ class Insurance(Fractional):
     def deferred_insurance(self, x: int, s: int = 0, u: int = 0, 
                            t: int = Fractional.WHOLE, b: int = 1, 
                            moment: int = 1, discrete: bool = True) -> float:
-        """Deferred insurance n|_A_x:t^1 = discounted term or whole life"""
+        """Deferred insurance n|_A_x:t^1 = discounted term or whole life
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : year deferred
+        - t (int) : term of insurance
+        - b (int) : amount of benefit
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         if self.max_term(x+s, u) < u:
             return 0.        
         if moment == self.VARIANCE:
@@ -108,7 +144,15 @@ class Insurance(Fractional):
     def endowment_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1, 
                             endowment: int = -1, moment: int = 1, 
                             discrete: bool = True) -> float:
-        """Endowment insurance: A_x^1:t = term insurance + pure endowment"""
+        """Endowment insurance: A_x^1:t = term insurance + pure endowment
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - b (int) : amount of benefit
+        - endowment (int) : amount of endowment paid at end of term if survive
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         if moment == self.VARIANCE:
             A2 = self.endowment_insurance(x, s=s, t=t, endowment=endowment, 
                                           b=b, moment=2, discrete=discrete)
@@ -119,15 +163,28 @@ class Insurance(Fractional):
         A = self.term_insurance(x, s=s, t=t, b=b, moment=moment, discrete=discrete)
         return A + E * (b if endowment < 0 else endowment)**moment
 
-    def increasing_insurance(self, x: int, s: int = 0, t: int = Fractional.WHOLE, 
+    def increasing_insurance(self, x: int, s: int = 0, t: int =
+                             Fractional.WHOLE, 
                              b: int = 1, discrete: bool = True) -> float:
-        """Increasing life insurance: (IA)_x"""
+        """Increasing life insurance: (IA)_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - b (int) : amount of benefit in first year
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         return self.A_x(x, s=s, t=t, benefit=lambda x,t: t * b, 
                         discrete=discrete)
 
     def decreasing_insurance(self, x, s: int = 0, t: int = 1, b: int = 1,
                              discrete: bool = True) -> float:
-        """Decreasing life insurance: (DA)_x"""
+        """Decreasing life insurance: (DA)_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - b (int) : amount of benefit in first year
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         assert t > 0  # decreasing must be term insurance
         A = self.term_insurance(x, t=t, b=b, discrete=discrete)
         n = t + int(discrete)   #  (DA)_x:n + (IA)_x:n = (n+1) A^1_x:n
@@ -138,33 +195,54 @@ class Insurance(Fractional):
     # Insurance random variable: Y(t)
     #
     def Z_t(self, x: int, prob: float, discrete: bool = True) -> float:
-        """T_x given percentile of the r.v. Z: PV of WL or Term insurance"""
+        """T_x given percentile of the r.v. Z: PV of WL or Term insurance
+        - x (int) : age initially insured
+        - prob (float) : desired probability threshold
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         assert prob < 1.0
         t = Insurance.solve(lambda t: self.S(x, 0, t), target=prob, guess=50)
         return math.floor(t) if discrete else t    # opposite of annuity
 
     def Z_from_t(self, t: float, discrete: bool = True) -> float:
-        """PV of insurance payment Z(t), given T_x (or K_x if discrete)"""
+        """PV of insurance payment Z(t), given T_x (or K_x if discrete)
+        - t (float) : year of death
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         return self.interest.v_t((math.floor(t) + 1) if discrete else t)
 
     def Z_to_t(self, Z: float) -> float:
-        """T_x s.t. PV of insurance payment is Z"""
+        """T_x s.t. PV of insurance payment is Z
+        - Z (float) : Present value of benefit paid
+        """
         #t = Insurance.solve(lambda t: self.Z_from_t(t) - Z, self.MAXAGE/2)
         t = math.log(Z) / math.log(self.interest.v)
         return t
 
     def Z_from_prob(self, x: int, prob: float, discrete: bool = True) -> float:
-        """Percentile of insurance PV r.v. Z, given probability"""
+        """Percentile of insurance PV r.v. Z, given probability
+        - x (int) : age initially insured
+        - prob (float) : threshold for probability of survival
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         t = self.Z_t(45, prob)          # opposite of annuity!
         return self.Z_from_t(t, discrete=discrete)  # z is WL or Term Insurance
 
     def Z_to_prob(self, x: int, Z: float) -> float:
-        """Cumulative density of insurance PV r.v. Z, given percentile value"""
+        """Cumulative density of insurance PV r.v. Z, given percentile value
+        - x (int) : age initially insured
+        - Z (float) : present value of benefit paid
+        """
         t = self.Z_to_t(Z) 
         return self.S(x, 0, t)      # z is WL or Term Insurance
 
     def Z_x(self, x, s: int = 0, t: int = 1, discrete: bool = True):
-        """APV of year t insurance death benefit"""
+        """EPV of year t insurance death benefit
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         assert t > 0
         if discrete:
             u = math.ceil(t) - 1
@@ -176,7 +254,11 @@ class Insurance(Fractional):
                T: Optional[float] = None, discrete: bool = True,
                min_t: Optional[int] = None, max_t: Optional[int] = None,
                ax: Any = None, color='r', curve=(), verbose=True) -> float:
-        """Plot PV of insurance r.v. Z vs T"""
+        """Plot PV of insurance r.v. Z vs T
+        - x (int) : age of selection
+        - benefit (Callable) : benefit as a function of selection age and time
+        - **kwargs : plotting options
+        """
         min_t = self.MINAGE if min_t is None else min_t
         max_t = self.MAXAGE if max_t is None else max_t
         t = np.arange(min_t, max_t+1)
@@ -225,8 +307,6 @@ class Insurance(Fractional):
         return z
 
 if __name__ == "__main__":
-    print(Insurance.help())
-    
     print("SOA Question 6.33:  (B) 0.13")
     life = Insurance(mu=lambda x,t: 0.02*t, interest=dict(i=0.03))
     x = 0
@@ -348,5 +428,7 @@ if __name__ == "__main__":
                      S=lambda x,s,t: 1 - (0.02*t + 0.0008*(t**2)))
     print(life.A_x(0)*10000)  #3647
     print()
-    plt.show()
+    #plt.show()
+    
+    print(Insurance.help())
     

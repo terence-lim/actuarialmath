@@ -9,7 +9,15 @@ from actuarialmath.life import Life
 import math
 
 class Survival(Life):
-    """Fundamental Survival Functions"""
+    """Survival: basic survival and mortality functions
+
+    - S (Callable) : survival function, or
+    - f (Callable) : lifetime distribution, or
+    - l (Callable) : lives table function, or
+    - mu (Callable) : force of mortality
+    - maxage (int) : maximum age
+    - minage (int) : minimum age
+    """
 
     _help = ['l_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'survival_curve']
 
@@ -30,7 +38,7 @@ class Survival(Life):
                      mu: Optional[Callable[[int, float], float]] = None) -> "Survival":
         """Derive other fundamental survival functions given any one"""
         self.S = None   # survival probability: S_[x]+s(t) = t_p_[x]+s 
-        self.f = None   # mortality pdf: f_[x]+s(t) = Prob[([x]+s) dies at time t]
+        self.f = None   # lifetime density: f_[x]+s(t) = Prob[([x]+s) dies at t]
         self.l = None   # lives aged [x]+s: l_[x]+s
         self.mu = None  # force of mortality: mu_[x]+s
 
@@ -84,29 +92,49 @@ class Survival(Life):
     #  Define basic integer age survival functions
     #
     def l_x(self, x: int, s: int = 0) -> float:
-        """Number of lives age ([x]+s): l_[x]+s"""
+        """Number of lives age ([x]+s): l_[x]+s
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         if self.l is not None:
             return self.l(x, s)
         return Life.LIFES * self.p_x(x=self.MINAGE, s=0, t=s+x-self.MINAGE)
 
     def p_x(self, x: int, s: int = 0, t: int = 1) -> float:
-        """Probability that (x) lives t years: t_p_x"""
+        """Probability that (x) lives t years: t_p_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : years survived
+        """
         if self.S is not None:
             return self.S(x, s, t)
         raise Exception("No functions implemented to compute survival")
 
     def q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0) -> float:
-        """Probability that (x) lives for u, but not for t+u: u|t_q_[x]+s"""
+        """Probability that (x) lives for u, but not for t+u: u|t_q_[x]+s
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : survive u years, then...
+        - t (int) : death within next t years
+        """
         return self.p_x(x, s=s, t=u) - self.p_x(x, s=s, t=t+u)
 
     def f_x(self, x: int, s: int = 0, t: int = 0) -> float:
-        """probability density function of mortality"""
+        """lifetime density function
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : death at year t
+        """
         if self.f is not None:
             return self.f(x, s, t)
         return self.p_x(x, s=s, t=t) * self.mu_x(x, s=s, t=t)
 
     def mu_x(self, x: int, s: int = 0, t: int = 0) -> float:
-        """Force of mortality of (x+t): mu_x+t"""
+        """Force of mortality of (x+t): mu_x+t
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : force of mortality at year t
+        """
         if self.mu is not None:
             return self.mu(x, s+t)
         return self.f_x(x, s=s, t=t) / self.p_x(x, s=s, t=t)
@@ -117,8 +145,6 @@ class Survival(Life):
         return x, [self.p_x(self.MINAGE, t=s) for s in x]
 
 if __name__ == "__main__":
-    print(Survival.help())
-    
     print("SOA Question 2.3: (A) 0.0483")
     B, c = 0.00027, 1.1
     life = Survival(S=lambda x,s,t: (math.exp(-B * c**(x+s) 
@@ -142,3 +168,5 @@ if __name__ == "__main__":
            Survival(l=lambda x,s: 100*(k - .5*(x+s))**(2/3)).mu_x(50))
     print(int(Survival.solve(fun, target=1/48, guess=50)))
     print()
+
+    print(Survival.help())

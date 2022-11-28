@@ -9,36 +9,46 @@ from typing import Dict
 import math
 
 class Adjust:
-    """Adjust mortality by extra risk"""
+    """Adjust: adjusts mortality by extra risk
+    
+    - life (Survival) : original survival and mortality functions
+    """
     ADD_FORCE = 1
     MULTIPLY_FORCE = 2
     ADD_AGE = 3
     MULTIPLY_RATE = 4
-    _help = ['q_x', 'p_x']
+    _help = ['__getitem__', '__call__', 'q_x', 'p_x']
 
     def __init__(self, life: Survival):
         self.life = life
 
     def __call__(self, extra: float, adjust: int = 0) -> "Adjust":
-        """Apply extra mortality adjustment"""
+        """Specify type and amount of mortality adjustment to apply
+        - extra (float) : amount to adjust by
+        - adjust (int) : one of {ADD_FORCE, MULTIPLY_FORCE, ADD_AGE, MULTIPLY_RATE}
+        """
         self.extra = extra
         self.adjust = adjust
         return self
 
     @classmethod
     def help(self):
-        line = '-' * len(self.__doc__.split('\n')[0])
-        return (f"{self.__doc__}\n{line}\n\n" \
-                + "\n".join(f"{s}():\n  {getattr(self, s).__doc__}\n"
+        return (f"class {self.__doc__}\n{'Methods:' if self._help else ''}\n\n" \
+                + "\n".join(f" - {s}(...)  {getattr(self, s).__doc__}"
                             for s in self._help))
         
     def __getitem__(self, col: str) -> Dict[int, float]:
-        """Return adjusted survival or mortality, in a dict keyed by age"""
+        """Return adjusted survival or mortality values, as dict keyed by age
+        - col (str) : one of {'q', 'p'}
+        """
         fn = {'q': self.q_x, 'p': self.p_x}.get(col)
         return {x: fn(x) for x in range(self.life.MINAGE, self.life.MAXAGE+1)}
 
     def p_x(self, x: int, s: int = 0) -> float:
-        """Adjust force of mortality by adding or multiplying a constant"""
+        """Return p_[x]+s after adding or multiplying force of mortality
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         if self.adjust in [self.MULTIPLY_RATE]:
             return 1 - self.q_x(x, s=s)
         if self.adjust in [self.ADD_AGE]:
@@ -51,7 +61,10 @@ class Adjust:
         return p
 
     def q_x(self, x: int, s: int = 0) -> float:
-        """Add constant to mortality rate or age rating"""
+        """Return q_[x]+s after adding age rating or multipliying mortality rate
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         if self.adjust in [self.ADD_FORCE, self.MULTIPLY_FORCE]:
             return 1 - self.p_x(x, s=s)
         if self.adjust in [self.ADD_AGE]:
@@ -62,7 +75,6 @@ class Adjust:
 if __name__ == "__main__":
     from actuarialmath.selectlife import Select
     from actuarialmath.sult import SULT
-    print(Adjust.help())
     
     print("SOA Question 5.5: (A) 1699.6")
     life = SULT()
@@ -88,3 +100,6 @@ if __name__ == "__main__":
     life = SULT()
     adjust = Adjust(life=life)(extra=0.05, adjust=Adjust.ADD_FORCE)
     print(life.p_x(45), adjust.p_x(45))
+
+    print(Adjust.help())
+    

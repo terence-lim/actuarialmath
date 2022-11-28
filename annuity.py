@@ -11,17 +11,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Annuity(Insurance):
-    """Life Annuities"""
-    _help = ['a_x', 'immediate_annuity', 'annuity_twin', 'whole_life_annuity',
-             'temporary_annuity', 'deferred_annuity', 'certain_life_annuity',
-             'increasing_annuity', 'decreasing_annuity', 'Y_t', 'Y_from_t', 
-             'Y_from_prob', 'Y_to_prob', 'Y_x', 'Y_plot']
+    """Annuity: life annuities
+    """
+    _help = ['a_x', 'immediate_annuity', 'annuity_twin', 'insurance_twin',
+             'whole_life_annuity', 'temporary_annuity', 'deferred_annuity',
+             'certain_life_annuity', 'increasing_annuity', 'decreasing_annuity', 
+             'Y_t', 'Y_from_t', 'Y_from_prob', 'Y_to_prob', 'Y_x', 'Y_plot']
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
     def a_x(self, x: int, s: int = 0, t: int = Insurance.WHOLE, u: int = 0,
             benefit: Callable = lambda x,t: 1, discrete: bool = True) -> float:
-        """Numerically compute APV of annuities from survival functions"""
+        """Numerically compute EPV of annuities from survival functions
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : year deferred
+        - t (int) : term of insurance
+        - benefit (Callable) : benefit as a function of age and year
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         t = self.max_term(x+s+u, t=t)
         if discrete:
             a = sum([benefit(x+s, k) * self.interest.v_t(k) 
@@ -35,28 +44,57 @@ class Annuity(Insurance):
 
     def immediate_annuity(self, x: int, s: int = 0, t: int = Insurance.WHOLE, 
                           b: int = 1, variance=False) -> float:
-        """Compute APV of immediate life annuity"""
+        """Compute EPV of immediate life annuity
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - b (int) : benefit amount
+        - variance (bool) : return EPV (False) or variance (True)
+        """
         if variance:
             return self.temporary_annuity(x, s=s, t=self.add_term(t, 1), b=b,
                                           discrete=True, variance=True)
         return (self.temporary_annuity(x, s=s, t=t, discrete=True) 
                 - 1 + self.E_x(x, s=s, t=t)) * b
-
+    
     def annuity_twin(self, A: float, discrete: bool = True) -> float:
-        """Returns annuity from its WL or Endowment Insurance twin"""
+        """Returns annuity from its WL or Endowment Insurance twin"
+        - A (float) : cost of insurance
+        - discrete (bool) : discrete/annuity due (True) or continous (False)
+        """
         interest = (self.interest.d if discrete else self.interest.delta)
         return ((1-A) / interest) if interest else 0 # undefined for 0 interest
 
+    def insurance_twin(self, a: float, moment: int = 1, 
+                       discrete: bool = True) -> float:
+        """Returns WL or Endowment Insurance twin from annuity
+        - a (float) : cost of annuity
+        - discrete (bool) : discrete/annuity due (True) or continous (False)
+        """
+        assert moment in [1]
+        return 1 - a*(self.interest.d if discrete else self.interest.delta)
+  
     def annuity_variance(self, A2: float, A1: float, b: float = 1.,
                          discrete: bool = True) -> float:
-            """Compute variance of WL or endowment insurance twin"""
-            return (b**2 * self.insurance_variance(A2=A2, A1=A1)
-                    / (self.interest.d if discrete else self.interest.delta)**2)
+        """Compute variance from WL or endowment insurance twin
+        - A2 (float) : second moment of insurance factor
+        - A1 (float) : first moment of insurance factor
+        - b (float) : annuity benefit amount
+        - discrete (bool) : discrete/annuity due (True) or continous (False)
+        """
+        return (b**2 * self.insurance_variance(A2=A2, A1=A1)
+                / (self.interest.d if discrete else self.interest.delta)**2)
         
     def whole_life_annuity(self, x: int, s: int = 0, b: int = 1, 
                            variance: bool = False, 
                            discrete: bool = True) -> float:
-        """Whole life annuity: a_x"""
+        """Whole life annuity: a_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - b (int) : annuity benefit amount
+        - variance (bool): return EPV (True) or variance (False)
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         interest = self.interest.d if discrete else self.interest.delta
         if variance:  # short cut for variance of whole life
             A1 = self.whole_life_insurance(x, s=s, moment=1, discrete=discrete)
@@ -68,7 +106,14 @@ class Annuity(Insurance):
     def temporary_annuity(self, x: int, s: int = 0, t: int = Insurance.WHOLE, 
                           b: int = 1, variance: bool = False, 
                           discrete: bool = True) -> float:
-        """Temporary life annuity: a_x:t"""
+        """Temporary life annuity: a_x:t
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of annuity in years
+        - b (int) : annuity benefit amount
+        - variance (bool): return EPV (True) or variance (False)
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         if variance:  # short cut for variance of temporary life annuity
             A1 = self.endowment_insurance(x, s=s, t=t, discrete=discrete)
             A2 = self.endowment_insurance(x, s=s, t=t, moment=2, 
@@ -85,14 +130,28 @@ class Annuity(Insurance):
     def deferred_annuity(self, x: int, s: int = 0, u: int = 0, 
                          t: int = Insurance.WHOLE, b: int = 1, 
                          discrete: bool = True) -> float:
-        """Deferred life annuity n|t_a_x =  n+t_a_x - n_a_x"""
+        """Deferred life annuity n|t_a_x =  n+t_a_x - n_a_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : years deferred
+        - t (int) : term of annuity in years
+        - b (int) : annuity benefit amount
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         a = self.temporary_annuity(x, s=s+u, t=t, b=b, discrete=discrete)
         return self.E_x(x, s=s, t=u) * a
 
     def certain_life_annuity(self, x: int, s: int = 0, u: int = 0, 
                              t: int = Insurance.WHOLE, b: int = 1, 
                              discrete: bool = True) -> float:
-        """Certain and life annuity = certain + deferred"""
+        """Certain and life annuity = certain + deferred
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : years of certain annuity
+        - t (int) : term of life annuity in years
+        - b (int) : annuity benefit amount
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         u = self.max_term(x+s, u)
         if u < 0:
             return 0.
@@ -100,55 +159,87 @@ class Annuity(Insurance):
         return self.interest.annuity(u, m=int(discrete)) + a
 
     def increasing_annuity(self, x: int, s: int = 0, t: int = Insurance.WHOLE, 
-                           discrete: bool = True) -> float:
-        """Increasing annuity"""
+                           b: int = 1, discrete: bool = True) -> float:
+        """Increasing annuity
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of life annuity in years
+        - b (int) : benefit amount at end of first year
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         t = self.max_term(x+s, t=t)
-        b = lambda x, s: s + 1 # initial benefit of 1 at s=0, then increasing
-        return self.a_x(x, s=s, benefit=b, t=t, discrete=discrete)
+        benefit = lambda x, s: b * (s + 1) # increasing benefit
+        return self.a_x(x, s=s, benefit=benefit, t=t, discrete=discrete)
 
     def decreasing_annuity(self, x: int, s: int = 0, t: int = 0, 
-                           discrete: bool = True) -> float:
-        """Identity (Da)_x:n + (Ia)_x:n = (n+1) a_x:n temporary annuity"""
+                           b: int = 1, discrete: bool = True) -> float:
+        """Identity (Da)_x:n + (Ia)_x:n = (n+1) a_x:n temporary annuity
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of life annuity in years
+        - b (int) : benefit amount at end of first year
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         assert t >= 0   # decreasing must be till term
         t = self.max_term(x+s, t=t)
         a = self.temporary_annuity(x, s=s, t=t, discrete=discrete)
         n = t + int(discrete)
-        return a*n - self.increasing_annuity(x, s=s, t=t, discrete=discrete)
+        return b * (a*n - self.increasing_annuity(x, s=s, t=t, discrete=discrete))
 
     #
     # Annuity random variable: Y(t)
     #
     def Y_t(self, x: int, prob: float, discrete: bool = True) -> float:
-        """T_x given percentile of the r.v. Y = PV of WL or Temporary Annuity"""
+        """T_x given percentile of the r.v. Y = PV of WL or Temporary Annuity
+        - x (int) : age of selection
+        - prob (float) : desired probability threshold
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         assert prob < 1.0
         t = Insurance.solve(lambda t: self.S(x, 0, t), target=1-prob, guess=25)
         return math.ceil(t) if discrete else t   # opposite of insurance
 
     def Y_from_t(self, t: float, discrete: bool = True) -> float:
-        """PV of insurance payment Y(t), given T_x (or K_x if discrete)"""
+        """PV of insurance payment Y(t), given T_x (or K_x if discrete)
+        - t (float): year of death
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         if discrete:
             return (1 - self.interest.v_t(math.floor(t) + 1)) / self.interest.d
         else:
             return (1 - self.interest.v_t(t)) / self.interest.delta
 
     def Y_to_t(self, Y: float) -> float:
-        """T_x  s.t. PV of annuity payments is Y"""
-        #t = Annuity.solve(lambda t: self.Y_from_t(t, discrete=False) - Y, 25)
+        """T_x  s.t. PV of annuity payments is Y
+        - Y (float) : Present value of benefits paid
+        """
         t = math.log(1 - self.interest.delta * Y) / math.log(self.interest.v)
         return t
 
     def Y_from_prob(self, x: int, prob: float, discrete: bool = True) -> float:
-        """Percentile of annuity PV r.v. Y, given probability"""
+        """Percentile of annuity PV r.v. Y, given probability
+        - x (int) : age initially insured
+        - prob (float) : desired probability threshold
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         t = self.Y_t(x, prob, discrete=discrete)
         return self.Y_from_t(t)
 
     def Y_to_prob(self, x: int, Y: float) -> float:
-        """Cumulative density of insurance PV r.v. Y, given percentile value"""
+        """Cumulative density of insurance PV r.v. Y, given percentile value
+        - x (int) : age initially insured
+        - Y (float) : present value of benefits paid
+        """
         t = self.Y_to_t(Y)
         return 1 - self.S(x, 0, t)   # opposite of Insurance
 
     def Y_x(self, x, s: int = 0, t: int = 1, discrete: bool = True) -> float:
-        """APV of t'th year's annuity benefit"""
+        """EPV of t'th year's annuity benefit
+        - x (int) : age initially insured
+        - s (int) : years after selection
+        - t (int) : year of death
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         assert t >= 0
         if discrete:
             return (self.interest.v_t(math.floor(t)) 
@@ -160,7 +251,11 @@ class Annuity(Insurance):
                T: Optional[float] = None, discrete: bool = True,
                min_t: Optional[int] = None, max_t: Optional[int] = None,
                ax: Any = None, color='r', curve=(), verbose=True) -> float:
-        """Plot PV of annuity r.v. Y vs T"""
+        """Plot PV of annuity r.v. Y vs T
+        - x (int) : age initially insured
+        - discrete (bool) : annuity due (True) or continuous (False)
+        - **kwargs : plotting options
+        """
         min_t = self.MINAGE if min_t is None else min_t
         max_t = self.MAXAGE if max_t is None else max_t
         t = np.arange(min_t, max_t+1)
@@ -209,8 +304,6 @@ class Annuity(Insurance):
         return z
 
 if __name__ == "__main__":
-    print(Annuity.help())
-
     print("SOA Question 5.6:  (D) 1200")
     life = Annuity(interest=dict(i=0.05))
     var = life.annuity_variance(A2=0.22, A1=0.45)
@@ -229,7 +322,6 @@ if __name__ == "__main__":
     print(Y, life.Y_from_t(t, discrete=discrete))
     print(prob, life.Y_to_prob(x, Y=Y))
     life.Y_plot(0, T=t, discrete=discrete)
-    plt.show()
 
     print("Other usage")
     mu = 0.04
@@ -254,3 +346,5 @@ if __name__ == "__main__":
     delta = 0.05
     life = Annuity(interest=dict(delta=delta), mu=lambda *x: mu)
     print(life.decreasing_annuity(0, t=5, discrete=False))  # 6.94
+
+    print(Annuity.help())

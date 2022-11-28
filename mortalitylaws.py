@@ -8,7 +8,8 @@ import math
 from actuarialmath.reserves import Reserves
 
 class MortalityLaws(Reserves):
-    """Shortcuts for Special Mortality Laws"""
+    """MortalityLaws: shortcuts for special mortality laws
+    """
     _help = ['l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r']
     
     def __init__(self, **kwargs):
@@ -16,37 +17,70 @@ class MortalityLaws(Reserves):
         self._doc = ['l_r', 'p_r', 'q_r', 'mu_r', 'f_r', 'e_r']
 
     def l_r(self, x: int, s: int = 0, r: float = 0.) -> float:
-        """Fractional age lifes given continuous mortality law: l_[x]+s+r"""
+        """Fractional lives given continuous mortality law: l_[x]+s+r
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : fractional year after selection
+        """
         return self.l(x, s+r)
 
     def p_r(self, x: int, s: int = 0, r: float = 0., t: float = 1.) -> float:
-        """Fractional age survival given continuous mortality law"""
+        """Fractional age survival probability given continuous mortality law
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : fractional year after selection
+        - t (float) : death within next t fractional years
+        """
         return self.S(x, s+r, t)
 
     def q_r(self, x: int, s: int = 0, r: float = 0., t: float = 1., 
             u: float = 0.) -> float:
-        """Fractional age deferred mortality given continuous mortality law"""
+        """Fractional age deferred mortality given continuous mortality law
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : fractional year after selection
+        - u (float) : survive u fractional years, then...
+        - t (float) : death within next t fractional years
+        """
         return self.p_r(x, s=s, r=r, t=u) - self.p_r(x, s=s, r=r, t=t+u)
         
     def mu_r(self, x: int, s: int = 0, r: float = 0.) -> float:
-        """Fractional age force of mortality given continuous mortality law"""
+        """Fractional age force of mortality given continuous mortality law
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : fractional year after selection
+        """
         return self.mu(x, s+r)
 
     def f_r(self, x: int, s: int = 0, r: float = 0., t: float = 0.0) -> float:
-        """fractional age mortality pdf given continuous mortality law"""
+        """fractional age lifetime density given continuous mortality law
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : fractional year after selection
+        - t (float) : mortality at fractional year t
+        """
         return self.f(x, s+r, t)
 
     def e_r(self, x: int, s: int = 0, t: float = Reserves.WHOLE) -> float:
-        """Fractional age future lifetime given continuous mortality law"""
+        """Fractional age future lifetime given continuous mortality law
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : fractional year after selection
+        - t (float) : death within next t fractional years
+        """
         if t < 0:
             t = self.MAXAGE - (x + s)
         return self.integrate(lambda t: self.S(x, s, t), 0., float(t))
 
 class Beta(MortalityLaws):
-    """Is Uniform when alpha = 1"""
-
-    def __init__(self, omega: int, alpha: float, lifes=MortalityLaws.LIFES, 
-                 **kwargs):
+    """Beta: beta distribution (is Uniform when alpha = 1)
+    - omega (int) : maximum age
+    - alpha (float) : alpha paramter of beta distribution
+    """
+    _help = []
+    
+    def __init__(self, omega: int, alpha: float,
+                 lives: int = MortalityLaws.LIVES, **kwargs): 
         """Two parameters: alpha and omega, with mu(x) = alpha/(omega-x)"""
 
         super().__init__(minage=0, maxage=omega, **kwargs)
@@ -55,7 +89,7 @@ class Beta(MortalityLaws):
             return alpha / (omega - (x+s))
 
         def _l(x: int, s: float) -> float:
-            return lifes * (omega - (x+s))**alpha
+            return lives * (omega - (x+s))**alpha
 
         def _S(x: int, s,t : float) -> float:
             return ((omega-(x+s+t))/(omega-(x+s)))**alpha
@@ -87,7 +121,11 @@ class Beta(MortalityLaws):
         return super().__init__(x=x, s=s, n=n, curtate=curtate, moment=moment)
 
 class Uniform(Beta):
-    """Uniform distribution aka DeMoivre's Law"""
+    """Uniform: uniform distribution aka DeMoivre's Law
+    - omega (int) : maximum age
+    """
+    _help = []
+    
 
     def __init__(self, omega: int, udd: bool = True, **kwargs):
         """One parameter: omega = maxage, with mu(x) = 1/(omega - x)"""
@@ -153,7 +191,11 @@ class Uniform(Beta):
                                       discrete=discrete)
 
 class Makeham(MortalityLaws):
-    """includes an element in force of mortality that does not depend on age"""
+    """Makeham: includes element in force of mortality that does not depend on age
+    - A, B, c (float) : parameters of Makeham distribution c > 1, B > 0, A >= -B
+    """
+    _help = []
+    
     def __init__(self, A: float, B: float, c: float, **kwargs):
         """assert c > 1, B > 0, A >= -B"""
         super().__init__(**kwargs)
@@ -168,15 +210,16 @@ class Makeham(MortalityLaws):
         self.set_survival(mu=_mu, S=_S)
 
 class Gompertz(Makeham):
-    """As age increases so does force of mortality"""
+    """Gompertz: as age increases so does force of mortality
+    - B, c (float) : parameters of Gompertz distribution c > 1, B > 0
+    """
+    _help = []
 
     def __init__(self, B: float, c: float):
         """Gompertz's Law is Makeham's Law with A = 0"""
         super().__init__(A=0., B=B, c=c)
 
 if __name__ == "__main__":
-    print(MortalityLaws.help())
-    
     print('Beta')
     life = Beta(omega=100, alpha=0.5)
     print(life.q_x(25, t=1, u=10))     # 0.0072
@@ -208,3 +251,11 @@ if __name__ == "__main__":
     print(Gompertz(B=0.00027, c=1.1).f_x(50, t=10)) # 0.04839
     life = Makeham(A=0.00022, B=2.7e-6, c=1.124)
     print(life.mu_x(60) * 0.9803)  # 0.00316
+
+    print(MortalityLaws.help())
+    print(Beta.help())
+    print(Uniform.help())
+    print(Makeham.help())
+    print(Gompertz.help())
+    
+    

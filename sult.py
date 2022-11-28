@@ -10,20 +10,27 @@ import numpy as np
 import pandas as pd
 
 class SULT(LifeTable):
-    """Standard Ultimate Life Table"""
+    """SULT: standard ultimate life table
+
+    - interest (Dict) : interest rate assumed, may be i, d, v, delta
+    - lives (int) : initial number of lives
+    - minage (int) : minimum age
+    - maxage (int) : maximum age
+    - A, B, c (float) : parameters of Makeham distribution to generate SULT
+    """
     _help = ['frame']
 
-    def __init__(self, interest = dict(i=0.05), lifes=LifeTable.LIFES, 
+    def __init__(self, interest = dict(i=0.05), lives=LifeTable.LIVES, 
                  A: float = 0.00022, B: float = 0.0000027, c: float = 1.124,
                  minage: int = 20, maxage = 130, **kwargs):
         """SULT from SOA's "Excel Workbook for FAM-L Tables"""
         t_p_x = lambda x,t: math.exp(-A*t - (B*c**x*(c**t - 1))/math.log(c))
-        l = {t+minage: lifes*t_p_x(minage, t) for t in range(1+maxage-minage)}
+        l = {t+minage: lives*t_p_x(minage, t) for t in range(1+maxage-minage)}
         super().__init__(interest=interest, l=l, minage=minage, maxage=maxage,
                          **kwargs)
 
     def frame(self):
-        """Displays SULT table used in FAM-L exam"""
+        """Displays SULT table in FAM-L exam format"""
         tab = pd.DataFrame(dict(l_x=self._table['l'])).sort_index()
         t = {'q_x': self['q'],
              'a_x': self['a'],
@@ -42,8 +49,6 @@ class SULT(LifeTable):
         return tab.loc[20:100]
 
 if __name__ == "__main__":
-    print(SULT.help())
-    
     print("SOA Question 6.52:  (D) 50.80")
     sult = SULT()
     a = sult.temporary_annuity(45, t=10)
@@ -226,4 +231,5 @@ if __name__ == "__main__":
     print(sult.frame())
     print()
     
-
+    print(SULT.help())
+    

@@ -8,7 +8,8 @@ from actuarialmath.survival import Survival
 import math
 
 class Lifetime(Survival):
-    """Expected Future Lifetime"""
+    """Lifetime: expected future lifetimes
+    """
     _help = ['e_x']
 
     def __init__(self, **kwargs):
@@ -17,7 +18,13 @@ class Lifetime(Survival):
 
     def e_x(self, x: int, s: int = 0, t: int = Survival.WHOLE, 
           curtate: bool = True, moment: int = 1) -> float:
-        """Compute moments of expected future lifetime"""
+        """Compute moments of expected future lifetime
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : limited at t years
+        - curtate (bool) : whether curtate (True) or continuous (False) lifetime
+        - moment (int) : compute first (1) or second (2) moment
+        """
         assert moment in [1, 2, self.VARIANCE]
         if t == 1 and curtate:      # shortcut for e_x:1
             return self.p_x(x, s=s, t=1)
@@ -36,8 +43,6 @@ class Lifetime(Survival):
         return e2   # return second moment
 
 if __name__ == "__main__":
-    print(Lifetime.help())
-    
     print("SOA Question 2.1: (B) 2.5")
     def fun(omega):  # Solve first for omega, given mu_65 = 1/180
         life = Lifetime(l=lambda x,s: (1 - (x+s)/omega)**0.25)
@@ -62,3 +67,5 @@ if __name__ == "__main__":
     print(life.p_x(0, t=1))
     print()
 
+    print(Lifetime.help())
+    

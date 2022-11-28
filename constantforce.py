@@ -1,5 +1,7 @@
 """Constant Force mortality law shortcuts
 
+Memoryless exponential distribution of lifetimes
+
 Copyright 2022, Terence Lim
 
 MIT License
@@ -9,8 +11,9 @@ from scipy.stats import norm
 from actuarialmath.mortalitylaws import MortalityLaws
 
 class ConstantForce(MortalityLaws):
-    """Constant Force of Mortality: memoryless exponential distribution of deaths"""
-
+    """ConstantForce: constant force of mortality exponential lifetime distribution    
+    - mu (float) : constant value of force of mortality
+    """
     _help = ['e_x', 'E_x', 'whole_life_insurance', 'temporary_annuity',
              'term_insurance', 'Z_t', 'Y_t']
 
@@ -30,7 +33,13 @@ class ConstantForce(MortalityLaws):
 
     def e_x(self, x: int, s: int = 0, t: int = MortalityLaws.WHOLE, 
            curtate: bool = False, moment: int = 1) -> float:
-        """Expected lifetime E[T_x] is memoryless: does not depend on (x)"""
+        """Expected lifetime E[T_x] is memoryless: does not depend on (x)
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : limited at year t
+        - curtate (bool) : whether curtate (True) or continuous (False) lifetime
+        - moment (int) : first (1) or second (2) moment
+        """
         if not curtate:    # Var[Tx] = 1/mu^2, E[Tx] = 1/mu
             if moment == MortalityLaws.VARIANCE:
                 return 1. / self.mu_**2   # shortcut
@@ -42,19 +51,31 @@ class ConstantForce(MortalityLaws):
         return super().e_x(x, s=s, t=t, curtate=curtate, moment=moment)
 
     def E_x(self, x: int, s: int = 0, t: int = MortalityLaws.WHOLE, 
-            moment: int = 1) -> float:
-        """Shortcut for APV of whole life: does not depend on age x"""
+            endowment: int = 1, moment: int = 1) -> float:
+        """Shortcut for pure endowment: does not depend on age x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of pure endowment
+        - endowment (int) : amount of pure endowment
+        - moment (int) : compute first or second moment
+        """
         if t == 0:
             return 1.
         if t < 0:
             return 0.
         delta = moment * self.interest.delta   # multiply force of interest
-        return math.exp(-(self.mu_ + delta) * t)
+        return math.exp(-(self.mu_ + delta) * t) * endowment**moment
 
     def whole_life_annuity(self, x: int, s: int = 0, b: int = 1,
                            variance: bool = False,
                            discrete: bool = True) -> float:
-        """Shortcut for whole life annuity: does not depend on age x"""
+        """Shortcut for whole life annuity: does not depend on age x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - b (int) : annuity benefit amount
+        - variance (bool): return APV (True) or variance (False)
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         if variance:  # short cut for variance of temporary life annuity
             A1 = self.whole_life_insurance(x, s=s, discrete=discrete)
             A2 = self.whole_life_insurance(x, s=s, moment=2, discrete=discrete)
@@ -67,7 +88,14 @@ class ConstantForce(MortalityLaws):
     def temporary_annuity(self, x: int, s: int = 0, t: int = MortalityLaws.WHOLE,
                           b: int = 1, variance: bool = False,
                           discrete: bool = True) -> float:
-        """Shortcut for temporary life annuity: does not depend on age x"""
+        """Shortcut for temporary life annuity: does not depend on age x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of annuity in years
+        - b (int) : annuity benefit amount
+        - variance (bool): return APV (True) or variance (False)
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         interest = self.interest.d if discrete else self.interest.delta
         if variance:  # short cut for variance of temporary life annuity
             A1 = self.endowment_insurance(x, s=s, t=t, discrete=discrete)
@@ -85,7 +113,13 @@ class ConstantForce(MortalityLaws):
 
     def whole_life_insurance(self, x: int, s: int = 0, moment: int = 1,
                              b: int = 1, discrete: bool = True) -> float:
-        """Shortcut for APV of whole life: does not depend on age x"""
+        """Shortcut for APV of whole life: does not depend on age x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - b (int) : amount of benefit
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         if moment > 0 and not discrete:
             delta = moment * self.interest.delta   # multiply force of interest
             return (self.mu_ / (self.mu_ + delta))
@@ -94,7 +128,14 @@ class ConstantForce(MortalityLaws):
 
     def term_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1,
                        moment: int = 1, discrete: bool = True) -> float:
-        """Shortcut for APV of term life: does not depend on age x"""
+        """Shortcut for APV of term life: does not depend on age x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance
+        - b (int) : amount of benefit
+        - moment (int) : compute first or second moment
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         if moment > 0 and not discrete:
             delta = moment * self.interest.delta   # multiply force of interest
             A = b**moment * self.mu_/(self.mu_ + delta)
@@ -106,18 +147,24 @@ class ConstantForce(MortalityLaws):
                discrete = discrete)
 
     def Z_t(self, x: int, prob: float, discrete: bool = True) -> float:
-        """Shortcut for T_x (or K_x) given survival probability for insurance"""
+        """Shortcut for T_x (or K_x) given survival probability for insurance
+        - x (int) : age selected
+        - prob (float) : desired probability threshold
+        - discrete (bool) : benefit paid year-end (True) or moment of death (False)
+        """
         t = -math.log(prob) / self.mu_
         return math.floor(t) if discrete else t    # opposite of annuity        
 
     def Y_t(self, x: int, prob: float, discrete: bool = True) -> float:
-        """Shortcut for T_x (or K_x) given survival probability for annuity"""
+        """Shortcut for T_x (or K_x) given survival probability for annuity
+        - x (int) : age selected
+        - prob (float) : desired probability threshold
+        - discrete (bool) : continuous (False) or annuity due (True)
+        """
         t = -math.log(1 - prob) / self.mu_
         return math.ceil(t) if discrete else t    # opposite of insurance
 
 if __name__ == "__main__":
-    print(ConstantForce.help())
-    
     print("SOA Question 6.36:  (B) 500")
     life = ConstantForce(mu=0.04, interest=dict(delta=0.08))
     a = life.temporary_annuity(50, t=20, discrete=False)
@@ -201,3 +248,7 @@ if __name__ == "__main__":
     V = 100 * (A2 - A1**2)
     print(A1, A2, E, V)  # 2.426, 11.233, 242.6, 534.8
     print(E + norm.ppf(0.95) * math.sqrt(V)) # 281
+
+    print(ConstantForce.help())
+    
+    

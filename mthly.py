@@ -11,22 +11,34 @@ import math
 import pandas as pd
 
 class Mthly(Adjust):
-    """1/Mthly insurance and annuities"""
+    """1/M'thly insurance and annuities
+
+    - m (int) : number of payments per year
+    - life (Premiums) : original survival and life contingent functions
+    """
     _help = ['v_m', 'p_m', 'q_m', 'Z_m', 'E_x', 'A_x', 'whole_life_insurance',
              'term_insurance', 'deferred_insurance', 'endowment_insurance',
              'immediate_annuity', 'annuity_twin', 'annuity_variance',
-             'whole_life_annuity', 'temporary_annuity', 'deferred_annuity']
+             'whole_life_annuity', 'temporary_annuity', 'deferred_annuity',
+             'immediate_annuity']
             
     def __init__(self, m: int, life: Premiums):
         self.life = life
         self.m = max(0, m)
     
     def v_m(self, k: int) -> float:
-        """Return discount rate after k mthly periods"""
+        """Compute discount rate compounded over k m'thly periods
+        - k (int) : number of m'thly periods to compound
+        """
         return self.life.interest.v_t(k / self.m)
 
     def q_m(self, x: int, s_m: int = 0, t_m: int = 1, u_m: int = 0) -> float:
-        """Return mortality rate over k mthly periods"""
+        """Compute deferred mortality over m'thly periods
+        - x (int) : year of selection
+        - s_m (int) : number of m'thly periods after selection
+        - u_m (int) : survive number of m'thly periods , then
+        - t_m (int) : dies within number of m'thly periods
+        """
         sr = s_m / self.m
         s = math.floor(sr)
         r = sr - s
@@ -34,7 +46,11 @@ class Mthly(Adjust):
         return q
 
     def p_m(self, x: int, s_m: int = 0, t_m: int = 1) -> float:
-        """Return survival rate over k mthly periods"""
+        """Compute survival probability over m'thly periods
+        - x (int) : year of selection
+        - s_m (int) : number of m'thly periods after selection
+        - t_m (int) : survives number of m'thly periods
+        """
         sr = s_m / self.m
         s = math.floor(sr)
         r = sr - s
@@ -42,12 +58,25 @@ class Mthly(Adjust):
 
     def E_x(self, x: int, s: int = 0, t: int = 1, moment: int = 1,
             endowment: int = 1) -> float:
-        """Return pure endowment factor"""
+        """Compute pure endowment factor
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - t (int) : term length in years
+        - moment (int) : return first or second moment
+        - endowment (int) : endowment amount
+        """
+        assert moment > 0
         return self.life.E_x(x, s=s, t=t, moment=moment) * endowment**moment
 
     def Z_m(self, x: int, s: int = 0, t: int = 1, 
             benefit: Callable = lambda x,t: 1, moment: int = 1):
-        """Return PV of insurance r.v. Z and probability by mthly period"""
+        """Return PV insurance r.v. Z and probability by m'thly period as DataFrame
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - t (int) : year of death
+        - benefit (Callable) : amount of benefit by year and age selected
+        - moment (int) : return first or second moment
+        """
         Z = [(benefit(x+s, k/self.m) * self.v_m(k+1))**moment 
                  for k in range(t * self.m)]
         p = [self.q_m(x, s_m=s*self.m, u_m=k) for k in range (t*self.m)]
@@ -56,7 +85,14 @@ class Mthly(Adjust):
 
     def A_x(self, x: int, s: int = 0, t: int = 1, u: int = 0, 
             benefit: Callable = lambda x,t: 1, moment: int = 1) -> float:
-        """Compute insurance factor with mthly benefits"""
+        """Compute insurance factor with m'thly benefits
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - u (int) : years deferred
+        - t (int) : term of insurance in years
+        - benefit (Callable) : amount of benefit by year and age selected
+        - moment (int) : return first or second moment
+        """
         assert moment in [1, 2]
         t = self.max_term(x+s, t)
         if self.m > 0:
@@ -71,7 +107,12 @@ class Mthly(Adjust):
 
     def whole_life_insurance(self, x: int, s: int = 0, moment: int = 1, 
                              b: int = 1) -> float:
-        """Whole life insurance: A_x"""
+        """Whole life insurance: A_x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - b (int) : amount of benefit
+        - moment (int) : compute first or second moment
+        """
         assert moment in [1, 2, Premiums.VARIANCE]
         if moment == Premiums.VARIANCE:
             A2 = self.whole_life_insurance(x, s=s, moment=2)
@@ -82,7 +123,13 @@ class Mthly(Adjust):
 
     def term_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1, 
                        moment: int = 1) -> float:
-        """Term life insurance: A_x:t^1"""
+        """Term life insurance: A_x:t^1
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance in years
+        - b (int) : amount of benefit
+        - moment (int) : return first or second moment
+        """
         assert moment in [1, 2, Premiums.VARIANCE]
         if moment == Premiums.VARIANCE:
             A2 = self.term_insurance(x, s=s, t=t, moment=2)
@@ -97,7 +144,14 @@ class Mthly(Adjust):
 
     def deferred_insurance(self, x: int, s: int = 0, n: int = 0, b: int = 1, 
                            t: int = Premiums.WHOLE, moment: int = 1) -> float:
-        """Deferred insurance n|_A_x:t^1 = discounted whole life"""
+        """Deferred insurance n|_A_x:t^1 = discounted whole life
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - u (int) : years to defer
+        - t (int) : term of insurance in years
+        - b (int) : amount of benefit
+        - moment (int) : return first or second moment
+        """
         if self.life.max_term(x+s, n) < n:
             return 0.
         if moment == self.VARIANCE:
@@ -110,7 +164,14 @@ class Mthly(Adjust):
 
     def endowment_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1, 
                             endowment: int = -1, moment: int = 1) -> float:
-        """Endowment insurance: A_x:t = term insurance + pure endowment"""
+        """Endowment insurance: A_x:t = term insurance + pure endowment
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - t (int) : term of insurance in years
+        - b (int) : amount of benefit
+        - endowment (int) : amount of endowment
+        - moment (int) : return first or second moment
+        """
         if moment == self.VARIANCE:
             A2 = self.endowment_insurance(x, s=s, t=t, endowment=endowment, 
                                           b=b, moment=2)
@@ -122,18 +183,29 @@ class Mthly(Adjust):
         return A + E * (b if endowment < 0 else endowment)**moment
 
     def annuity_twin(self, A: float) -> float:
-        """Return annuity twin of mthly insurance"""
+        """Return value of annuity twin of m'thly insurance
+        - A (float) : amount of m'thly insurance
+        """
         return (1-A)/self.life.interest.mthly(m=self.m, d=self.life.interest.d)
 
     def annuity_variance(self, A2: float, A1: float, b: float = 1) -> float:
-        """Variance of mthly annuity from mthly insurance moments"""
+        """Variance of m'thly annuity from m'thly insurance moments
+        - A2 (float) : double force of interest of m'thly insurance
+        - A1 (float) : first moment of m'thly insurance
+        - b (float) : amount of benefit
+        """
         num = self.life.insurance_variance(A2=A2, A1=A1, b=b)
         den = self.life.interest.mthly(m=self.m, d=self.life.interest.d)
         return num / den**2
 
     def whole_life_annuity(self, x: int, s: int = 0, b: int = 1, 
                            variance: bool = False) -> float:
-        """Whole life mthly annuity: a_x"""
+        """Whole life m'thly annuity: a_x
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - b (int) : amount of benefit
+        - variance (bool) : return first moment (False) or variance (True)
+        """
         if variance:  # short cut for variance of whole life
             A1 = self.whole_life_insurance(x, s=s, moment=1)
             A2 = self.whole_life_insurance(x, s=s, moment=2)
@@ -142,7 +214,13 @@ class Mthly(Adjust):
             
     def temporary_annuity(self, x: int, s: int = 0, t: int = Premiums.WHOLE, 
                           b: int = 1, variance: bool = False) -> float:
-        """Temporary mthly life annuity: a_x:t"""
+        """Temporary m'thly life annuity: a_x:t
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - t (int) : term of annuity in years
+        - b (int) : amount of benefit
+        - variance (bool) : return first moment (False) or variance (True)
+        """
         if variance:  # short cut for variance of temporary life annuity
             A1 = self.term_insurance(x, s=s, t=t)
             A2 = self.term_insurance(x, s=s, t=t, moment=2)
@@ -157,14 +235,25 @@ class Mthly(Adjust):
 
     def deferred_annuity(self, x: int, s: int = 0, u: int = 0, 
                          t: int = Premiums.WHOLE, b: int = 1) -> float:
-        """Deferred mthly life annuity n|t_a_x =  n+t_a_x - n_a_x"""
+        """Deferred m'thly life annuity due n|t_a_x =  n+t_a_x - n_a_x
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - u (int) : years of deferral
+        - t (int) : term of annuity in years
+        - b (int) : amount of benefit
+        """
         if self.life.max_term(x+s, u) < u:
             return 0.
         return self.E_x(x, s=s, t=u)*self.temporary_annuity(x, s=s+u, t=t, b=b)
 
     def immediate_annuity(self, x: int, s: int = 0, t: int = Premiums.WHOLE, 
                           b: int = 1) -> float:
-        """Immediate mthly annuity"""
+        """Immediate m'thly annuity
+        - x (int) : year of selection
+        - s (int) : years after selection
+        - t (int) : term of annuity in years
+        - b (int) : amount of benefit
+        """
         a = self.temporary_annuity(x, s=s, t=t)
         if self.m > 0:
             return (a - ((1 - self.E_x(x, s=s, t=t)) / self.m)) * b
@@ -173,8 +262,7 @@ class Mthly(Adjust):
 
 if __name__ == "__main__":
     from actuarialmath.lifetable import LifeTable
-    print(Mthly.help())
-    
+
     print("SOA Question 6.4:  (E) 1893.9")
     mthly = Mthly(m=12, life=Premiums(interest=dict(i=0.06)))
     A1, A2 = 0.4075, 0.2105
@@ -192,3 +280,7 @@ if __name__ == "__main__":
     print(Z)
     print(Z[Z['Z'] >= 277000].iloc[:, -1].sum())
     print()
+
+    print(Mthly.help())
+    
+    

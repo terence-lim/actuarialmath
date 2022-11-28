@@ -1,10 +1,16 @@
 """Select and Ultimate Life Table
 
+Select: when mortality depends on the age when a person is selected
+- newly selected policyholder is in the best health condition possible
+- the selection process wears off
+
+Ultimate: after several years, selection has no effect on mortality.
+
 Copyright 2022, Terence Lim
 
 MIT License
 """
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 import math
 from actuarialmath.sult import SULT
 import matplotlib.pyplot as plt
@@ -12,20 +18,25 @@ import numpy as np
 import pandas as pd
 
 class Select(SULT):
-    """Implement select and ultimate mortality life table
+    """Select: implement select and ultimate mortality life table
 
-    Select: when mortality depends on the age when a person is selected
-    - newly selected policyholder is in the best health condition possible
-    - the selection process wears off
-
-    Ultimate: after several years, selection has no effect on mortality.
+    - q (Dict[int, List[float]]) : probability [x]+s dies in one year
+    - l (Dict[int, List[float]]) : number of lives aged [x]+s
+    - d (Dict[int, List[float]]) : number of deaths of [x]+s
+    - A (Dict[int, List[float]]) : whole life insurance, or
+    - a (Dict[int, List[float]]) : whole life annuity, or 
+    - e (Dict[int, List[float]]) : expected future lifetime of [x]+s
     """
-    _help = ['fill', 'l_x', 'p_x', 'q_x', 'e_x', 'A_x', 'a_x']
+    _help = ['fill', '__getitem__', 'set_select', 'frame',
+             'l_x', 'p_x', 'q_x', 'e_x', 'A_x', 'a_x']
 
     def __init__(self, n: int = 0, minage: int = 9999, maxage: int = 0, 
-                 A: Optional[Dict] = None, a: Optional[Dict] = None, 
-                 q: Optional[Dict] = None, d: Optional[Dict] = None, 
-                 l: Optional[Dict] = None, e: Optional[Dict] = None, **kwargs):
+                 A: Optional[Dict[int, List[float]]] = None,
+                 a: Optional[Dict[int, List[float]]] = None, 
+                 q: Optional[Dict[int, List[float]]] = None,
+                 d: Optional[Dict[int, List[float]]] = None, 
+                 l: Optional[Dict[int, List[float]]] = None,
+                 e: Optional[Dict[int, List[float]]] = None, **kwargs):
         """if not specified, infers ages and select-period from initial input"""
         super().__init__(**kwargs)
 
@@ -57,17 +68,30 @@ class Select(SULT):
                         self._select[lbl][age] = {}
 
     def __getitem__(self, col: str) -> Dict[int, float]:
-        """Returns values for one of {'l', 'q', 'e', 'a', 'A'}"""
+        """Returns select and ultimate table values
+        - col (str):  may be {'l', 'q', 'e', 'd', 'a', 'A'}
+        """
         return self._select[col]
 
     def set_select(self, column: int, select_age: bool,
-                   q: Dict = {}, l: Dict = {}, a: Dict = {}, A: Dict = {}, 
-                   e: Dict = {}) -> "Select":
-        """Populate columns of table by year after selection
-        - select_age: by age selected (True) or actual age (False)
+                   q: Optional[Dict[int, float]] = None,
+                   l: Optional[Dict[int, float]] = None,
+                   a: Optional[Dict[int, float]] = None,
+                   A: Optional[Dict[int, float]] = None,
+                   e: Optional[Dict[int, float]] = None) -> "Select":
+        """Populate table column by year after selection
+        - column (int) : column of select table to populate
+        - select_age (bool): whether indexed by age selected (True) or actual (False)
+        - q (Dict[int, float]) : probabilities [x]+s dies in next year
+        - l (Dict[int, float]) : number of lives aged [x]+s
+        - A (Dict[int, float]) : whole life insurance at age [x]+s
+        - a (Dict[int, float]) : whole life annuity at age [x]+s
+        - e (Dict[int, float]) : expected future lifetime of life aged [x]+s
         """
         column = self.n if column < 0 else column
-        cols = {'l': l, 'q': q, 'e': e, 'a': a, 'A': A}
+        cols = {'l': self.ifelse(l, {}), 'q': self.ifelse(q, {}),
+                'e': self.ifelse(e, {}), 'a': self.ifelse(a, {}),
+                'A': self.ifelse(A, {})}
         for col, item in cols.items():
             if item:
                 if col not in self._select:
@@ -93,10 +117,13 @@ class Select(SULT):
         """Helper to check if non-missing value"""
         return self.get_sel(x, s, col) is not None
 
-    def fill(self, lifes: int = SULT.LIFES, max_iter: int = 4,
+    def fill(self, lives: int = SULT.LIVES, max_iter: int = 4,
              verbose: bool = False) -> "Select":
-        """Fills in missing mortality values. Does not check for consistency"""
-
+        """Fills in missing mortality values (does not check for consistency)
+        lives (int) : initial number of lives
+        max_iter (int) : number of iterations to fill
+        verbose (bool) : level of verbosity
+        """
         def A_x(x: int, s: int) -> Optional[float]:
             """Apply backward and forward recursion to solve insurance A_x"""
             if self.isin_sel(x, s, 'A'):
@@ -210,13 +237,16 @@ class Select(SULT):
                                 if value is not None:
                                     self._select[col][x][s] = value
                                     updated += 1
-            if 0 not in self._select['l'][self.MINAGE]: # arbitrary initial lifes
-                self._select['l'][self.MINAGE][0] = lifes
+            if 0 not in self._select['l'][self.MINAGE]: # arbitrary initial lives
+                self._select['l'][self.MINAGE][0] = lives
         return self
 
     def A_x(self, x: int, s: int = 0, t: int = SULT.WHOLE, benefit=None, 
             moment: int = 1, discrete: bool = True) -> float:
-        """Returns insurance value computed from select table"""
+        """Returns insurance value computed from select table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         assert moment == 1 and discrete
         if self.isin_sel(x, s, 'A'):
             return self.get_sel(x, s, 'A')
@@ -226,7 +256,10 @@ class Select(SULT):
 
     def a_x(self, x: int, s: int = 0, t: int = SULT.WHOLE, benefit=None, 
             moment: int = 1, discrete: bool = True) -> float:
-        """Returns annuity value computed from select table"""
+        """Returns annuity value computed from select table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         assert moment == 1 and discrete
         if self.isin_sel(x, s, 'a'):
             return self.get_sel(x, s, 'a')
@@ -235,33 +268,50 @@ class Select(SULT):
                                discrete=discrete)
 
     def l_x(self, x: int, s: int = 0) -> float:
-        """Returns number of lifes computed from select table"""
+        """Returns number of lives computed from select table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         return self.get_sel(x, s, 'l')
 
     def p_x(self, x: int, s: int = 0, t: int = 1) -> float:
-        """t_p_[x]+s by chain rule: prod(1_p_[x]+s+y) for y in range(t)"""
+        """t_p_[x]+s by chain rule: prod(1_p_[x]+s+y) for y in range(t)
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : survives t years
+        """
         return np.prod([1 - self.get_sel(x, s+y, 'q') for y in range(t)])
 
     def q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0) -> float:
-        """t|u_q_[x]+s = [x]+s survives u years, does not survive next t"""
+        """t|u_q_[x]+s = [x]+s survives u years, does not survive next t
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : survives u years, then
+        - t (int) : dies within next t years
+        """
         return (1. - self.p_x(x, s=s + u, t=t)) * self.p_x(x, s=s, t=u)
 
     def e_x(self, x: int, s: int = 0, t: int = SULT.WHOLE,
             curtate: int = True) -> float:
-        """Returns curtate expected life time computed from select table"""
+        """Returns curtate expected life time computed from select table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : limit of expected future lifetime
+        """
+        assert curtate
         if (self.isin_sel(x, s, 'e')):
                 return self.get_sel(x, s, 'e')
         e = sum([self.p_x(x, s=s, t=k+1) for k in range(t)])
         return e
 
     def frame(self, col: str = 'l') -> pd.DataFrame:
-        """Returns select table values as a DataFrame"""
+        """Returns select and ultimate table values as a DataFrame
+        - col (str) : table to return
+        """
         return pd.DataFrame.from_dict(self._select[col], orient='index')\
             .sort_index(axis=0).sort_index(axis=1).rename_axis(col)
 
 if __name__ == "__main__":
-    print(Select.help())
-    
     print("SOA Question 3.2:  (D) 14.7")
     e_curtate = Select.e_curtate(e=15)
     life = Select(l={65: [1000, None,],
@@ -356,13 +406,13 @@ if __name__ == "__main__":
     
 
     print("Other usage examples")
-    life = Select(minage=20, maxage=30, n=3)
-    life.set_select(column=3, select_age=False, q=SULT()['q']).fill()
-    print(life._select)
-    print(life.frame('l'))
-    print('--------------')
-    print(life.frame('q'))
-    print('==============')
+    #life = Select(minage=20, maxage=30, n=3)
+    #life.set_select(column=3, select_age=False, q=SULT()['q']).fill()
+    #print(life._select)
+    #print(life.frame('l'))
+    #print('--------------')
+    #print(life.frame('q'))
+    #print('==============')
 
     life = Select(q={21: [0.00120, 0.00150, 0.00170, 0.00180],
                        22: [0.00125, 0.00155, 0.00175, 0.00185],
@@ -372,3 +422,7 @@ if __name__ == "__main__":
     print(life.frame('q'))
     print('==============')
     print(life.p_x(21, 1, 4))  #0.99317
+
+    print(Select.help())
+    
+    

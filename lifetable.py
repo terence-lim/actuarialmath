@@ -13,8 +13,18 @@ import math
 import pandas as pd
 
 class LifeTable(Reserves):
-    """Life Tables"""
-    _help = ['fill', 'l_x', 'd_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'e_x', 'E_x', 'frame']
+    """LifeTable: life tables
+
+    - minage (int) : minimum age
+    - maxage (int) : maximum age
+    - udd (bool) : Fractional age UDD (True) or constant force of mortality (False) 
+    - l (Dict[int, float]) : lives at start of year x, or
+    - d (Dict[int, float]) : deaths in year x, or
+    - p (Dict[int, float]) : probabilities that (x) survives one year, or
+    - q (Dict[int, float]) : probabilities that (x) dies in one year
+    """
+    _help = ['fill',  '__getitem__', '__setitem__', 'frame',
+             'l_x', 'd_x', 'p_x', 'q_x', 'f_x', 'mu_x', 'e_x', 'E_x']
 
     def __init__(self, minage: int = -1, maxage: int = -1, 
                  l: Optional[Dict[int, float]] = None,
@@ -22,7 +32,7 @@ class LifeTable(Reserves):
                  p: Optional[Dict[int, float]] = None, 
                  q: Optional[Dict[int, float]] = None,
                  udd: bool = True, **kwargs):
-        l = self.ifelse(l, {})   # lifes aged x
+        l = self.ifelse(l, {})   # lives aged x
         d = self.ifelse(d, {})   # deaths aged x
         p = self.ifelse(p, {})   # probability (x) survives one year
         q = self.ifelse(q, {})   # probability (x) dies within on year
@@ -51,7 +61,9 @@ class LifeTable(Reserves):
             self.MAXAGE = maxage
 
     def __getitem__(self, col: str) -> Dict[int, float]:
-        """Return a column of the life table"""
+        """Return a column of the life table
+        - col (str) : name of table column to return
+        """
         fn = {'q': (self.q_x, dict()),
               'p': (self.p_x, dict()),
               'a': (self.whole_life_annuity, dict()),
@@ -68,18 +80,25 @@ class LifeTable(Reserves):
                 for x in range(self.MINAGE, self.MAXAGE)}
 
     def __setitem__(self, col: str, row: Dict[int, float]) -> None:
-        """Sets a column of the life table"""
+        """Sets a column of the life table
+        col (str) : name of table column to set
+        row (Dict[int, float]) : values to set in table column
+        """
         for age, value in row.items():
             self._table[col][age] = float(value)
             self.MINAGE = age if self.MINAGE < 0 else min(self.MINAGE, age)
             self.MAXAGE = max(self.MAXAGE, age)
 
-    def fill(self, lifes: int = Reserves.LIFES, max_iter: int = 4,
+    def fill(self, lives: int = Reserves.LIVES, max_iter: int = 4,
              verbose: bool = False) -> "Lifetable":
-        """Fill in missing lives and mortality. Does not check consistency"""
+        """Fill in missing lives and mortality (does not check consistency)
+        - lives (int) : initial number of lives
+        - max_iter (int) : number of iterations to fill
+        - verbose (bool) : level of verbosity
+        """
 
         def q_x(x: int) -> Optional[float]:
-            """Try to compute one-year mortality for (x): 1_q_x"""
+            """Try to compute one-year mortality rate for (x): 1_q_x"""
             if x in self._table['q']:
                 return self._table['q'][x]
             if x in self._table['d'] and x in self._table['l']:
@@ -87,7 +106,7 @@ class LifeTable(Reserves):
             return None
 
         def p_x(x: int) -> Optional[float]:
-            """Try to compute one-year mortality for (x): 1_q_x"""
+            """Try to compute one-year survival for (x): 1_q_x"""
             if x in self._table['p']:
                 return self._table['p'][x]
             if x in self._table['q']:
@@ -132,29 +151,44 @@ class LifeTable(Reserves):
                                 self._table[col][x] = round(value, 7)
                                 updated += 1
             if not self._table['l']: # assume starting number of lives if necc
-                self._table['l'][self.MINAGE] = lifes
+                self._table['l'][self.MINAGE] = lives
         return self
 
     def mu_x(self, x: int, s: int = 0, t: int = 0) -> float:
-        """Compute mu_x from p_x in life table"""
+        """Compute mu_x from p_x in life table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : death within next t years
+        """
         return -math.log(max(0.00001, self.p_x(x, s=s+t, t=1)))
 
     def l_x(self, x: int, s: int = 0) -> float:
-        """Lookup l_x from life table"""
+        """Lookup l_x from life table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         if x+s in self._table['l']:
             return self._table['l'][x+s]
         else:
             return 0
 
     def d_x(self, x: int, s: int = 0, t: int = 1) -> float:
-        """Compute from lifetable lifes at x_t divided by lifes at x"""
+        """Compute deaths as lives at x_t divided by lives at x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : death within next t years
+        """
         if x+s+t <= self.MAXAGE:
             return self.l_x(x, s=s) - self.l_x(x, s=s+t)
         else:
             return 0.
 
     def p_x(self, x: int, s: int = 0, t: int = 1) -> float:
-        """t_p_x = lifes beginning year x+t divided lives beginning year x"""
+        """t_p_x = lives beginning year x+t divided lives beginning year x
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : death within next t years
+        """
         denom = self.l_x(x, s=s)
         if denom and x+s+t <= self.MAXAGE:
             return self.l_x(x, s=s+t) / denom
@@ -162,7 +196,12 @@ class LifeTable(Reserves):
             return 0.   # in the long term, we are all dead
 
     def q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0) -> float:
-        """Deferred mortality: u|t_q_x = (l[x+u] - l[x+u+t]) / l[x]"""
+        """Deferred mortality: u|t_q_x = (l[x+u] - l[x+u+t]) / l[x]
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - u (int) : survive u years, then...
+        - t (int) : death within next t years
+        """
         denom = self.l_x(x, s=s)
         if denom and x+s+t <= self.MAXAGE:
             return self.d_x(x, s=s+u, t=t) / self.l_x(x, s=s)
@@ -170,14 +209,23 @@ class LifeTable(Reserves):
             return 1     # the only certainty in life
 
     def e_x(self, x: int, s: int = 0, n: int = Reserves.WHOLE) -> float:
-        """Expected curtate lifetime from sum of lifes in table"""
+        """Expected curtate lifetime from sum of lives in table
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - n (int) : future lifetime limited at n years
+        """
         # E[K_x] = sum([self.p(x, k+1) for k in range(n)])
         n = min(self.MAXAGE - x, n)
         e = sum([self.l(x+1+s) for s in range(n)]) # since s_p_x = l_x+s / l_x
         return e
 
     def E_x(self, x: int, s: int = 0, t: int = 1, moment: int = 1) -> float:
-        """Pure Endowment from life table and interest rate"""
+        """Pure Endowment from life table and interest rate
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : survives t years
+        - moment (int) : return first (1) or second (2) moment or variance (-2)
+        """
         if t == 0:
             return 1.
         if t < 0:
@@ -190,15 +238,14 @@ class LifeTable(Reserves):
             return self.interest.v_t(t) * p
         # SULT shortcut: t_E_x(moment=2) = t_E_x(moment=1) * v**t
         return self.interest.v_t(t)**(moment-1) * self.E_x(x, s=s, t=t)
-    
+
     def frame(self) -> pd.DataFrame:
-        """Return life table values in a DataFrame"""
+        """Return life table values in a DataFrame
+        """
         return pd.DataFrame.from_dict(self._table).sort_index(axis=0)
 
 
 if __name__ == "__main__":
-    print(LifeTable.help())
-    
     print("SOA Question 6.53:  (D) 720")
     x = 0
     life = LifeTable(interest=dict(i=0.08), q={x:.1, x+1:.1, x+2:.1}).fill()
@@ -288,3 +335,7 @@ if __name__ == "__main__":
     table = LifeTable(l={age:l for age,l in zip(range(70, 77), l)}, 
                       interest=dict(i=0.08), maxage=76)
     print(1e6*table.whole_life_annuity(70, variance=True)) #1743784
+
+    print(LifeTable.help())
+    
+    

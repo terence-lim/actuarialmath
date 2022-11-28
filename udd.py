@@ -9,10 +9,12 @@ from actuarialmath.fractional import Fractional
 from actuarialmath.mthly import Mthly
 
 class UDD(Mthly):
-    """UDD 1/Mthly Shortcuts"""
-    _help = ['alpha', 'beta', 'whole_life_insurance', 'term_insurance', 
-             'deferred_insurance', 'whole_life_annuity', 'temporary_annuity',
-             'deferred_annuity', 'frame']
+    """UDD: 1/Mthly shortcuts with uniform distribution of deaths assumption
+
+    - m (int) : number of payments per year
+    - life (Fractional) : original fractional survival and mortality functions
+    """
+    _help = ['alpha', 'beta', 'frame']
 
     def __init__(self, m: int, life: Fractional, **kwargs):
         super().__init__(m=m, life=life, **kwargs)
@@ -21,7 +23,10 @@ class UDD(Mthly):
 
     @staticmethod
     def alpha(m: int, i: float) -> float:
-        """1/Mthly UDD interest rate beta function"""
+        """1/Mthly UDD interest rate beta function value
+        - m (int) : number of payments per year
+        - i (float) : annual interest rate
+        """
         d = i / (1 + i)
         i_m = Fractional.Interest.mthly(m=m, i=i)
         i_d = Fractional.Interest.mthly(m=m, d=d)
@@ -29,7 +34,10 @@ class UDD(Mthly):
 
     @staticmethod
     def beta(m: int, i: float) -> float:
-        """1/Mthly UDD interest rate alpha function"""
+        """1/Mthly UDD interest rate alpha function value
+        - m (int) : number of payments per year
+        - i (float) : annual interest rate
+        """
         d = i / (1 + i)
         i_m = Fractional.Interest.mthly(m=m, i=i)
         i_d = Fractional.Interest.mthly(m=m, d=d)
@@ -119,7 +127,9 @@ class UDD(Mthly):
 
     @staticmethod
     def frame(i: float = 0.05):
-        """Display 1/mthly UDD interest function values"""
+        """Display 1/mthly UDD interest function values
+        - i (float) : annual interest rate
+        """
         interest = Fractional.Interest(i=i)
         out = pd.DataFrame(columns=["i(m)", "d(m)", "i/i(m)", "d/d(m)", 
                                     "alpha(m)", "beta(m)"],

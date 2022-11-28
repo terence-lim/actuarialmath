@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from typing import Callable, Dict, Optional
 
 class Reserves(PolicyValues):
-    """Recursive, Interim and Modified Reserves"""
+    """Reserves: recursive, interim and modified"""
     _help = ['set_reserves', 'fill_reserves', 'V_plot', 't_V_forward', 
              't_V_backward', 't_V', 'r_V_forward', 'r_V_backward',
              'FPT_premium', 'FPT_policy_value']
@@ -25,7 +25,11 @@ class Reserves(PolicyValues):
     #
     def set_reserves(self, T: int = 0, endowment: int = 0,
                      V: Optional[Dict] = None) -> "Reserves":
-        """Set the reserves given"""
+        """Setup the given reserves
+        - T (int) : term of policy
+        - V (dict) : reserve values
+        - endowment (int) : endowment benefit amount
+        """
         if T:
             self.T = T
         if V:
@@ -38,7 +42,12 @@ class Reserves(PolicyValues):
     def fill_reserves(self, x: int, reserve_benefit: bool = False,
             policy: PolicyValues.Policy = PolicyValues.Policy(),  
             max_iter: int = 4):
-        """Fill in missing reserves"""
+        """Fill in missing reserves
+        - x (int) : age selected
+        - reserve_benefit (bool) : whether benefit includes value of reserves
+        - policy (Polity) : policy terms and expenses
+        - max_iter (int) : number of loops to fill-in reserves table.
+        """
         for _ in range(max_iter):
             for t in range(self.T + 1):
                 if self._reserves['V'].get(t, None) is not None:
@@ -64,7 +73,8 @@ class Reserves(PolicyValues):
                     self._reserves['V'][t] = v
 
     def V_plot(self, verbose: bool = True, color: str = 'r'):
-        """Plot reserves over time"""
+        """Plot reserves over time
+        """
         fig, ax = plt.subplots(1, 1)
         y = [self._reserves['V'].get(t, None) for t in range(self.T + 1)]
         ax.plot(list(range(self.T + 1)), y, '.', color=color)
@@ -77,11 +87,19 @@ class Reserves(PolicyValues):
     #
     # Reserves recursion
     #
-    def t_V_forward(self, x: int, t: int = 0, premium: float = 0, 
-                   benefit: Callable = lambda t: 1, 
-                   per_premium: float = 0, per_policy: float = 0,
-                   reserve_benefit: bool = False) -> Optional[float]:
-        """Forward recursion (allows for optional reserve benefit"""
+    def t_V_backward(self, x: int, t: int = 0, premium: float = 0, 
+                     benefit: Callable = lambda t: 1, 
+                     per_premium: float = 0, per_policy: float = 0,
+                     reserve_benefit: bool = False) -> Optional[float]:
+        """Backward recursion (with optional reserve benefit)
+        - x (int) : age selected
+        - t (int) : year of reserve to solve
+        - benefit (Callable) : benefit amount at t+1
+        - premium (float) : amount of premium paid just after t
+        - per_premium (float) : expense per $ premium
+        - per_policy (float) : expense per policy
+        - reserve_benefit (bool) : whether reserve value at t+1 included in benefit
+        """
         if t+1 not in self._reserves['V']:
             return None
         V = self._reserves['V'][t+1]
@@ -96,11 +114,19 @@ class Reserves(PolicyValues):
         V = V * self.interest.v - (premium*(1 - per_premium) - per_policy)
         return V
 
-    def t_V_backward(self, x: int, t: int = 0, premium: float = 0,
+    def t_V_forward(self, x: int, t: int = 0, premium: float = 0,
                     benefit: Callable = lambda t: 1, 
                     per_premium: float = 0, per_policy: float = 0,
                     reserve_benefit: bool = False) -> Optional[float]:
-        """Backward recursion (allows for optional reserve benefit)"""
+        """Forward recursion (with optional reserve benefit)
+        - x (int) : age selected
+        - t (int) : year of reserve to solve
+        - benefit (Callable) : benefit amount at t
+        - premium (float) : amount of premium paid just after t-1
+        - per_premium (float) : expense per $ premium
+        - per_policy (float) : expense per policy
+        - reserve_benefit (bool) : whether reserve value at t included in benefit
+        """
         if t-1 not in self._reserves['V']:
             return None
         V = self._reserves['V'][t-1]
@@ -115,16 +141,17 @@ class Reserves(PolicyValues):
             premium: float = 0, benefit: Callable = lambda t: 1, 
             reserve_benefit: bool = False,
             per_premium: float = 0, per_policy: float = 0) -> float:
-        """Try to solve time-t Reserve by forward or backward recursion"""
+        """Try to solve time-t Reserve by forward or backward recursion
+        - x (int) : age selected
+        - t (int) : year of reserve to solve
+        - benefit (Callable) : benefit amount
+        - premium (float) : amount of premium
+        - per_premium (float) : expense per $ premium
+        - per_policy (float) : expense per policy
+        - reserve_benefit (bool) : whether reserve value included in benefit
+        """
         if t in self._reserves['V']:   # already solved in reserves table
             return self._reserves['V'][t]
-        V = self.t_V_backward(x=x, t=t, premium=premium, 
-                              benefit=benefit,
-                              reserve_benefit=reserve_benefit, 
-                              per_premium=per_premium, 
-                              per_policy=per_policy)
-        if V is not None:
-            return V
         V = self.t_V_forward(x=x, t=t, premium=premium, 
                              benefit=benefit,
                              reserve_benefit=reserve_benefit, 
@@ -132,13 +159,25 @@ class Reserves(PolicyValues):
                              per_policy=per_policy)
         if V is not None:
             return V
+        V = self.t_V_backward(x=x, t=t, premium=premium, 
+                              benefit=benefit,
+                              reserve_benefit=reserve_benefit, 
+                              per_premium=per_premium, 
+                              per_policy=per_policy)
+        if V is not None:
+            return V
 
     #
     # Interim reserves
     #
-    def r_V_forward(self, x: int, s: int = 0, r: float = 0,
-                   premium: float = 0, benefit: int = 1) -> Optional[float]:
-        """Forward recursion for interim reserves"""
+    def r_V_backward(self, x: int, s: int = 0, r: float = 0,
+                   benefit: int = 1) -> Optional[float]:
+        """Backward recursion for interim reserves
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : solve for interim reserve at fractional year x+s+r
+        - benefit (int) : benefit amount in year x+s+1
+        """
         s = int(s + r)
         r = r - math.floor(r)
         if s+1 not in self._reserves['V']:        # forward recursion
@@ -148,12 +187,18 @@ class Reserves(PolicyValues):
             V *= self.p_r(x, s=s, r=r, t=1-r)
         if benefit:
             V += self.q_r(x, s=s, r=r, t=1-r) * benefit
-        V = V * self.interest.v_t(1-r) - premium
+        V = V * self.interest.v_t(1-r)
         return V
 
-    def r_V_backward(self, x: int, s: int = 0, r: float = 0,
+    def r_V_forward(self, x: int, s: int = 0, r: float = 0,
                     premium: float = 0, benefit: int = 1) -> Optional[float]:
-        """Backward recursion for interim reserves"""
+        """Forward recursion for interim reserves
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - r (float) : solve for interim reserve at fractional year x+s+r
+        - benefit (int) : benefit amount in year x+s+1
+        - premium (float) : premium amount just after year x+s
+        """
         s = int(s + r)
         r = r - math.floor(r)
         if s not in self._reserves['V']:
@@ -170,7 +215,13 @@ class Reserves(PolicyValues):
     #
     def FPT_premium(self, x: int, s: int = 0, n: int = PolicyValues.WHOLE, 
                     b: int = 1, first: bool = False) -> float:
-        """Initial or renewal Full Preliminary Term premiums"""
+        """Initial or renewal Full Preliminary Term premiums
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - n (int) : term of insurance
+        - b (int) : benefit amount in year x+s+1
+        - first (bool) : calculate year 1 (True) or year 2+ (False) FPT premium
+        """
         if first:
             return self.net_premium(x, s=s, b=b, t=1)
         else:
@@ -179,7 +230,15 @@ class Reserves(PolicyValues):
     def FPT_policy_value(self, x: int, s: int = 0, t: int = 0, b: int = 1,
                          n: int = PolicyValues.WHOLE,
                          endowment: int = 0, discrete: bool = True) -> float:
-        """Compute Full Preliminary Term policy value at time t"""
+        """Compute Full Preliminary Term policy value at time t
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - n (int) : term of insurance
+        - t (int) : year of policy value to calculate
+        - b (int) : benefit amount in year x+s+1
+        - endowment (int) : endowment amount
+        - discrete (bool) : fully discrete (True) or continuous (False) insurance
+        """
         if t in [0, 1]:  # FPT is 0 at t = 0 or 1
             return 0
         else:
@@ -190,8 +249,6 @@ class Reserves(PolicyValues):
 
 if __name__ == "__main__":
     from actuarialmath.sult import SULT
-    print(Reserves.help())
-
     print("SOA Question 7.31:  (E) 0.310")
     x = 0
     life = Reserves().set_reserves(T=3)
@@ -210,6 +267,8 @@ if __name__ == "__main__":
     print(V)
     print()
     
+    print(Reserves.help())
+
 
     # print("Plot example: TODO from 6.12 -- this needs more work!!!")
     # life = PolicyValues(interest=dict(i=0.06))

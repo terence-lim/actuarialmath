@@ -1,4 +1,4 @@
-"""FAM-L base class
+"""Life Contingent Risks base class
 
 Copyright 2022, Terence Lim
 
@@ -15,31 +15,33 @@ import numpy as np
 import pandas as pd
 
 class Life:
-    """Base class for Life Contingent Risks"""
+    """Life: base class for Life Contingent Risks
+
+    - interest (Dict) : given interest rate (key may be i, d, v or delta)
+    """
 
     VARIANCE = -2   # compute variance instead of non-central moments
     WHOLE = -999    # indicate whole-life, not temporary, contingency
     MAXAGE = 130    # default oldest age
     MINAGE = 0      # default youngest age
-    LIFES = 100000  # default initial number of lifes in life table
+    LIVES = 100000  # default initial number of lives in life table
     verbose = False
 
     _help = ['variance', 'covariance', 'bernoulli', 'binomial', 'mixture',
-             'conditional_variance', 'portfolio_percentile', 'solve', 
-             'add_term', 'max_term', 'Interest']
+             'conditional_variance', 'portfolio_percentile', 'solve']
     def __init__(self, interest: Dict = dict(i=0)):
         self.set_interest(**interest)
 
     @classmethod
     def help(self):
-        line = '-' * len(self.__doc__.split('\n')[0])
-        return (f"{self.__doc__}\n{line}\n\n" \
-                + "\n".join(f"{s}():\n  {getattr(self, s).__doc__}\n"
+        return (f"class {self.__doc__}\n{'Methods:' if self._help else ''}\n\n" \
+                + "\n".join(f" - {s}(...)  {getattr(self, s).__doc__}"
                             for s in self._help))
 
-    def set_interest(self, **interest):
+    def set_interest(self, **interest) -> "Life":
         """Initialize interest rate object, given any form of interest rate"""
-        self.interest = self.Interest(**interest)     
+        self.interest = self.Interest(**interest)
+        return self
 
     #
     # Interest rate store and math
@@ -117,31 +119,56 @@ class Life:
     #
     @staticmethod
     def variance(a, b, var_a, var_b, cov_ab: float) -> float:
-        """Compute variance of weighted sum of two r.v."""
+        """Variance of weighted sum of two r.v.
+        - a (float) : weight on first r.v.
+        - b (float) : weight on other r.v.
+        - var_a (float) : variance of first r.v.
+        - var_b (float) : variance of other r.v.
+        - cov_ab (float) : covariance of the r.v.'s
+        """
         return a**2 * var_a + b**2 * var_b + 2 * a * b * cov_ab
 
     @staticmethod
     def covariance(a, b, ab: float) -> float:
-        """Compute covariance of two r.v."""
+        """Covariance of two r.v.
+        - a (float) : expected value of first r.v.
+        - b (float) : expected value of other r.v.
+        - ab (float) : expected value of product of the two r.v.
+        """
         return ab - a * b  # Cov(X,Y) = E[XY] - E[X] E[Y]
 
     @staticmethod
     def bernoulli(p, a: float = 1, b: float = 0, 
                   variance: bool = False) -> float:
-        """Compute mean or variance of bernoulli r.v. with range (a, b)"""
+        """Mean or variance of bernoulli r.v. with values {a, b}
+        - p (float) : probability of first value
+        - a (float) : first value
+        - b (float) : other value
+        - variance (bool) : whether to return variance (True) or mean (False)
+        """
         assert 0 <= p <= 1.
         return (a - b)**2 * p * (1-p) if variance else p * a + (1-p) * b
 
     @staticmethod
     def binomial(p: float, N: int, variance: bool = False) -> float:
-        """Compute mean or variance of binomial r.v."""
+        """Mean or variance of binomial r.v.
+        - p (float) : probability of occurence
+        - N (int) : number of trials
+        - variance (bool) : whether to return variance (True) or mean (False)
+        """
         assert 0 <= p <= 1. and N >= 1
         return N * p * (1-p) if variance else N * p
 
     @staticmethod
     def mixture(p, p1, p2: float, N: int = 1, 
                 variance: bool = False) -> float:
-        """Mean and variance of mixture of two binomial r.v."""
+        """Mean or variance of binomial mixture
+        - p (float) : probability of selecting first r.v.
+        - p1 (float) : probability of occurrence if first r.v.
+        - p2 (float) : probability of occurrence if other r.v.
+        - N (int) : number of trials
+        - variance (bool) : whether to return variance (True) or mean (False)
+        """
         assert 0 <= p <= 1 and 0 <= p1 <= 1 and 0 <= p2 <= 1 and N >= 1
         mean1 = Life.binomial(p1, N)
         mean2 = Life.binomial(p2, N)
@@ -155,7 +182,12 @@ class Life:
         
     @staticmethod
     def conditional_variance(p, p1, p2: float, N: int = 1) -> float:
-        """Conditional variance formula"""
+        """Conditional variance formula
+        - p (float) : probability of selecting first r.v.
+        - p1 (float) : probability of occurence for first r.v.
+        - p2 (float) : probability of occurence for other r.v.
+        - N (int) : number of trials
+        """
         assert 0 <= p <= 1 and 0 <= p1 <= 1 and 0 <= p2 <= 1 and N >= 1
         mean1 = Life.binomial(p1, N)
         mean2 = Life.binomial(p2, N)
@@ -167,15 +199,26 @@ class Life:
     @staticmethod
     def portfolio_percentile(mean: float, variance: float,
                              prob: float, N: int = 1) -> float:
-        """Percentile of a cumulative probability in the sum of N iid r.v."""
+        """Probability percentile of the sum of N iid r.v.'s
+        - mean (float) : mean of each independent obsevation
+        - variance (float) : variance of each independent observation
+        - prob (float) : probability threshold
+        - N (int) : number of observations to sum
+        """
         assert prob < 1.0
         mean *= N
         variance *= N
         return mean + ndtri(prob) * math.sqrt(variance)
 
     @staticmethod
-    def portfolio_cdf(mean: float, variance: float, value, N: int = 1) -> float:
-        """CDF Probability of a value in the sum of N iid r.v."""
+    def portfolio_cdf(mean: float, variance: float, value: float,
+                      N: int = 1) -> float:
+        """Probability distribution of a value in the sum of N iid r.v.
+        mean (float) : mean of each independent obsevation
+        variance (float) : variance of each independent observation
+        value (float) : value to compute probability distribution in the sum
+        N (int) : number of observations to sum
+        """
         mean *= N
         variance *= N
         return norm.cdf(value, loc=mean, scale=math.sqrt(variance))
@@ -208,7 +251,12 @@ class Life:
     @classmethod
     def solve(self, f: Callable[[float], float], target: float, 
               guess: Union[float, Tuple, List], args: Tuple = tuple()) -> float:
-        """Solve root of equation f(arg) = target"""
+        """Solve root of equation f(arg) = target
+        - f (Callable) : output given an input value
+        - target (float) : output value to target
+        - guess (float or Tuple[float, float]) : initial guess, or range of guesses
+        - args (tuple) : optional arguments required by function f
+        """
         verbose = self.verbose
         self.verbose = False
         g = lambda x: f(x, *args) - target
@@ -216,6 +264,7 @@ class Life:
             guess = min([(abs(g(x)), x)    # guess can be list of bounds
                         for x in np.linspace(min(guess), max(guess), 5)])[1]
         output = fsolve(g, [guess], full_output=True,  args=args)
+        f(output[0][0], *args)   # run function one last time with final answer
         self.verbose = verbose
         return output[0][0]
 
@@ -238,8 +287,6 @@ class Life:
 
 
 if __name__ == "__main__":
-    print(Life.help())
-    
     print("SOA Question 2.2: (D) 400")
     p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
     p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
@@ -267,3 +314,6 @@ if __name__ == "__main__":
     print("-------------------------------------------")
     print(Life.frame().to_string(float_format=lambda x: f"{x:.3f}"))
     print()
+    
+    print(Life.help())
+    

@@ -8,7 +8,8 @@ from actuarialmath.annuity import Annuity
 from typing import Optional
 
 class Premiums(Annuity):
-    """Premiums"""
+    """Premiums: equivalence principle, net and gross premiums
+    """
     _help = ['net_premium', 'gross_premium', 'insurance_equivalence',
              'annuity_equivalence', 'premium_equivalence']
 
@@ -17,12 +18,24 @@ class Premiums(Annuity):
     #
     # Net level premiums for special insurance
     #
-    def net_premium(self, x: int, s: int = 0, b: int = 1, 
-                    t: int = Annuity.WHOLE, u: int = 0, n: int = 0,
-                    discrete: Optional[bool] = True, endowment: int = 0,
+    def net_premium(self, x: int, s: int = 0, t: int = Annuity.WHOLE, 
+                    u: int = 0, n: int = 0, b: int = 1,
+                    endowment: int = 0, discrete: Optional[bool] = True, 
                     return_premium: bool = False, annuity: bool = False,
-                    initial_cost: int = 0) -> float:
-        """Net level premium for n-pay, u-deferred t-year term insurance"""
+                    initial_cost: float = 0.) -> float:
+        """Net level premium for n-pay, u-deferred t-year term insurance
+        - x (int) : age initially insured
+        - s (int) : years after selection
+        - u (int) : years of deferral
+        - n (int) : number of years of premiums paid
+        - t (int) : year of death
+        - b (int) : benefit amount
+        - endowment (int): endowment amount
+        - return_premium (bool) : whether premiums without interest refunded at death 
+        - annuity (bool) : whether benefit is insurance (False) or deferred annuity
+        - discrete (bool) : discrete/annuity due (True) or continuous (False)
+        - initial_cost (int) : EPV of any other expenses or benefits
+        """
         if annuity:
             A = self.deferred_annuity(x, s=s, b=b, t=t, u=u, 
                                       discrete=discrete or discrete is None)
@@ -44,20 +57,33 @@ class Premiums(Annuity):
     #
     def insurance_equivalence(self, premium: float, b: int = 1,
                               discrete: bool = True) -> float:
-        """Whole life or endowment insurance factor, given net premium"""
+        """Whole life or endowment insurance factor, given net premium
+        - premium (float) : level net premium amount
+        - b (int) : benefit amount
+        - discrete (bool) : discrete/annuity due (True) or continuous (False)
+        """
         d = self.interest.d if discrete else self.interest.delta
         return premium / (d*b + premium)  # from P = b[dA/(1-A)]
 
     def annuity_equivalence(self, premium: float, b: int = 1,
                             discrete: bool = True) -> float:
-        """Whole life or temporary annuity factor, given net premium"""
+        """Whole life or temporary annuity factor, given net premium
+        - premium (float) : level net premium amount
+        - b (int) : benefit amount
+        - discrete (bool) : discrete/annuity due (True) or continuous (False)
+        """
         d = self.interest.d if discrete else self.interest.delta
         return b / (d*b + premium)  # from P = b * (1/a - d)
 
     def premium_equivalence(self, A: Optional[float] = None,
                             a: Optional[float] = None,
                             b: int = 1, discrete: bool = True) -> float:
-        """Premium given whole life or temporary/endowment annuity/insurance"""
+        """Premium given whole life or temporary/endowment annuity/insurance
+        - A (float) : insurance factor
+        - a (float) : annuity factor
+        - b (int) : insurance benefit amount
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         interest = self.interest.d if discrete else self.interest.delta
         if a is None:   # Annuity not given => use shortcut for insurance
             return b * interest * A / (1 - A)
@@ -78,7 +104,20 @@ class Premiums(Annuity):
                       initial_premium: float = 0.,
                       renewal_policy: float = 0., 
                       renewal_premium: float = 0.) -> float:
-        """Gross premium by equivalence principle"""
+        """Gross premium by equivalence principle
+        - A (float) : insurance factor
+        - a (float) : annuity factor
+        - IA (float) : increasing insurance factor for premiums returned w/o interest
+        - E (float) : pure endowment factor for endowment benefit
+        - benefit (int) : insurance benefit amount
+        - endowment (float) : endowment benefit amount
+        - settlement_policy (float) : settlement expense per policy
+        - initial_policy (float) : initial expense per policy
+        - renewal_policy (float) : renewal expense per policy
+        - initial_premium (float) : initial premium per $ of gross premium
+        - renewal_premium (float) : renewal premium per $ of gross premium
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         if a is None:    # assume WL or Endowment Insurance for twin
             a = self.annuity_twin(A, discrete=discrete)
         elif A is None:  # assume WL or Endowment Insurance for twin
@@ -87,13 +126,12 @@ class Premiums(Annuity):
         assert endowment == 0 or E > 0   # missing pure endowment if needed
         per_premium = renewal_premium * a + (initial_premium - renewal_premium)
         per_policy = renewal_policy * a + (initial_policy - renewal_policy)
-        return ((A * (benefit + settlement_policy) + per_policy) 
+        return (((A*(benefit + settlement_policy) + per_policy) + (E*endowment))
                  / (a - per_premium - IA))  # IA returns premium w/o interest
 
 
 if __name__ == "__main__":
     import numpy as np
-    print(Premiums.help())
     
     print("SOA Question 6.29  (B) 20.5")
     life = Premiums(interest=dict(i=0.035))
@@ -136,3 +174,5 @@ if __name__ == "__main__":
     print("Other usage")
     life = Premiums(interest=dict(delta=0.06), mu=lambda x,s: 0.04)
     print(life.net_premium(0))
+
+    print(Premiums.help())

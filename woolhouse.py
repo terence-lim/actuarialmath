@@ -10,10 +10,13 @@ import math
 from typing import Callable, Union, Optional
 
 class Woolhouse(Mthly):
-    """Woolhouse 1/Mthly Shortcuts"""
-    _help = ['mu_x', 'insurance_twin', 'whole_life_insurance', 'term_insurance', 
-             'deferred_insurance', 'whole_life_annuity', 'temporary_annuity',
-             'deferred_annuity']
+    """Woolhouse: 1/m'thly shortcuts with woolhouse approximation
+    - m (int) : number of payments per year
+    - life (Fractional) : original fractional survival and mortality functions
+    - three_term (bool) : whether to include (True) or ignore (False) third term
+    - approximate_mu (Callable | bool) : function to approximate mu_x for third term
+    """
+    _help = ['mu_x', 'insurance_twin']
     
     def __init__(self, m: int, life: Fractional, three_term: bool = False,
                  approximate_mu: Union[Callable[[int, int], float], bool] = True):
@@ -22,7 +25,10 @@ class Woolhouse(Mthly):
         self.approximate_mu = approximate_mu  # whether to approximate mu
 
     def mu_x(self, x: int, s: int = 0) -> float:
-        """Approximate or compute mu_x if not given"""
+        """Approximates or computes mu_x for third term if not given
+        - x (int) : age of selection
+        - s (int) : years after selection
+        """
         if self.approximate_mu is True:     # approximate mu
             return -.5 * sum(math.log(self.life.p_x(x, s=s+t) for t in [0,-1]))
         elif self.approximate_mu is False:
@@ -31,20 +37,22 @@ class Woolhouse(Mthly):
             return self.approximate_mu(x, s)
 
     def insurance_twin(self, a: float) -> float:
-        """Return insurance twin of mthly annuity"""
+        """Return insurance twin of m'thly annuity
+        - a (float) : twin annuity factor
+        """
         d = self.life.interest.d
         d_m = self.life.interest.mthly(m=self.m, d=d)        
         return (1 - d_m * a)
 
     def whole_life_insurance(self, x: int, s: int = 0, b: int = 1,
                              mu: Optional[float] = 0.) -> float:
-        """1/Mthly Woolhouse Whole life insurance: A_x"""
+        """1/m'thly Woolhouse Whole life insurance: A_x"""
         return b * self.insurance_twin(self.whole_life_annuity(x, s=s, mu=mu))
 
     def term_insurance(self, x: int, s: int = 0, t: int = Fractional.WHOLE,
                        b: int = 1, mu: Optional[float] = 0., 
                        mu1: Optional[float] = None) -> float:
-        """1/Mthly Woolhouse Term insurance: A_x:t"""
+        """1/m'thly Woolhouse Term insurance: A_x:t"""
         A = self.whole_life_insurance(x, s=s, b=b, mu=mu)
         if t < 0 or self.life.max_term(x+s, t) < t:
             return A
@@ -54,7 +62,7 @@ class Woolhouse(Mthly):
     def endowment_insurance(self, x: int, s: int = 0, t: int = Fractional.WHOLE,
                             b: int = 1, endowment: int = -1, 
                             mu: Optional[float] = None) -> float:
-        """1/Mthly Woolhouse Term insurance: A_x:t"""
+        """1/m'thly Woolhouse Term insurance: A_x:t"""
         if endowment < 0:
             endowment = b
         E = self.E_x(x, s=s, t=t)
@@ -65,7 +73,7 @@ class Woolhouse(Mthly):
                            t: int = Fractional.WHOLE, b: int = 1,
                            mu: Optional[float] = None, 
                            mu1: Optional[float] = None) -> float:
-        """1/Mthly Woolhouse Deferred insurance = discounted term or whole life"""
+        """1/m'thly Woolhouse Deferred insurance = discounted term or whole life"""
         if self.life.max_term(x+s, u) < u:
             return 0.
         E = self.E_x(x, s=s, t=u)
@@ -73,7 +81,7 @@ class Woolhouse(Mthly):
 
     def whole_life_annuity(self, x: int, s: int = 0, b: int = 1,
                            mu: Optional[float] = None) -> float:
-        """1/Mthly Woolhouse Whole life annuity: a_x"""
+        """1/m'thly Woolhouse Whole life annuity: a_x"""
         a = (self.life.whole_life_annuity(x, s=s, discrete=True) 
              - (self.m - 1)/(2 * self.m))
         if self.three_term:
@@ -84,13 +92,13 @@ class Woolhouse(Mthly):
     def temporary_annuity(self, x: int, s: int = 0, t: int = Fractional.WHOLE, 
                           b: int = 1, mu: Optional[float] = None,
                           mu1: Optional[float] = None) -> float:
-        """1/Mthly Woolhouse Temporary life annuity: a_x"""
+        """1/m'thly Woolhouse Temporary life annuity: a_x"""
         return self.deferred_annuity(x, s=s, t=t, b=b, mu=mu, mu1=mu1) # u=0
 
     def deferred_annuity(self, x: int, s: int = 0, t: int = Fractional.WHOLE, 
                          u: int = 0, b: int = 1, mu: Optional[float] = None,
                          mu1: Optional[float] = None) -> float:
-        """1/Mthly Woolhouse Temporary life annuity: a_x"""
+        """1/m'thly Woolhouse Temporary life annuity: a_x"""
         a_x = self.whole_life_annuity(x, s=s+u, mu=mu)
         a_xt = self.whole_life_annuity(x, s=s+t+u, mu=mu1) if t > 0 else 0
         a = self.E_x(x, s=s, t=u) * (a_x - self.E_x(x, s=s+u, t=t) * a_xt)

@@ -12,16 +12,31 @@ import matplotlib.pyplot as plt
 from typing import Dict, Any, Optional
 
 class PolicyValues(Premiums):
-    """Policy Values"""
+    """PolicyValues: net and gross future losses
+    """
     _help = ['net_future_loss', 'net_variance_loss', 'net_policy_variance', 
-             'gross_future_loss', 'gross_policy_variance', 'gross_policy_value',
+             'Policy', 'gross_future_loss', 'gross_policy_variance',
+             'gross_policy_value',
              'L_from_t', 'L_to_t', 'L_from_prob', 'L_to_prob', 'L_plot']
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     class Policy:
-        """Class to store policy expenses and benefits"""
+        """Class to store policy expenses and benefit amounts
+        - premium (float) : level premium amount
+        - initial_policy (float) : 
+        - benefit (int) : insurance benefit amount
+        - endowment (float) : endowment benefit amount
+        - settlement_policy (float) : settlement expense per policy
+        - initial_policy (float) : initial expense per policy
+        - renewal_policy (float) : renewal expense per policy
+        - initial_premium (float) : initial premium per $ of gross premium
+        - renewal_premium (float) : renewal premium per $ of gross premium
+        - discrete (bool) : annuity due (True) or continuous (False)
+        - T (int) : term of insurance
+        - discrete (bool) : annuity due (True) or continuous (False)        
+        """
         def __init__(self, 
                      premium: float = 1,
                      initial_policy: float = 0, 
@@ -95,12 +110,21 @@ class PolicyValues(Premiums):
     # Net Future Loss shortcuts for WL and Endowment Insurance 
     #
     def net_future_loss(self, A: float, A1: float, b: int = 1) -> float:
-        """Assume WL or Endowment Ins for shortcuts since P from equivalence"""
+        """Shortcuts for WL or Endowment Insurance net loss
+        - A (float) : insurance factor at age (x)
+        - A1 (float) : insurance factor at t years after x
+        - b (int) : benefit amount
+        """
         return b * (A1 - A) / (1 - A)
 
     def net_variance_loss(self, A1: float, A2: float, A: float = 0, 
                          b: int = 1) -> float:
-        """Helper for variance of net loss shortcuts of WL or Endowment Ins loss"""
+        """Shortcuts for variance of net loss of WL or Endowment Insurance
+        - A (float) : insurance factor at age (x)
+        - A1 (float) : first moment of insurance factor at t years after x
+        - A2 (float) : insurance factor at double force of interest t years after x
+        - b (int) : benefit amount
+        """
         if not A:
             A = A1   # assume t = 0 => A = A1
         return b**2 * (A2 - A1**2) / (1 - A)**2
@@ -108,7 +132,15 @@ class PolicyValues(Premiums):
     def net_policy_variance(self, x, s: int = 0, t: int = 0, b: int = 1, 
                             n: int = Premiums.WHOLE, endowment: int = 0, 
                             discrete: bool = True) -> float:
-        """Shortcuts for variance of future loss for WL or Endow Ins"""
+        """Variance of future loss for WL or Endowment Ins assuming equivalence
+        - x (int) : age of selection
+        - s (int) : years after selection
+        - t (int) : term of life annuity in years
+        - n (int) : number of years premiums paid
+        - b (int) : benefit amount
+        - endowment (float) : endowment amount
+        - discrete (bool) : annuity due (True) or continuous (False)
+        """
         if n < 0:             # Whole Life
             A2 = self.whole_life_insurance(x, s=s+t, moment=2,
                                             discrete=discrete)
@@ -125,12 +157,20 @@ class PolicyValues(Premiums):
         return self.net_variance_loss(A=A, A1=A1, A2=A2, b=b)
 
     #
-    # Net Policy Value for special insurance
+    # Net Policy Value for special and WL/endowment insurance
     #
     def net_policy_value(self, x: int, s: int = 0, t: int = 0, b: int = 1, 
                          n: int = Premiums.WHOLE, endowment: int = 0, 
                          discrete: bool = True) -> float:
-        """Net policy values where premiums from equivalence: E[L_t]"""
+        """Net policy value assuming premiums from equivalence: E[L_t]
+        - x (int) : age initially insured
+        - s (int) : years after selection
+        - n (int) : number of years of premiums paid
+        - t (int) : year of death
+        - b (int) : benefit amount
+        - endowment (int): endowment amount
+        - discrete (bool) : discrete/annuity due (True) or continuous (False)
+        """
         if n < 0:             # Shortcut available for Whole Life
             A1 = self.whole_life_insurance(x, s=s+t, discrete=discrete)
             A = self.whole_life_insurance(x, s=s, discrete=discrete)
@@ -157,7 +197,11 @@ class PolicyValues(Premiums):
     def gross_future_loss(self, A: Optional[float] = None, 
                           a: Optional[float] = None, 
                           policy: Policy = Policy()) -> float:
-        """Shortcut for WL or Endowment Ins gross future loss"""
+        """Shortcut for WL or Endowment Insurance gross future loss
+        - A (float) : insurance factor at age (x)
+        - a (float) : annuity factor at age (x)
+        - policy (Policy) : policy terms and expenses
+        """
         if a is None:    # assume WL or Endowment Insurance for twin annuity
             a = self.annuity_twin(A, discrete=policy.discrete)
         elif A is None:  # assume WL or Endowment Insurance for twin annuity
@@ -167,7 +211,11 @@ class PolicyValues(Premiums):
 
     def gross_variance_loss(self, A1: float, A2: float = 0,
                             policy: Policy = Policy()) -> float:
-        """Helper for variance of gross loss shortcuts for WL or Endowment Ins"""
+        """Shortcuts for variance of gross loss for WL or Endow Ins
+        - A1 (float) : insurance factor
+        - A2 (float) : insurance factor at double the force of interest
+        - policy (Policy) : policy terms and expenses
+        """
         interest = self.interest.d if policy.discrete else self.interest.delta
         return (((policy.renewal_profit / interest) + policy.benefit 
                     + policy.settlement_policy)**2 * (A2 - A1**2))
@@ -175,7 +223,13 @@ class PolicyValues(Premiums):
     def gross_policy_variance(self, x: int, s: int = 0, t: int = 0,
                            n: int = Premiums.WHOLE,
                            policy: Policy = Policy()) -> float:
-        """Shortcut for gross policy value of WL and Endowment Insurance"""
+        """Variance of gross policy value for WL and Endowment Insurance
+        - x (int) : age initially insured
+        - s (int) : years after selection
+        - n (int) : number of years of premiums paid
+        - t (int) : year of death
+        - policy (Policy) : policy terms and expenses
+        """
         if n < 0:  # WL
             A2 = self.whole_life_insurance(x, s=s+t, moment=2,
                                             discrete=policy.discrete)
@@ -197,7 +251,13 @@ class PolicyValues(Premiums):
     def gross_policy_value(self, x: int, s: int = 0, t: int = 0,
                            n: int = Premiums.WHOLE,
                            policy: Policy = Policy()) -> float:
-        """Gross policy values for insurance: t_V = E[L_t]"""
+        """Gross policy values for insurance: t_V = E[L_t]
+        - x (int) : age initially insured
+        - s (int) : years after selection
+        - n (int) : number of years of premiums paid
+        - t (int) : year of death
+        - policy (Policy) : policy terms and expenses
+        """
         if n < 0:    # Whole life shortcut
             A = self.whole_life_insurance(x, s=s+t, 
                                           discrete=policy.discrete)
@@ -222,7 +282,10 @@ class PolicyValues(Premiums):
     # Future Loss random variable: L(t)
     #
     def L_from_t(self, t: float, policy: Policy = Policy()) -> float:
-        """PV of Loss L(t), given T_x (or K_x if discrete)"""
+        """PV of Loss L(t), given T_x (or K_x if discrete)
+        - t (float) : fractional year of death
+        - policy (Policy) : policy terms and expenses
+        """
         k = math.floor(t) if policy.discrete else t  # if endowment paid
         if policy.T > 0 and k >= policy.T:
             t = policy.T
@@ -237,27 +300,41 @@ class PolicyValues(Premiums):
                    * self.Y_from_t(t, discrete=policy.discrete)))
 
     def L_to_t(self, L: float, policy: Policy = Policy()) -> float:
-        """T_x s.t. PV of loss is Z"""
-#        t = PolicyValues.solve(lambda t: self.L_from_t(t, policy) - L, 10)
-        t = scipy.optimize.minimize_scalar(lambda t: abs(self.L_from_t(t, policy) - L), 
+        """T_x s.t. PV of loss is Z
+        - L (float) : EPV of loss
+        - policy (Policy) : policy terms and expenses
+        """
+        t = scipy.optimize.minimize_scalar(lambda t: abs(self.L_from_t(t, policy)-L),
                                            bounds=(0, self.MAXAGE)).x
         return t
 
     def L_from_prob(self, x: int, prob: float, 
                    policy: Policy = Policy()) -> float:
-        """Percentile of loss PV r.v. L, given probability"""
+        """Percentile of loss PV r.v. L, given probability
+        - x (int) : age selected
+        - prob (float) : desired probability threshold
+        - policy (Policy) : policy terms and expenses
+        """
         t = self.Z_t(x, prob, discrete=policy.discrete)
         return self.L_from_t(t, policy)
 
     def L_to_prob(self, x: int, L: float, policy: Policy = Policy()) -> float:
-        """Cumulative density of loss PV r.v. L, given percentile value"""
+        """Probability, given percentile of EPV of loss
+        - x (int) : age selected
+        - L (float) : EPV of loss
+        - policy (Policy) : policy terms and expenses
+        """
         t = self.L_to_t(L, policy)
         return self.S(x, 0, t)
 
     def L_plot(self, x: int, T: Optional[float] = None, policy: Policy = Policy(),
                min_t: int = 0, max_t: Optional[int] = None,
                ax: Any = None, color='r', curve=(), verbose=True) -> float:
-        """Plot loss r.v. L vs T"""        
+        """Plot loss r.v. L vs T
+        - x (int) : age selected
+        - policy (Policy) : policy terms and expenses
+        - **kwargs : options for plotting
+        """        
         max_t = self.MAXAGE - x if max_t is None else max_t
         t = np.arange(min_t, max_t+1)
         y = [self.L_from_t(k, policy=policy) for k in t]
@@ -306,8 +383,6 @@ class PolicyValues(Premiums):
 
 if __name__ == "__main__":
     from actuarialmath.sult import SULT
-    print(PolicyValues.help())
-    
     print("SOA Question 6.24:  (E) 0.30")
     life = PolicyValues(interest=dict(delta=0.07))
     x, A1 = 0, 0.30   # Policy for first insurance
@@ -382,4 +457,5 @@ if __name__ == "__main__":
     print(G)
     life.L_plot(45, T=int(T), policy=policy)
 
-    plt.show()
+    print(PolicyValues.help())
+    
