@@ -42,7 +42,7 @@ print(1000 * mthly.temporary_annuity(35, t=30))
 
 ```
 life = SULT()
-S = life.FPT_policy_value(35, t=1, b=1000)  # is 0 for FPT at t=0,1
+S = life.FPT_policy_value(35, t=1, b=1000)
 policy = life.Policy(benefit=1000, initial_premium=.3, initial_policy=300,
                      renewal_premium=.04, renewal_policy=30)
 P = life.gross_premium(A=life.whole_life_insurance(35), **policy.premium_terms)
@@ -51,9 +51,9 @@ R = life.gross_policy_value(35, t=1, policy=policy.set(premium=P))
 
 ## Resources
 
-- Documentation and formulas: [actuarialmath.pdf](https://terence-lim.github.io/notes/actuarialmath.pdf)
+- Documentation of formulas, classes and methods: [actuarialmath.pdf](https://terence-lim.github.io/notes/actuarialmath.pdf)
 
-- Executable Colab Notebook: [faml.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
+- Executable Google Colab notebook: [faml.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
 
 - Github repo: [https://github.com/terence-lim/actuarialmath.git](https://github.com/terence-lim/actuarialmath.git)
 
