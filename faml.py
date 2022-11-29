@@ -8,13 +8,13 @@ import math
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from actuarialmath.life import Life
+from actuarialmath.life import Life, Interest
 from actuarialmath.survival import Survival
 from actuarialmath.lifetime import Lifetime
 from actuarialmath.insurance import Insurance
 from actuarialmath.annuity import Annuity
 from actuarialmath.premiums import Premiums
-from actuarialmath.policyvalues import PolicyValues
+from actuarialmath.policyvalues import PolicyValues, Policy
 from actuarialmath.reserves import Reserves
 from actuarialmath.recursion import Recursion
 from actuarialmath.lifetable import LifeTable
@@ -283,9 +283,9 @@ soa(3850, sult.portfolio_percentile(mean=mean, variance=var, prob=.99), 3.9)
 
 """
 
-interest = Life.Interest(v=0.75)
+interest = Interest(v=0.75)
 L = 35*interest.annuity(t=4, due=False) + 75*interest.v_t(t=5)
-interest = Life.Interest(v=0.5)
+interest = Interest(v=0.5)
 R = 15*interest.annuity(t=4, due=False) + 25*interest.v_t(t=5)
 soa(0.86, L / (L + R), "3.10")
 
@@ -752,7 +752,7 @@ soa(33, min([k for k in range(20, 40) if fun(k) < 0]), 6.5)
 
 life = SULT()
 P = life.net_premium(62, b=10000)
-policy = life.Policy(premium=1.03*P, renewal_policy=5,
+policy = Policy(premium=1.03*P, renewal_policy=5,
                         initial_policy=5, initial_premium=0.05, benefit=10000)
 L = life.gross_policy_value(62, policy=policy)
 var = life.gross_policy_variance(62, policy=policy)
@@ -828,7 +828,7 @@ soa(0.041, A - life.annuity_twin(A) * P, 6.11)
 life = PolicyValues(interest=dict(i=0.06))
 a = 12
 A = life.insurance_twin(a)
-policy = life.Policy(benefit=1000, settlement_policy=20,
+policy = Policy(benefit=1000, settlement_policy=20,
                         initial_policy=10, initial_premium=0.75, 
                         renewal_policy=2, renewal_premium=0.1)
 policy.premium = life.gross_premium(A=A, a=a, **policy.premium_terms)
@@ -841,7 +841,7 @@ soa(88900, L, 6.12)
 
 life = SULT(interest=dict(i=0.05))
 A = life.whole_life_insurance(45)
-policy = life.Policy(benefit=10000, initial_premium=.8, renewal_premium=.1)
+policy = Policy(benefit=10000, initial_premium=.8, renewal_premium=.1)
 def fun(P):   # Solve for premium, given Loss(t=0) = 4953
     return life.L_from_t(t=10.5, policy=policy.set(premium=P))
 policy.premium = life.solve(fun, target=4953, guess=100)
@@ -896,7 +896,7 @@ P = life.gross_premium(a=a, A=A)
 life1 = Recursion(interest=dict(i=0.08))
 life1.set_q(life.q_x(x, t=1) * 1.5, x=x, t=1)
 life1.set_q(life.q_x(x+1, t=1) * 1.5, x=x+1, t=1)
-policy = life1.Policy(premium=P*2, benefit=100000, endowment=30000)
+policy = Policy(premium=P*2, benefit=100000, endowment=30000)
 L = life1.gross_policy_value(x, t=0, n=2, policy=policy)
 soa(-30000, L, 6.17)
 
@@ -917,7 +917,7 @@ soa(166400, P, 6.18)
 """
 
 life = SULT()
-policy = life.Policy(initial_policy=.2, renewal_policy=.01)
+policy = Policy(initial_policy=.2, renewal_policy=.01)
 a = life.whole_life_annuity(50)
 A = life.whole_life_insurance(50)
 policy.premium = life.gross_premium(A=A, a=a, **policy.premium_terms)
@@ -985,12 +985,12 @@ soa(44.7, P, 6.23)
 life = PolicyValues(interest=dict(delta=0.07))
 x, A1 = 0, 0.30   # Policy for first insurance
 P = life.premium_equivalence(A=A1, discrete=False)  # Need its premium
-policy = life.Policy(premium=P, discrete=False)
+policy = Policy(premium=P, discrete=False)
 def fun(A2):  # Solve for A2, given Var(Loss)
     return life.gross_variance_loss(A1=A1, A2=A2, policy=policy)
 A2 = life.solve(fun, target=0.18, guess=0.18)
 
-policy = life.Policy(premium=0.06, discrete=False) # Solve second insurance
+policy = Policy(premium=0.06, discrete=False) # Solve second insurance
 variance = life.gross_variance_loss(A1=A1, A2=A2, policy=policy)
 soa(0.304, variance, 6.24)
 
@@ -1005,7 +1005,7 @@ expenses = life.whole_life_annuity(55, b=300)
 payments = life.temporary_annuity(55, t=10)
 def fun(P):
     return life.gross_future_loss(A=benefits + expenses, a=payments,
-                                    policy=life.Policy(premium=P))
+                                    policy=Policy(premium=P))
 P = life.solve(fun, target=-800, guess=[12110, 12550])
 soa(12330, P, 6.25)
 
@@ -1062,7 +1062,7 @@ soa(20.5, a, 6.29)
 """
 
 life = PolicyValues(interest=dict(i=0.04))
-policy = life.Policy(premium=2.338, benefit=100, initial_premium=.1,
+policy = Policy(premium=2.338, benefit=100, initial_premium=.1,
                         renewal_premium=0.05)
 var = life.gross_variance_loss(A1=life.insurance_twin(16.50),
                                 A2=0.17, policy=policy)
@@ -1208,7 +1208,7 @@ soa(1417, P, 6.41)
 
 x = 0
 life = ConstantForce(interest=dict(delta=0.06), mu=0.06)
-policy = life.Policy(discrete=True, premium=315.8, 
+policy = Policy(discrete=True, premium=315.8, 
                         T=3, endowment=1000, benefit=1000)
 L = [life.L_from_t(t, policy=policy) for t in range(3)]    # L(t)
 Q = [life.q_x(x, u=u, t=1) for u in range(3)]        # prob(die in year t)
@@ -1246,7 +1246,7 @@ soa(2.2, P, 6.44)
 """
 
 life = SULT(udd=True)
-policy = life.Policy(benefit=100000, premium=560, discrete=False)
+policy = Policy(benefit=100000, premium=560, discrete=False)
 p = life.L_from_prob(35, prob=0.75, policy=policy)
 soa(690, p, 6.45)
 
@@ -1405,10 +1405,10 @@ P = life.gross_premium(a=life.whole_life_annuity(40),
 P += life.gross_premium(a=life.whole_life_annuity(40),
                         A=life.deferred_insurance(40, u=11),
                         benefit=4000)   # for deferred portion
-policy = life.Policy(benefit=1000, premium=1.02*P, 
+policy = Policy(benefit=1000, premium=1.02*P, 
                         renewal_policy=10, initial_policy=100)
 V = life.gross_policy_value(x=40, t=1, policy=policy)
-policy = life.Policy(benefit=4000, premium=0)  
+policy = Policy(benefit=4000, premium=0)  
 A = life.deferred_insurance(41, u=10)
 V += life.gross_future_loss(A=A, a=0, policy=policy) # for deferred portion
 soa(-74, V, 7.4)
@@ -1429,7 +1429,7 @@ soa(1900, V, 7.5)
 
 life = SULT()
 P = life.net_premium(45, b=2000)
-policy = life.Policy(benefit=2000, initial_premium=.25, renewal_premium=.05,
+policy = Policy(benefit=2000, initial_premium=.25, renewal_premium=.05,
                         initial_policy=2*1.5 + 30, renewal_policy=2*.5 + 10)
 G = life.gross_premium(a=life.whole_life_annuity(45), **policy.premium_terms)
 gross = life.gross_policy_value(45, t=10, policy=policy.set(premium=G))
@@ -1445,10 +1445,10 @@ soa(-25.4, V, 7.6)
 x = 0
 life = Recursion(interest=dict(i=0.05)).set_A(0.4, x=x+10)
 a = Woolhouse(m=12, life=life).whole_life_annuity(x+10)
-policy = life.Policy(premium=0, benefit=10000, renewal_policy=100)
-V = life.gross_future_loss(A=0.4, policy=policy.future)
-policy = life.Policy(premium=30*12, renewal_premium=0.05)
-V += life.gross_future_loss(a=a, policy=policy.future)
+policy = Policy(premium=0, benefit=10000, renewal_policy=100)
+V = life.gross_future_loss(A=0.4, policy=policy.policy_renewal)
+policy = Policy(premium=30*12, renewal_premium=0.05)
+V += life.gross_future_loss(a=a, policy=policy.policy_renewal)
 soa(1110, V, 7.7)
 
 """SOA Question 7.8:  (C) 29.85
@@ -1471,7 +1471,7 @@ sult = SULT(udd=True)
 x, n, t = 45, 20, 10
 a = UDD(m=12, life=sult).temporary_annuity(x+10, t=n-10)
 A = UDD(m=0, life=sult).endowment_insurance(x+10, t=n-10)
-policy = sult.Policy(premium=253*12, endowment=100000, benefit=100000)
+policy = Policy(premium=253*12, endowment=100000, benefit=100000)
 V = sult.gross_future_loss(A=A, a=a, policy=policy)
 soa(38100, V, 7.9)
 
@@ -1482,7 +1482,7 @@ soa(38100, V, 7.9)
 life = SULT()
 G = 977.6
 P = life.net_premium(45, b=100000)
-policy = life.Policy(benefit=0, premium=G-P, renewal_policy=.02*G + 50)
+policy = Policy(benefit=0, premium=G-P, renewal_policy=.02*G + 50)
 V = life.gross_policy_value(45, t=5, policy=policy)
 soa(-970, V, "7.10")
 
@@ -1491,7 +1491,7 @@ soa(-970, V, "7.10")
 """
 
 life = Recursion(interest=dict(i=0.05)).set_a(13.4205, x=55)
-policy=life.Policy(benefit=10000)
+policy = Policy(benefit=10000)
 def fun(P):
     return life.L_from_t(t=10, policy=policy.set(premium=P))
 P = life.solve(fun, target=4450, guess=400)
@@ -1553,7 +1553,7 @@ x, t, n = 80, 3, 5
 A = life.whole_life_insurance(x+t)
 a = life.temporary_annuity(x+t, t=n-t)
 V = life.gross_future_loss(A=A, a=a, 
-                            policy=life.Policy(benefit=1000, premium=130))
+                            policy=Policy(benefit=1000, premium=130))
 soa(380, V, 7.16)
 
 """SOA Question 7.17:  (D) 1.018
@@ -1587,13 +1587,13 @@ soa(17.1, a, 7.18)
 """
 
 life = SULT()
-policy = life.Policy(benefit=100000, initial_policy=300, initial_premium=.5,
+policy = Policy(benefit=100000, initial_policy=300, initial_premium=.5,
                         renewal_premium=.1)
 P = life.gross_premium(A=life.whole_life_insurance(40), 
                         **policy.premium_terms)
 A = life.whole_life_insurance(41)
 a = life.immediate_annuity(41)   # after premium and expenses are paid
-V = life.gross_future_loss(A=A, a=a, policy=policy.set(premium=P).future)
+V = life.gross_future_loss(A=A, a=a, policy=policy.set(premium=P).policy_renewal)
 soa(720, V, 7.19)
 
 """SOA Question 7.20: (E) -277.23
@@ -1602,7 +1602,7 @@ soa(720, V, 7.19)
 
 life = SULT()
 S = life.FPT_policy_value(35, t=1, b=1000)  # is 0 for FPT at t=0,1
-policy = life.Policy(benefit=1000, initial_premium=.3, initial_policy=300,
+policy = Policy(benefit=1000, initial_premium=.3, initial_policy=300,
                         renewal_premium=.04, renewal_policy=30)
 P = life.gross_premium(A=life.whole_life_insurance(35), 
                         **policy.premium_terms)
@@ -1617,7 +1617,7 @@ life = SULT()
 x, t, u = 55, 9, 10
 P = life.gross_premium(IA=0.14743, a=life.temporary_annuity(x, t=u),
                         A=life.deferred_annuity(x, u=u), benefit=1000)
-policy = life.Policy(initial_policy=life.term_insurance(x+t, t=1, b=10*P),
+policy = Policy(initial_policy=life.term_insurance(x+t, t=1, b=10*P),
                         premium=P, benefit=1000)
 a = life.temporary_annuity(x+t, t=u-t)
 A = life.deferred_annuity(x+t, u=u-t)
@@ -1629,11 +1629,11 @@ soa(11866, V, 7.21)
 """
 
 life = PolicyValues(interest=dict(i=0.06))
-policy = life.Policy(benefit=8, premium=1.250)
+policy = Policy(benefit=8, premium=1.250)
 def fun(A2):
     return life.gross_variance_loss(A1=0, A2=A2, policy=policy)
 A2 = life.solve(fun, target=20.55, guess=20.55/8**2)
-policy = life.Policy(benefit=12, premium=1.875)
+policy = Policy(benefit=12, premium=1.875)
 var = life.gross_variance_loss(A1=0, A2=A2, policy=policy)
 soa(46.2, var, 7.22)
 
@@ -1713,7 +1713,7 @@ life = Recursion(interest=dict(i=0.04)).set_a(14.8, x=x)\
 def fun(B):   # Solve for benefit B given net 10_V = 2290
     return life.net_policy_value(x, t=10, b=B)
 B = life.solve(fun, target=2290, guess=2290*10)
-policy = life.Policy(initial_policy=30, renewal_policy=5, benefit=B)
+policy = Policy(initial_policy=30, renewal_policy=5, benefit=B)
 G = life.gross_premium(a=life.whole_life_annuity(x), **policy.premium_terms)
 V = life.gross_policy_value(x, t=10, policy=policy.set(premium=G))
 soa(2270, V, 7.29)
@@ -1722,7 +1722,7 @@ soa(2270, V, 7.29)
 
 """
 
-policy = SULT.Policy(premium=0, benefit=10000)  # premiums=0 after t=10
+policy = Policy(premium=0, benefit=10000)  # premiums=0 after t=10
 L = SULT().gross_policy_value(35, policy=policy)
 V = SULT(interest=dict(i=0)).gross_policy_value(35, policy=policy) # 10000
 soa(9035, V-L, "7.30")
@@ -1745,11 +1745,11 @@ soa(0.310, P, 7.31)
 """
 
 life = PolicyValues(interest=dict(i=0.06))
-policy = life.Policy(benefit=1, premium=0.1)
+policy = Policy(benefit=1, premium=0.1)
 def fun(A2):
     return life.gross_variance_loss(A1=0, A2=A2, policy=policy)
 A2 = life.solve(fun, target=0.455, guess=0.455)
-policy = life.Policy(benefit=2, premium=0.16)
+policy = Policy(benefit=2, premium=0.16)
 variance = life.gross_variance_loss(A1=0, A2=A2, policy=policy)
 soa(1.39, variance, 7.32)
 
