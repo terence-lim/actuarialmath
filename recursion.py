@@ -194,7 +194,7 @@ class Recursion(Reserves):
         - x (int) : age of selection
         - s (int) : years after selection
         - t (int) : limit of expected future lifetime
-        - curtate (bool) : curtate (True) or complete expectation of future lifetime
+        - curtate (bool) : curtate (True) or complete expectation (False)
         - moment (int) : first or second moment of expected future lifetime
         """
         return self.db_put(self.db_key(_key='e', x=x+s, t=t, moment=moment,
@@ -822,7 +822,8 @@ class Recursion(Reserves):
 
 if __name__ == "__main__":
     from actuarialmath.constantforce import ConstantForce
-
+    from actuarialmath.policyvalues import Policy
+    
     print("SOA Question 6.48:  (A) 3195")
     life = Recursion(interest=dict(i=0.06), depth=5)
     x = 0

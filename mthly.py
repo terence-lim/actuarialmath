@@ -70,7 +70,7 @@ class Mthly(Actuarial):
 
     def Z_m(self, x: int, s: int = 0, t: int = 1, 
             benefit: Callable = lambda x,t: 1, moment: int = 1):
-        """Return PV insurance r.v. Z and probability by m'thly period as DataFrame
+        """Return PV of insurance r.v. Z and probability by time as DataFrame
         - x (int) : year of selection
         - s (int) : years after selection
         - t (int) : year of death
