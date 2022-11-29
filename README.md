@@ -26,7 +26,7 @@ MIT License. Copyright 2022, Terence Lim
 
 ## Examples
 
-- SOA sample question 5.7: Given $A_{35} = 0.188$, $A_{65} = 0.498$, $ _{30} p_{35} = 0.883$, calculate the EPV of a temporary annuity $\ddot{a}^{(2)}_{35:\overline{30|}}$ paid half-yearly using the Woolhouse approximation.
+- SOA sample question 5.7: Given $A_{35} = 0.188$, $A_{65} = 0.498$, ${ }_{30} p_{35} = 0.883$, calculate the EPV of a temporary annuity $\ddot{a}^{(2)}_{35:\overline{30|}}$ paid half-yearly using the Woolhouse approximation.
 
 ```
 life = Recursion(interest=dict(i=0.04))
