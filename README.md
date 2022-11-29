@@ -20,38 +20,25 @@ Terence Lim
 
 MIT License. Copyright 2022, Terence Lim
 
-## Concepts and Classes
+## Concepts and Class Inheritance
 
 ![actuarialmath](FAM-L.png)
 
-## Usage Examples
+## Examples
 
-- SOA sample question 6.4: Calculate premium using normal
-  approximation for monthly whole life annuities-due.
-
-```
-mthly = Mthly(m=12, life=Reserves(interest=dict(i=0.06)))
-A1, A2 = 0.4075, 0.2105
-mean = mthly.annuity_twin(A1)*15*12
-var = mthly.annuity_variance(A1=A1, A2=A2, b=15 * 12)
-S = Reserves.portfolio_percentile(mean=mean, variance=var, prob=.9, N=200)
-```
-
-- SOA sample question 6.40: Calculate annual net premium for a special
-  fully discrete whole life insurance at issue age $x+1$
+- SOA sample question 5.7: Given $A_{35} = 0.188,~ A_{65} = 0.498,~ _{30}p_{35}=0.883$, calculate the EPV of a temporary annuity $\ddot{a}^{(2)}_{35:\overline{30|}}$ paid half-yearly using the Woolhouse approximation.
 
 ```
-life = Recursion(interest=dict(i=0.06)).set_a(7, x=x+1).set_q(0.05, x=x)
-a = life.whole_life_annuity(x)
-A = 110 * a / 1000
-life = Recursion(interest=dict(i=0.06)).set_A(A, x=x).set_q(0.05, x=x)
-A1 = life.whole_life_insurance(x+1)
-P = life.gross_premium(A=A1 / 1.03, a=7) * 1000
+life = Recursion(interest=dict(i=0.04))
+life.set_A(0.188, x=35).set_A(0.498, x=65).set_p(0.883, x=35, t=30)
+mthly = Woolhouse(m=2, life=life, three_term=False)
+print(1000 * mthly.temporary_annuity(35, t=30))
 ```
 
-- SOA sample question 7.20: Calculate gross premium policy value and
-  modified reserves where mortality follows the Standard Ultimate Life
-  Table.
+- SOA sample question 7.20: Calculate the policy value and
+  modified reserve, where gross premiums are given by the 
+  equivalence principle, of a whole life insurance where 
+  mortality follows the Standard Ultimate Life Table.
 
 ```
 life = SULT()
