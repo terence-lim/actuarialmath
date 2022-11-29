@@ -49,6 +49,7 @@ class SULT(LifeTable):
         return tab.loc[20:100]
 
 if __name__ == "__main__":
+    from actuarialmath.life import Interest
     print("SOA Question 6.52:  (D) 50.80")
     sult = SULT()
     a = sult.temporary_annuity(45, t=10)
@@ -145,7 +146,7 @@ if __name__ == "__main__":
 
     print("SOA Question 4.5:  (C) 35200")
     sult = SULT()
-    print(100000 * sult.Interest(delta=0.05).v_t(sult.Z_t(45, prob=.95)))
+    print(100000 * Interest(delta=0.05).v_t(sult.Z_t(45, prob=.95)))
     print()
     
 

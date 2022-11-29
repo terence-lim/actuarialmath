@@ -6,7 +6,7 @@ MIT License
 """
 import math
 import numpy as np
-from actuarialmath.policyvalues import PolicyValues
+from actuarialmath.policyvalues import PolicyValues, Policy
 import matplotlib.pyplot as plt
 from typing import Callable, Dict, Optional
 
@@ -40,8 +40,7 @@ class Reserves(PolicyValues):
         return self
 
     def fill_reserves(self, x: int, reserve_benefit: bool = False,
-            policy: PolicyValues.Policy = PolicyValues.Policy(),  
-            max_iter: int = 4):
+                      policy: Policy = Policy(), max_iter: int = 4):
         """Fill in missing reserves
         - x (int) : age selected
         - reserve_benefit (bool) : whether benefit includes value of reserves
@@ -274,9 +273,9 @@ if __name__ == "__main__":
     # life = PolicyValues(interest=dict(i=0.06))
     # a = 12
     # A = life.insurance_twin(a)
-    # policy = life.Policy(benefit=1000, settlement_policy=20, 
-    #                      initial_policy=10, initial_premium=0.75, 
-    #                      renewal_policy=2, renewal_premium=0.1)
+    # policy = Policy(benefit=1000, settlement_policy=20, 
+    #                 initial_policy=10, initial_premium=0.75, 
+    #                 renewal_policy=2, renewal_premium=0.1)
     # policy.premium = life.gross_premium(A=A, a=a, **policy.premium_terms)
     # life = Reserves(interest=dict(delta=0.06), mu=lambda x,s: 0.04)
     # life.set_reserves(T=100)

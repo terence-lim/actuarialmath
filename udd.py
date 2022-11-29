@@ -5,6 +5,7 @@ Copyright 2022, Terence Lim
 MIT License
 """
 import pandas as pd
+from actuarialmath.life import Interest
 from actuarialmath.fractional import Fractional
 from actuarialmath.mthly import Mthly
 
@@ -28,8 +29,8 @@ class UDD(Mthly):
         - i (float) : annual interest rate
         """
         d = i / (1 + i)
-        i_m = Fractional.Interest.mthly(m=m, i=i)
-        i_d = Fractional.Interest.mthly(m=m, d=d)
+        i_m = Interest.mthly(m=m, i=i)
+        i_d = Interest.mthly(m=m, d=d)
         return abs(i*d / ( i_m * i_d))
 
     @staticmethod
@@ -39,8 +40,8 @@ class UDD(Mthly):
         - i (float) : annual interest rate
         """
         d = i / (1 + i)
-        i_m = Fractional.Interest.mthly(m=m, i=i)
-        i_d = Fractional.Interest.mthly(m=m, d=d)
+        i_m = Interest.mthly(m=m, i=i)
+        i_d = Interest.mthly(m=m, d=d)
         return abs((i - i_m) / (i_m * i_d))
 
     def whole_life_insurance(self, x: int, s: int = 0, moment: int = 1, 
@@ -130,14 +131,14 @@ class UDD(Mthly):
         """Display 1/mthly UDD interest function values
         - i (float) : annual interest rate
         """
-        interest = Fractional.Interest(i=i)
+        interest = Interest(i=i)
         out = pd.DataFrame(columns=["i(m)", "d(m)", "i/i(m)", "d/d(m)", 
                                     "alpha(m)", "beta(m)"],
                            index=[1, 2, 4, 12, 0], 
                            dtype=float)
         for m in out.index:
-            i_m = Fractional.Interest.mthly(m=m, i=interest.i)
-            d_m = Fractional.Interest.mthly(m=m, d=interest.d)
+            i_m = Interest.mthly(m=m, i=interest.i)
+            d_m = Interest.mthly(m=m, d=interest.d)
             out.loc[m] = [i_m, d_m, interest.i/i_m, interest.d/d_m, 
                           UDD.alpha(m=m, i=interest.i), 
                           UDD.beta(m=m, i=interest.i)]
@@ -157,7 +158,7 @@ if __name__ == "__main__":
     A = UDD(m=0, life=sult).endowment_insurance(x+10, t=n-10)
     print(A)
     print(A*100000 - a*12*253)
-    policy = sult.Policy(premium=253*12, endowment=100000, benefit=100000)
+    policy = Policy(premium=253*12, endowment=100000, benefit=100000)
     print(sult.gross_future_loss(A=A, a=a, policy=policy))
     print()
 

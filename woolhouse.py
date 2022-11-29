@@ -115,10 +115,10 @@ if __name__ == "__main__":
     life = Recursion(interest=dict(i=0.05)).set_A(0.4, x=x+10)
     a = Woolhouse(m=12, life=life).whole_life_annuity(x+10)
     print(a)
-    policy = life.Policy(premium=0, benefit=10000, renewal_policy=100)
+    policy = Policy(premium=0, benefit=10000, renewal_policy=100)
     V = life.gross_future_loss(A=0.4, policy=policy.future)
     print(V)
-    policy = life.Policy(premium=30*12, renewal_premium=0.05)
+    policy = Policy(premium=30*12, renewal_premium=0.05)
     V1 = life.gross_future_loss(a=a, policy=policy.future)
     print(V, V1, V+V1)
     print()
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     print(benefits + expenses, payments)
     def fun(P):
         return life.gross_future_loss(A=benefits + expenses, a=payments,
-                                      policy=life.Policy(premium=P))
+                                      policy=Policy(premium=P))
     P = life.solve(fun, target=-800, guess=[12110, 12550])
     print(P)
     print()

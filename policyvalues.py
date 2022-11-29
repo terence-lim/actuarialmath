@@ -7,104 +7,110 @@ MIT License
 import math
 import numpy as np
 import scipy
-from actuarialmath.premiums import Premiums
 import matplotlib.pyplot as plt
 from typing import Dict, Any, Optional
+from actuarialmath.premiums import Premiums
+from actuarialmath.life import Actuarial
+
+class Policy(Actuarial):
+    """Policy: set policy expenses and benefit amounts
+
+    - premium (float) : level premium amount
+    - benefit (int) : insurance benefit amount
+    - settlement_policy (float) : settlement expense per policy
+    - endowment (float) : endowment benefit amount
+    - initial_policy (float) : initial expense per policy
+    - renewal_policy (float) : renewal expense per policy
+    - initial_premium (float) : initial premium per $ of gross premium
+    - renewal_premium (float) : renewal premium per $ of gross premium
+    - discrete (bool) : annuity due (True) or continuous (False)
+    - T (int) : term of insurance
+    - discrete (bool) : annuity due (True) or continuous (False)        
+    """
+    _help = ['premium_terms', 'renewal_profit', 'initial_cost', 'claims_cost', 'policy_renewal']
+    def __init__(self, 
+                    premium: float = 1,
+                    initial_policy: float = 0, 
+                    initial_premium: float = 0, 
+                    renewal_policy: float = 0, 
+                    renewal_premium: float = 0,
+                    settlement_policy: float = 0,
+                    benefit: float = 1, 
+                    endowment: float = 0,
+                    T: int = Premiums.WHOLE,
+                    discrete: bool = True):
+        self.premium=premium
+        self.benefit=benefit
+        self.discrete=discrete
+        self.initial_policy=initial_policy
+        self.initial_premium=initial_premium
+        self.renewal_policy=renewal_policy
+        self.renewal_premium=renewal_premium
+        self.settlement_policy=settlement_policy
+        self.endowment=endowment
+        self.T = T
+    
+    def set(self, **terms) -> Any:
+        for key, value in terms.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        return self
+
+    @property
+    def premium_terms(self) -> Dict:    # terms required by gross_premiums 
+        """Return dict of terms required for calculating premiums
+        """
+        return dict(benefit=self.benefit,
+                    initial_policy=self.initial_policy,
+                    initial_premium=self.initial_premium,
+                    renewal_policy=self.renewal_policy,
+                    renewal_premium=self.renewal_premium,
+                    settlement_policy=self.settlement_policy)
+
+    @property
+    def policy_renewal(self) -> Any:
+        """New policy object with initial terms set to renewal, for t > 0
+        """
+        return Policy(benefit=self.benefit,
+                      renewal_policy=self.renewal_policy,
+                      renewal_premium=self.renewal_premium,
+                      initial_policy=self.renewal_policy,
+                      initial_premium=self.renewal_premium,
+                      settlement_policy=self.settlement_policy,
+                      discrete=self.discrete,
+                      premium=self.premium,
+                      endowment=self.endowment, T=self.T)
+
+    @property
+    def renewal_profit(self) -> float:
+        """Renewal premium, less renewal per premium and policy expenses
+        """
+        return ((self.premium * (1 - self.renewal_premium)) 
+                - self.renewal_policy)
+
+    @property
+    def initial_cost(self) -> float:
+        """Initial per premium and per policy expense, less premium
+        """
+        return ((self.initial_policy - self.renewal_policy)
+                + (self.premium * (self.initial_premium 
+                                    - self.renewal_premium)))
+
+    @property
+    def claims_cost(self) -> float:
+        """Total claims costs = death benefit + settlement expense
+        """
+        return self.benefit + self.settlement_policy
 
 class PolicyValues(Premiums):
     """PolicyValues: net and gross future losses
     """
     _help = ['net_future_loss', 'net_variance_loss', 'net_policy_variance', 
-             'Policy', 'gross_future_loss', 'gross_policy_variance',
-             'gross_policy_value',
+             'gross_future_loss', 'gross_policy_variance', 'gross_policy_value',
              'L_from_t', 'L_to_t', 'L_from_prob', 'L_to_prob', 'L_plot']
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-    class Policy:
-        """Class to store policy expenses and benefit amounts
-        - premium (float) : level premium amount
-        - initial_policy (float) : 
-        - benefit (int) : insurance benefit amount
-        - endowment (float) : endowment benefit amount
-        - settlement_policy (float) : settlement expense per policy
-        - initial_policy (float) : initial expense per policy
-        - renewal_policy (float) : renewal expense per policy
-        - initial_premium (float) : initial premium per $ of gross premium
-        - renewal_premium (float) : renewal premium per $ of gross premium
-        - discrete (bool) : annuity due (True) or continuous (False)
-        - T (int) : term of insurance
-        - discrete (bool) : annuity due (True) or continuous (False)        
-        """
-        def __init__(self, 
-                     premium: float = 1,
-                     initial_policy: float = 0, 
-                     initial_premium: float = 0, 
-                     renewal_policy: float = 0, 
-                     renewal_premium: float = 0,
-                     settlement_policy: float = 0,
-                     benefit: float = 1, 
-                     endowment: float = 0,
-                     T: int = Premiums.WHOLE,
-                     discrete: bool = True):
-            self.premium=premium
-            self.benefit=benefit
-            self.discrete=discrete
-            self.initial_policy=initial_policy
-            self.initial_premium=initial_premium
-            self.renewal_policy=renewal_policy
-            self.renewal_premium=renewal_premium
-            self.settlement_policy=settlement_policy
-            self.endowment=endowment
-            self.T = T
-        
-        def set(self, **terms) -> Any:
-            for key, value in terms.items():
-                if hasattr(self, key):
-                    setattr(self, key, value)
-            return self
-
-        @property
-        def premium_terms(self) -> Dict:    # terms required by gross_premiums 
-            """Return dict of terms required for calculating premiums"""
-            return dict(benefit=self.benefit,
-                        initial_policy=self.initial_policy,
-                        initial_premium=self.initial_premium,
-                        renewal_policy=self.renewal_policy,
-                        renewal_premium=self.renewal_premium,
-                        settlement_policy=self.settlement_policy)
-
-        @property
-        def future(self) -> Any:
-            """New policy object with initial terms set to renewal, for t > 0"""
-            return PolicyValues.Policy(benefit=self.benefit,
-                                       renewal_policy=self.renewal_policy,
-                                       renewal_premium=self.renewal_premium,
-                                       initial_policy=self.renewal_policy,
-                                       initial_premium=self.renewal_premium,
-                                       settlement_policy=self.settlement_policy,
-                                       discrete=self.discrete,
-                                       premium=self.premium,
-                                       endowment=self.endowment, T=self.T)
-
-        @property
-        def renewal_profit(self) -> float:
-            """Renewal premium, less renewal per premium and policy expenses"""
-            return ((self.premium * (1 - self.renewal_premium)) 
-                    - self.renewal_policy)
-
-        @property
-        def initial_cost(self) -> float:
-            """Initial per premium and per policy expense, less premium"""
-            return ((self.initial_policy - self.renewal_policy)
-                    + (self.premium * (self.initial_premium 
-                                       - self.renewal_premium)))
-
-        @property
-        def claims_cost(self) -> float:
-            """Total claims costs = death benefit + settlement expense"""
-            return self.benefit + self.settlement_policy
 
     #
     # Net Future Loss shortcuts for WL and Endowment Insurance 
@@ -275,7 +281,7 @@ class PolicyValues(Premiums):
             initial_cost = 0 if t else policy.initial_cost
             return (A * policy.claims_cost + initial_cost + endowment
                     - (a * policy.renewal_profit))
-        policy = policy.future if t else policy  # if t>0, ignore init expense
+        policy = policy.policy_renewal if t else policy # if t>0, ignore initial
         return self.gross_future_loss(A=A, policy=policy)
 
     #
@@ -387,20 +393,20 @@ if __name__ == "__main__":
     life = PolicyValues(interest=dict(delta=0.07))
     x, A1 = 0, 0.30   # Policy for first insurance
     P = life.premium_equivalence(A=A1, discrete=False)  # Need its premium
-    policy = life.Policy(premium=P, discrete=False)
+    policy = Policy(premium=P, discrete=False)
     def fun(A2):  # Solve for A2, given Var(Loss)
         return life.gross_variance_loss(A1=A1, A2=A2, policy=policy)
     A2 = life.solve(fun, target=0.18, guess=0.18)
     print()
     
-    policy = life.Policy(premium=0.06, discrete=False) # Solve second insurance
+    policy = Policy(premium=0.06, discrete=False) # Solve second insurance
     variance = life.gross_variance_loss(A1=A1, A2=A2, policy=policy)
     print(variance)
     print()
 
     print("SOA Question 6.30:  (A) 900")
     life = PolicyValues(interest=dict(i=0.04))
-    policy = life.Policy(premium=2.338, benefit=100, initial_premium=.1,
+    policy = Policy(premium=2.338, benefit=100, initial_premium=.1,
                          renewal_premium=0.05)
     var = life.gross_variance_loss(A1=life.insurance_twin(16.50),
                                    A2=0.17, policy=policy)
@@ -409,11 +415,11 @@ if __name__ == "__main__":
 
     print("SOA Question 7.32:  (B) 1.4")
     life = PolicyValues(interest=dict(i=0.06))
-    policy = life.Policy(benefit=1, premium=0.1)
+    policy = Policy(benefit=1, premium=0.1)
     def fun(A2):
         return life.gross_variance_loss(A1=0, A2=A2, policy=policy)
     A2 = life.solve(fun, target=0.455, guess=0.455)
-    policy = life.Policy(benefit=2, premium=0.16)
+    policy = Policy(benefit=2, premium=0.16)
     var = life.gross_variance_loss(A1=0, A2=A2, policy=policy)
     print(var)
     print()
@@ -422,7 +428,7 @@ if __name__ == "__main__":
     life = PolicyValues(interest=dict(i=0.06))
     a = 12
     A = life.insurance_twin(a)
-    policy = life.Policy(benefit=1000, settlement_policy=20, 
+    policy = Policy(benefit=1000, settlement_policy=20, 
                          initial_policy=10, initial_premium=0.75, 
                          renewal_policy=2, renewal_premium=0.1)
     policy.premium = life.gross_premium(A=A, a=a, **policy.premium_terms)
@@ -434,7 +440,7 @@ if __name__ == "__main__":
     print("Plot Example -- SOA Question 6.6:  (B) 0.79")
     life = SULT()
     P = life.net_premium(62, b=10000)
-    policy = life.Policy(premium=1.03*P, renewal_policy=5,
+    policy = Policy(premium=1.03*P, renewal_policy=5,
                          initial_policy=5, initial_premium=0.05, benefit=10000)
     L = life.gross_policy_value(62, policy=policy)
     var = life.gross_policy_variance(62, policy=policy)
@@ -446,7 +452,7 @@ if __name__ == "__main__":
     print("Plot Example -- SOA QUestion 7.6:  (E) -25.4")
     life = SULT()
     P = life.net_premium(45, b=2000)
-    policy = life.Policy(benefit=2000, initial_premium=.25, renewal_premium=.05,
+    policy = Policy(benefit=2000, initial_premium=.25, renewal_premium=.05,
                          initial_policy=2*1.5 + 30, renewal_policy=2*.5 + 10)
     G = life.gross_premium(a=life.whole_life_annuity(45), **policy.premium_terms)
     gross = life.gross_policy_value(45, t=10, policy=policy.set(premium=G))
@@ -458,4 +464,5 @@ if __name__ == "__main__":
     life.L_plot(45, T=int(T), policy=policy)
 
     print(PolicyValues.help())
+    print(Policy.help())
     

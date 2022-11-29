@@ -5,10 +5,11 @@ Copyright 2022, Terence Lim
 MIT License
 """
 from actuarialmath.survival import Survival
+from actuarialmath.life import Actuarial
 from typing import Dict
 import math
 
-class Adjust:
+class Adjust(Actuarial):
     """Adjust: adjusts mortality by extra risk
     
     - life (Survival) : original survival and mortality functions
@@ -31,12 +32,6 @@ class Adjust:
         self.adjust = adjust
         return self
 
-    @classmethod
-    def help(self):
-        return (f"class {self.__doc__}\n{'Methods:' if self._help else ''}\n\n" \
-                + "\n".join(f" - {s}(...)  {getattr(self, s).__doc__}"
-                            for s in self._help))
-        
     def __getitem__(self, col: str) -> Dict[int, float]:
         """Return adjusted survival or mortality values, as dict keyed by age
         - col (str) : one of {'q', 'p'}

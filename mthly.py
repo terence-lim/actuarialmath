@@ -6,11 +6,11 @@ MIT License
 """
 from typing import Callable
 from actuarialmath.premiums import Premiums
-from actuarialmath.adjustmortality import Adjust
+from actuarialmath.life import Actuarial
 import math
 import pandas as pd
 
-class Mthly(Adjust):
+class Mthly(Actuarial):
     """1/M'thly insurance and annuities
 
     - m (int) : number of payments per year

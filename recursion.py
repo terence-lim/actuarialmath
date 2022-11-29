@@ -860,7 +860,7 @@ if __name__ == "__main__":
     life1 = Recursion(interest=dict(i=0.08))\
             .set_q(life.q_x(x, t=1) * 1.5, x=x, t=1)\
             .set_q(life.q_x(x+1, t=1) * 1.5, x=x+1, t=1)
-    policy = life1.Policy(premium=P * 2, benefit=100000, endowment=30000)
+    policy = Policy(premium=P * 2, benefit=100000, endowment=30000)
     L = life1.gross_policy_value(x, t=0, n=2, policy=policy)
     print(L)
     print()
