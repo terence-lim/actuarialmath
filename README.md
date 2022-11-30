@@ -9,7 +9,7 @@ sample FAM-L questions and more.
 
 - The concepts are developed hierarchically in [object-oriented Python](https://github.com/terence-lim/actuarialmath.git).
 
-- Each module incrementally introduces the [formulas used, with usage examples](https://terence-lim.github.io/notes/actuarialmath.pdf).
+- Each module incrementally introduces the [formulas used](https://terence-lim.github.io/notes/actuarialmath.pdf).
 
 - The SOA sample questions (released in August 2022) are solved in an
 [executable Google Colab Notebook](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing).
