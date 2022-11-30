@@ -20,7 +20,7 @@ Terence Lim
 
 MIT License. Copyright 2022, Terence Lim
 
-## Concepts and Class Inheritance
+## Concepts and Classes
 
 ![actuarialmath](FAM-L.png)
 
