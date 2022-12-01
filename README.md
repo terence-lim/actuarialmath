@@ -43,8 +43,8 @@ print(1000 * mthly.temporary_annuity(35, t=30))
 ```
 life = SULT()
 S = life.FPT_policy_value(35, t=1, b=1000)
-policy = Policy(benefit=1000, initial_premium=0.3, initial_policy=300,
-                renewal_premium=0.04, renewal_policy=30)
+policy = life.Policy(benefit=1000, initial_premium=.3, initial_policy=300,
+                     renewal_premium=.04, renewal_policy=30)
 P = life.gross_premium(A=life.whole_life_insurance(35), **policy.premium_terms)
 R = life.gross_policy_value(35, t=1, policy=policy.set(premium=P))
 ```

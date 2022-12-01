@@ -62,7 +62,7 @@ class Autograde:
         out.loc[0] = out.sum(axis=0)
         return out.sort_index()
 
-autograde = Autograde(terminate=False)
+autograde = Autograde(terminate=True)
 
 """## Tables
 
