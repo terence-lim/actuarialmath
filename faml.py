@@ -612,10 +612,9 @@ autograde(81873, Z, 4.18)
 """
 
 life = SULT()
-adjust = Adjust(life=life)
-q = adjust(extra=0.8, adjust=Adjust.MULTIPLY_RATE)['q']
+adjust = Adjust(life=life, extra=0.8, adjust=Adjust.MULTIPLY_RATE)
 select = Select(n=1)\
-         .set_select(column=0, select_age=True, q=q)\
+         .set_select(column=0, select_age=True, q=adjust.q)\
          .set_select(column=1, select_age=False, q=life['q']).fill()
 A = 100000 * select.whole_life_insurance(80, s=0)
 autograde(59050, A, 4.19)
@@ -671,10 +670,9 @@ autograde(213.7, P, 5.4) # 213.7
 """
 
 life = SULT()   # start with SULT life table
-adjust = Adjust(life=life)
-q = adjust(extra=0.05, adjust=Adjust.ADD_FORCE)['q']
+adjust = Adjust(life=life, extra=0.05, adjust=Adjust.ADD_FORCE)
 select = Select(n=1)\
-         .set_select(column=0, select_age=True, q=q)\
+         .set_select(column=0, select_age=True, q=adjust.q)\
          .set_select(column=1, select_age=False, a=life['a']).fill()
 a = 100 * select['a'][45][0]
 autograde(1700, a, 5.5)
