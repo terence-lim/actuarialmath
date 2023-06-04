@@ -1,0 +1,27 @@
+Metadata-Version: 2.1
+Name: actuarialmath
+Version: 0.0.5
+Summary: A package for solving actuarial math
+Author: Terence Lim
+Project-URL: Homepage, https://github.com/terence-lim/actuarialmath
+Project-URL: Bug Tracker, https://github.com/terence-lim/actuarialmath/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Actuarial Math
+
+## Actuarial Math - Life Contingent Risks
+
+This package implements fundamental methods for modeling life
+contingent risks, and closely follows traditional topics covered in
+actuarial exams and standard texts such as the "Fundamentals of
+Actuarial Math - Long-term" exam syllabus by the Society of Actuaries,
+and "Actuarial Mathematics for Life Contingent Risks" by Dickson,
+Hardy and Waters.
+
+
+MIT License. Copyright 2022-2023, Terence Lim
