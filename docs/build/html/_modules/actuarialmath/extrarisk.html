@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>actuarialmath.extrarisk &mdash; actuarialmath  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            actuarialmath
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.actuarial.html">actuarial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.interest.html">interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.life.html">life</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.survival.html">survival</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetime.html">lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.fractional.html">fractional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.insurance.html">insurance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.annuity.html">annuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.premiums.html">premiums</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.policyvalues.html">policyvalues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.reserves.html">reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetable.html">lifetable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.sult.html">sult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.selectlife.html">selectlife</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.recursion.html">recursion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mortalitylaws.html">mortalitylaws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.constantforce.html">constantforce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.extrarisk.html">extrarisk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mthly.html">mthly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.udd.html">udd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.woolhouse.html">woolhouse</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">actuarialmath</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">actuarialmath.extrarisk</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for actuarialmath.extrarisk</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Extra Risk - Adjusts force of mortality, age rating or mortality rate</span>
+
+<span class="sd">MIT License. Copyright 2022-2023 Terence Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.survival</span> <span class="kn">import</span> <span class="n">Survival</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.actuarial</span> <span class="kn">import</span> <span class="n">Actuarial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<div class="viewcode-block" id="ExtraRisk"><a class="viewcode-back" href="../../actuarialmath.extrarisk.html#actuarialmath.extrarisk.ExtraRisk">[docs]</a><span class="k">class</span> <span class="nc">ExtraRisk</span><span class="p">(</span><span class="n">Actuarial</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adjust mortality by extra risk</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      life : original survival and mortality rates</span>
+<span class="sd">      extra : amount of extra risk to adjust</span>
+<span class="sd">      risk : adjust by {&quot;ADD_FORCE&quot; &quot;MULTIPLY_FORCE&quot; &quot;ADD_AGE&quot; &quot;MULTIPLY_RATE&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">risks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ADD_FORCE&quot;</span><span class="p">,</span> <span class="s2">&quot;MULTIPLY_FORCE&quot;</span><span class="p">,</span> <span class="s2">&quot;ADD_AGE&quot;</span><span class="p">,</span> <span class="s2">&quot;MULTIPLY_RATE&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">life</span><span class="p">:</span> <span class="n">Survival</span><span class="p">,</span> <span class="n">risk</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="n">extra</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExtraRisk&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Specify type and amount of mortality adjustment to apply&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">risk</span> <span class="ow">or</span> <span class="n">risk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">risks</span><span class="p">,</span> <span class="s2">&quot;risk must be one of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">risks</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">extra</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;amount of extra risk must be non-negative&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">life</span> <span class="o">=</span> <span class="n">life</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_</span> <span class="o">=</span> <span class="n">extra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="o">=</span> <span class="n">risk</span>
+
+<div class="viewcode-block" id="ExtraRisk.__getitem__"><a class="viewcode-back" href="../../actuarialmath.extrarisk.html#actuarialmath.extrarisk.ExtraRisk.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns survival function values adjusted by extra risk</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          col : {&#39;p&#39;, &#39;q&#39;} for one-year survival or mortality function values</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          dict of age and survival function values adjusted by extract risk</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_x</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_x</span><span class="p">}[</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">_MINAGE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">_MAXAGE</span><span class="o">+</span><span class="mi">1</span><span class="p">)}</span></div>
+
+<div class="viewcode-block" id="ExtraRisk.p_x"><a class="viewcode-back" href="../../actuarialmath.extrarisk.html#actuarialmath.extrarisk.ExtraRisk.p_x">[docs]</a>    <span class="k">def</span> <span class="nf">p_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return p_[x]+s after adding or multiplying force of mortality</span>
+<span class="sd">    </span>
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;MULTIPLY_RATE&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ADD_AGE&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>    
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;MULTIPLY_FORCE&quot;</span><span class="p">]:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ADD_FORCE&quot;</span><span class="p">]:</span>
+            <span class="n">p</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p</span></div>
+
+<div class="viewcode-block" id="ExtraRisk.q_x"><a class="viewcode-back" href="../../actuarialmath.extrarisk.html#actuarialmath.extrarisk.ExtraRisk.q_x">[docs]</a>    <span class="k">def</span> <span class="nf">q_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return q_[x]+s after adding age rating or multipliying mortality rate</span>
+<span class="sd">    </span>
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ADD_FORCE&quot;</span><span class="p">,</span> <span class="s2">&quot;MULTIPLY_FORCE&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ADD_AGE&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">q_x</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;MULTIPLY_RATE&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">q_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.selectlife</span> <span class="kn">import</span> <span class="n">SelectLife</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.sult</span> <span class="kn">import</span> <span class="n">SULT</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 5.5: (A) 1699.6&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">SULT</span><span class="p">()</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="n">ExtraRisk</span><span class="p">(</span><span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">risk</span><span class="o">=</span><span class="s2">&quot;ADD_FORCE&quot;</span><span class="p">)</span>
+    <span class="n">select</span> <span class="o">=</span> <span class="n">SelectLife</span><span class="p">(</span><span class="n">periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mf">.05</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">set_select</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">age_selected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">extra</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">])</span>\
+        <span class="o">.</span><span class="n">set_select</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">age_selected</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">life</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span>\
+        <span class="o">.</span><span class="n">fill_table</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">select</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][</span><span class="mi">45</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 4.19:  (B) 59050&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">SULT</span><span class="p">()</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="n">ExtraRisk</span><span class="p">(</span><span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">risk</span><span class="o">=</span><span class="s2">&quot;MULTIPLY_RATE&quot;</span><span class="p">)</span>
+    <span class="n">select</span> <span class="o">=</span> <span class="n">SelectLife</span><span class="p">(</span><span class="n">periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mf">.05</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">set_select</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">age_selected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">extra</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">])</span>\
+        <span class="o">.</span><span class="n">set_select</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">age_selected</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">life</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">])</span>\
+        <span class="o">.</span><span class="n">fill_table</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="mi">100000</span><span class="o">*</span><span class="n">select</span><span class="o">.</span><span class="n">whole_life_insurance</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Other usage examples&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">SULT</span><span class="p">()</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="n">ExtraRisk</span><span class="p">(</span><span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">risk</span><span class="o">=</span><span class="s2">&quot;MULTIPLY_FORCE&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="mi">45</span><span class="p">),</span> <span class="n">extra</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="mi">45</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Terence Lim.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

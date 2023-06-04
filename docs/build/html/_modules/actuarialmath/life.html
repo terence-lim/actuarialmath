@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>actuarialmath.life &mdash; actuarialmath  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            actuarialmath
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.actuarial.html">actuarial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.interest.html">interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.life.html">life</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.survival.html">survival</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetime.html">lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.fractional.html">fractional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.insurance.html">insurance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.annuity.html">annuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.premiums.html">premiums</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.policyvalues.html">policyvalues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.reserves.html">reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetable.html">lifetable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.sult.html">sult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.selectlife.html">selectlife</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.recursion.html">recursion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mortalitylaws.html">mortalitylaws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.constantforce.html">constantforce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.extrarisk.html">extrarisk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mthly.html">mthly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.udd.html">udd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.woolhouse.html">woolhouse</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">actuarialmath</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">actuarialmath.life</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for actuarialmath.life</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Life Contingent Risks - Applies probability laws</span>
+
+<span class="sd">MIT License. Copyright (c) 2022-2023 Terence Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">ndtri</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.interest</span> <span class="kn">import</span> <span class="n">Interest</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.actuarial</span> <span class="kn">import</span> <span class="n">Actuarial</span>
+
+<div class="viewcode-block" id="Life"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life">[docs]</a><span class="k">class</span> <span class="nc">Life</span><span class="p">(</span><span class="n">Actuarial</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute moments and probabilities&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Life.set_interest"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.set_interest">[docs]</a>    <span class="k">def</span> <span class="nf">set_interest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">interest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Life&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set interest rate, which can be given in any form</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          i : assumed annual interest rate</span>
+<span class="sd">          d : or assumed discount rate</span>
+<span class="sd">          v : or assumed discount factor</span>
+<span class="sd">          delta : or assumed contiuously compounded interest rate</span>
+<span class="sd">          v_t : or assumed discount rate as a function of time</span>
+<span class="sd">          i_m : or assumed monthly interest rate</span>
+<span class="sd">          d_m : or assumed monthly discount rate</span>
+<span class="sd">          m : m&#39;thly frequency, if i_m or d_m are given</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interest</span> <span class="o">=</span> <span class="n">Interest</span><span class="p">(</span><span class="o">**</span><span class="n">interest</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1">#</span>
+    <span class="c1"># Probability theory</span>
+    <span class="c1">#</span>
+<div class="viewcode-block" id="Life.variance"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.variance">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">var_a</span><span class="p">,</span> <span class="n">var_b</span><span class="p">,</span> <span class="n">cov_ab</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Variance of weighted sum of two r.v.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          a : weight on first r.v.</span>
+<span class="sd">          b : weight on other r.v.</span>
+<span class="sd">          var_a : variance of first r.v.</span>
+<span class="sd">          var_b : variance of other r.v.</span>
+<span class="sd">          cov_ab : covariance of the r.v.&#39;s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">var_a</span> <span class="o">+</span> <span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">var_b</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">cov_ab</span></div>
+
+<div class="viewcode-block" id="Life.covariance"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.covariance">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ab</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Covariance of two r.v.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          a : expected value of first r.v.</span>
+<span class="sd">          b : expected value of other r.v.</span>
+<span class="sd">          ab : expected value of product of the two r.v.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ab</span> <span class="o">-</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>  <span class="c1"># Cov(X,Y) = E[XY] - E[X] E[Y]</span></div>
+
+<div class="viewcode-block" id="Life.bernoulli"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.bernoulli">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="n">variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mean or variance of bernoulli r.v. with values {a, b}</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          p : probability of first value</span>
+<span class="sd">          a : first value</span>
+<span class="sd">          b : other value</span>
+<span class="sd">          variance : whether to return variance (True) or mean (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mf">1.</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="n">variance</span> <span class="k">else</span> <span class="n">p</span> <span class="o">*</span> <span class="n">a</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">b</span></div>
+
+<div class="viewcode-block" id="Life.binomial"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.binomial">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">binomial</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mean or variance of binomial r.v.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          p : probability of occurence</span>
+<span class="sd">          N : number of trials</span>
+<span class="sd">          variance : whether to return variance (True) or mean (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mf">1.</span> <span class="ow">and</span> <span class="n">N</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">N</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="n">variance</span> <span class="k">else</span> <span class="n">N</span> <span class="o">*</span> <span class="n">p</span></div>
+
+<div class="viewcode-block" id="Life.mixture"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.mixture">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">mixture</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mean or variance of binomial mixture</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          p : probability of selecting first r.v.</span>
+<span class="sd">          p1 : probability of occurrence if first r.v.</span>
+<span class="sd">          p2 : probability of occurrence if other r.v.</span>
+<span class="sd">          N : number of trials</span>
+<span class="sd">          variance : whether to return variance (True) or mean (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p1</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p2</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">N</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="n">mean1</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">mean2</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">variance</span><span class="p">:</span>
+            <span class="n">var1</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">var2</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">Life</span><span class="o">.</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mean1</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">var1</span><span class="p">,</span> <span class="n">mean2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">var2</span><span class="p">)</span> <span class="o">-</span>
+                    <span class="n">Life</span><span class="o">.</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Life</span><span class="o">.</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Life.conditional_variance"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.conditional_variance">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">conditional_variance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conditional variance formula</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          p : probability of selecting first r.v.</span>
+<span class="sd">          p1 : probability of occurence for first r.v.</span>
+<span class="sd">          p2 : probability of occurence for other r.v.</span>
+<span class="sd">          N : number of trials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p1</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p2</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">N</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="n">mean1</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">mean2</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">var1</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">var2</span> <span class="o">=</span> <span class="n">Life</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">Life</span><span class="o">.</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mean1</span><span class="p">,</span> <span class="n">mean2</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># var of mean</span>
+                <span class="o">+</span> <span class="n">Life</span><span class="o">.</span><span class="n">bernoulli</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">))</span>           <span class="c1"># plus mean of var</span></div>
+
+<div class="viewcode-block" id="Life.portfolio_percentile"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.portfolio_percentile">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">portfolio_percentile</span><span class="p">(</span><span class="n">mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">variance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                             <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Probability percentile of the sum of N iid r.v.&#39;s</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          mean : mean of each independent obsevation</span>
+<span class="sd">          variance : variance of each independent observation</span>
+<span class="sd">          prob : probability threshold</span>
+<span class="sd">          N : number of observations to sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">prob</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
+        <span class="n">mean</span> <span class="o">*=</span> <span class="n">N</span>
+        <span class="n">variance</span> <span class="o">*=</span> <span class="n">N</span>
+        <span class="k">return</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">ndtri</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Life.portfolio_cdf"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.portfolio_cdf">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">portfolio_cdf</span><span class="p">(</span><span class="n">mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">variance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                      <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Probability distribution of a value in the sum of N iid r.v.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          mean : mean of each independent obsevation</span>
+<span class="sd">          variance : variance of each independent observation</span>
+<span class="sd">          value : value to compute probability distribution in the sum</span>
+<span class="sd">          N : number of observations to sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mean</span> <span class="o">*=</span> <span class="n">N</span>
+        <span class="n">variance</span> <span class="o">*=</span> <span class="n">N</span>
+        <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variance</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Life.quantiles_frame"><a class="viewcode-back" href="../../actuarialmath.life.html#actuarialmath.life.Life.quantiles_frame">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">quantiles_frame</span><span class="p">(</span><span class="n">quantiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">.8</span><span class="p">,</span> <span class="mf">.85</span><span class="p">,</span> <span class="mf">.9</span><span class="p">,</span> <span class="mf">.95</span><span class="p">,</span>
+                                                  <span class="mf">.975</span><span class="p">,</span> <span class="mf">.99</span><span class="p">,</span> <span class="mf">.995</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display selected quantile values from Normal distribution table</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          quantiles : list of quantiles to display normal distribution values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">Life</span><span class="o">.</span><span class="n">portfolio_percentile</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">]</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Pr(Z&lt;=z)&#39;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">},</span> 
+                                     <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>\
+                                    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tab</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 2.2: (D) 400&quot;</span><span class="p">)</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># 2_p_x if vaccine given</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">0.02</span><span class="p">)</span>  <span class="c1"># 2_p_x if vaccine not given</span>
+    <span class="n">cond</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Life</span><span class="o">.</span><span class="n">conditional_variance</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">.2</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="n">p2</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100000</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>   <span class="c1"># conditional variance formula</span>
+    <span class="n">mix</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Life</span><span class="o">.</span><span class="n">mixture</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">.2</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="n">p2</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mix</span><span class="p">)</span>    <span class="c1"># mixture of distributions formula</span>
+
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Values of z for selected values of Pr(Z&lt;=z)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">Life</span><span class="o">.</span><span class="n">quantiles_frame</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Terence Lim.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

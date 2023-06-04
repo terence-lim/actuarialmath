@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>actuarialmath.woolhouse &mdash; actuarialmath  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            actuarialmath
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.actuarial.html">actuarial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.interest.html">interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.life.html">life</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.survival.html">survival</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetime.html">lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.fractional.html">fractional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.insurance.html">insurance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.annuity.html">annuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.premiums.html">premiums</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.policyvalues.html">policyvalues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.reserves.html">reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetable.html">lifetable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.sult.html">sult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.selectlife.html">selectlife</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.recursion.html">recursion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mortalitylaws.html">mortalitylaws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.constantforce.html">constantforce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.extrarisk.html">extrarisk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mthly.html">mthly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.udd.html">udd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.woolhouse.html">woolhouse</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">actuarialmath</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">actuarialmath.woolhouse</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for actuarialmath.woolhouse</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Woolhouse - 1/mthly insurance and annuities with Woolhouse&#39;s approximation</span>
+
+<span class="sd">MIT License. Copyright 2022-2023 Terence Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.mthly</span> <span class="kn">import</span> <span class="n">Mthly</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.annuity</span> <span class="kn">import</span> <span class="n">Annuity</span>
+
+<div class="viewcode-block" id="Woolhouse"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse">[docs]</a><span class="k">class</span> <span class="nc">Woolhouse</span><span class="p">(</span><span class="n">Mthly</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly shortcuts with Woolhouse approximation</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      m : number of payments per year</span>
+<span class="sd">      life : original fractional survival and mortality functions</span>
+<span class="sd">      three_term : whether to include (True) or ignore (False) third term</span>
+<span class="sd">      approximate_mu : function to approximate mu_x for third term</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">life</span><span class="p">:</span> <span class="n">Annuity</span><span class="p">,</span> <span class="n">three_term</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">approximate_mu</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">three_term</span> <span class="o">=</span> <span class="n">three_term</span>          <span class="c1"># whether to include third term</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">approximate_mu</span> <span class="o">=</span> <span class="n">approximate_mu</span>  <span class="c1"># whether to approximate mu</span>
+
+<div class="viewcode-block" id="Woolhouse.mu_x"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.mu_x">[docs]</a>    <span class="k">def</span> <span class="nf">mu_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Approximates or computes mu_x for third term</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximate_mu</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>       <span class="c1"># approximate mu</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mf">.5</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">t</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximate_mu</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">mu_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>     <span class="c1"># use exact mu</span>
+        <span class="k">else</span><span class="p">:</span>                                 <span class="c1"># apply custom function for mu</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximate_mu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Woolhouse.whole_life_insurance"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.whole_life_insurance">[docs]</a>    <span class="k">def</span> <span class="nf">whole_life_insurance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                             <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse whole life insurance: A_x</span>
+<span class="sd"> </span>
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          b : amount of benefit</span>
+<span class="sd">          mu : value of mu at age x+s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">b</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">insurance_twin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Woolhouse.term_insurance"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.term_insurance">[docs]</a>    <span class="k">def</span> <span class="nf">term_insurance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Annuity</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span>
+                       <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> 
+                       <span class="n">mu1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse term insurance: A_x:t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : year of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of insurance in years</span>
+<span class="sd">          b : amount of benefit</span>
+<span class="sd">          mu : value of mu at age x+s</span>
+<span class="sd">          mu1 : value of mu at age x+s+t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">A</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">A</span> <span class="o">-</span> <span class="n">E</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Woolhouse.endowment_insurance"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.endowment_insurance">[docs]</a>    <span class="k">def</span> <span class="nf">endowment_insurance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Annuity</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span>
+                            <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endowment</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> 
+                            <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse term insurance: A_x:t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : year of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of insurance in years</span>
+<span class="sd">          b : amount of benefit</span>
+<span class="sd">          endowment : amount of endowment</span>
+<span class="sd">          mu : value of mu at age x+s+t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">endowment</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">endowment</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">A</span> <span class="o">+</span> <span class="n">E</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span> <span class="k">if</span> <span class="n">endowment</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">endowment</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Woolhouse.deferred_insurance"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.deferred_insurance">[docs]</a>    <span class="k">def</span> <span class="nf">deferred_insurance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                           <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Annuity</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                           <span class="n">mu1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse deferred insurance as discounted term or WL</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : year of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          u : number of years deferred</span>
+<span class="sd">          t : term of insurance in years</span>
+<span class="sd">          b : amount of benefit</span>
+<span class="sd">          mu : value of mu at age x+s+u</span>
+<span class="sd">          mu1 : value of mu at age x+s+u+t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">u</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">u</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">E</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu1</span><span class="o">=</span><span class="n">mu1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Woolhouse.whole_life_annuity"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.whole_life_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">whole_life_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                           <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse whole life annuity: a_x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : year of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          b : amount of benefit</span>
+<span class="sd">          mu : value of mu at age x+s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span>
+             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_term</span><span class="p">:</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">mu</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="n">a</span> <span class="o">-=</span> <span class="p">(</span><span class="n">mu</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">12</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span></div>
+
+<div class="viewcode-block" id="Woolhouse.temporary_annuity"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.temporary_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">temporary_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Annuity</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> 
+                          <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">mu1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse temporary life annuity: a_x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : year of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of annuity in years</span>
+<span class="sd">          b : amount of benefit</span>
+<span class="sd">          mu : value of mu at age x+s</span>
+<span class="sd">          mu1 : value of mu at age x+s+t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deferred_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu1</span><span class="o">=</span><span class="n">mu1</span><span class="p">)</span> <span class="c1"># u=0</span></div>
+
+<div class="viewcode-block" id="Woolhouse.deferred_annuity"><a class="viewcode-back" href="../../actuarialmath.woolhouse.html#actuarialmath.woolhouse.Woolhouse.deferred_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">deferred_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Annuity</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> 
+                         <span class="n">u</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                        <span class="n">mu1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;1/m&#39;thly Woolhouse deferred life annuity: a_x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : year of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          u : years of deferral</span>
+<span class="sd">          t : term of annuity in years</span>
+<span class="sd">          mu : value of mu at age x+s+u</span>
+<span class="sd">          mu1 : value of mu at age x+s+u+t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">u</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">)</span>
+        <span class="n">a_xt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">t</span><span class="o">+</span><span class="n">u</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu1</span><span class="p">)</span> <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">a_x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">a_xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.sult</span> <span class="kn">import</span> <span class="n">SULT</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.recursion</span> <span class="kn">import</span> <span class="n">Recursion</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.udd</span> <span class="kn">import</span> <span class="n">UDD</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.policyvalues</span> <span class="kn">import</span> <span class="n">Contract</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 7.7:  (D) 1110&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Recursion</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">set_A</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">+</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">Woolhouse</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">)</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">contract</span> <span class="o">=</span> <span class="n">Contract</span><span class="p">(</span><span class="n">premium</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">renewal_policy</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">gross_future_loss</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="o">.</span><span class="n">renewals</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+    <span class="n">contract</span> <span class="o">=</span> <span class="n">Contract</span><span class="p">(</span><span class="n">premium</span><span class="o">=</span><span class="mi">30</span><span class="o">*</span><span class="mi">12</span><span class="p">,</span> <span class="n">renewal_premium</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">V1</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">gross_future_loss</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="o">.</span><span class="n">renewals</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">V</span><span class="o">+</span><span class="n">V1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+     
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 6.25:  (C) 12330&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">SULT</span><span class="p">()</span>
+    <span class="n">woolhouse</span> <span class="o">=</span> <span class="n">Woolhouse</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">)</span>
+    <span class="n">benefits</span> <span class="o">=</span> <span class="n">woolhouse</span><span class="o">.</span><span class="n">deferred_annuity</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="n">expenses</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">payments</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">benefits</span> <span class="o">+</span> <span class="n">expenses</span><span class="p">,</span> <span class="n">payments</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">P</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">life</span><span class="o">.</span><span class="n">gross_future_loss</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="n">benefits</span> <span class="o">+</span> <span class="n">expenses</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">payments</span><span class="p">,</span>
+                                      <span class="n">contract</span><span class="o">=</span><span class="n">Contract</span><span class="p">(</span><span class="n">premium</span><span class="o">=</span><span class="n">P</span><span class="p">))</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">target</span><span class="o">=-</span><span class="mi">800</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="p">[</span><span class="mi">12110</span><span class="p">,</span> <span class="mi">12550</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+     
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 6.15:  (B) 1.002&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Recursion</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">set_a</span><span class="p">(</span><span class="mf">3.4611</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">insurance_twin</span><span class="p">(</span><span class="mf">3.4611</span><span class="p">)</span>
+    <span class="n">udd</span> <span class="o">=</span> <span class="n">UDD</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">)</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">udd</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">woolhouse</span> <span class="o">=</span> <span class="n">Woolhouse</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">)</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="n">woolhouse</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">gross_premium</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a1</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="n">A</span><span class="p">)</span><span class="o">/</span><span class="n">life</span><span class="o">.</span><span class="n">gross_premium</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a2</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="n">A</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+     
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 5.7:  (C) 17376.7&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Recursion</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">set_A</span><span class="p">(</span><span class="mf">0.188</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">35</span><span class="p">)</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">set_A</span><span class="p">(</span><span class="mf">0.498</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">65</span><span class="p">)</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">set_p</span><span class="p">(</span><span class="mf">0.883</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">mthly</span> <span class="o">=</span> <span class="n">Woolhouse</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">life</span><span class="o">=</span><span class="n">life</span><span class="p">,</span> <span class="n">three_term</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mthly</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">mthly</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Terence Lim.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

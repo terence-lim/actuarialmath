@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>actuarialmath.annuity &mdash; actuarialmath  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            actuarialmath
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.actuarial.html">actuarial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.interest.html">interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.life.html">life</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.survival.html">survival</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetime.html">lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.fractional.html">fractional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.insurance.html">insurance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.annuity.html">annuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.premiums.html">premiums</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.policyvalues.html">policyvalues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.reserves.html">reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetable.html">lifetable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.sult.html">sult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.selectlife.html">selectlife</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.recursion.html">recursion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mortalitylaws.html">mortalitylaws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.constantforce.html">constantforce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.extrarisk.html">extrarisk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mthly.html">mthly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.udd.html">udd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.woolhouse.html">woolhouse</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">actuarialmath</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">actuarialmath.annuity</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for actuarialmath.annuity</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Life annuities - Computes present values of annuity benefits</span>
+
+<span class="sd">MIT License. Copyright (c) 2022-2023 Terence Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.insurance</span> <span class="kn">import</span> <span class="n">Insurance</span>
+
+<div class="viewcode-block" id="Annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity">[docs]</a><span class="k">class</span> <span class="nc">Annuity</span><span class="p">(</span><span class="n">Insurance</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute present values and relationships of life annuities&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Annuity.a_x"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.a_x">[docs]</a>    <span class="k">def</span> <span class="nf">a_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">benefit</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Numerically compute EPV of annuities from survival functions</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          u : year deferred</span>
+<span class="sd">          t : term of insurance</span>
+<span class="sd">          benefit : benefit as a function of age and year</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="o">+</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">discrete</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">benefit</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> 
+                     <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">u</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>   <span class="c1"># use continous first principles</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">benefit</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="n">u</span><span class="p">)</span> 
+                           <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="o">+</span><span class="n">u</span><span class="p">))</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span></div>
+
+
+<div class="viewcode-block" id="Annuity.immediate_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.immediate_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">immediate_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> 
+                          <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute EPV of immediate life annuity</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of insurance</span>
+<span class="sd">          b : benefit amount</span>
+<span class="sd">          variance : return EPV (False) or variance (True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">variance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">add_term</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span>
+                                          <span class="n">discrete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
+                <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">))</span> <span class="o">*</span> <span class="n">b</span></div>
+    
+<div class="viewcode-block" id="Annuity.annuity_twin"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.annuity_twin">[docs]</a>    <span class="k">def</span> <span class="nf">annuity_twin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns annuity from its WL or Endowment Insurance twin&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          A : cost of insurance</span>
+<span class="sd">          discrete : discrete/annuity due (True) or continous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">interest</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">d</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">A</span><span class="p">)</span> <span class="o">/</span> <span class="n">interest</span><span class="p">)</span> <span class="k">if</span> <span class="n">interest</span> <span class="k">else</span> <span class="mi">0</span> <span class="c1"># undefined for 0 interest</span></div>
+
+<div class="viewcode-block" id="Annuity.insurance_twin"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.insurance_twin">[docs]</a>    <span class="k">def</span> <span class="nf">insurance_twin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">moment</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                       <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns WL or Endowment Insurance twin from annuity</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          a : cost of annuity</span>
+<span class="sd">          discrete : discrete/annuity due (True) or continous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">moment</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">d</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="Annuity.annuity_variance"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.annuity_variance">[docs]</a>    <span class="k">def</span> <span class="nf">annuity_variance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">A1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+                         <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute variance from WL or endowment insurance twin</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          A2 : second moment of insurance factor</span>
+<span class="sd">          A1 : first moment of insurance factor</span>
+<span class="sd">          b : annuity benefit amount</span>
+<span class="sd">          discrete : discrete/annuity due (True) or continous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">insurance_variance</span><span class="p">(</span><span class="n">A2</span><span class="o">=</span><span class="n">A2</span><span class="p">,</span> <span class="n">A1</span><span class="o">=</span><span class="n">A1</span><span class="p">)</span>
+                <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">d</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Annuity.whole_life_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.whole_life_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">whole_life_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                           <span class="n">variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                           <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whole life annuity: a_x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          b : annuity benefit amount</span>
+<span class="sd">          variance : return EPV (True) or variance (False)</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">interest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">d</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span>
+        <span class="k">if</span> <span class="n">variance</span><span class="p">:</span>  <span class="c1"># short cut for variance of whole life</span>
+            <span class="n">A1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">moment</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+            <span class="n">A2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">moment</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annuity_variance</span><span class="p">(</span><span class="n">A2</span><span class="o">=</span><span class="n">A2</span><span class="p">,</span> <span class="n">A1</span><span class="o">=</span><span class="n">A1</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span> <span class="o">/</span> <span class="n">interest</span></div>
+            
+<div class="viewcode-block" id="Annuity.temporary_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.temporary_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">temporary_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> 
+                          <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">variance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                          <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Temporary life annuity: a_x:t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of annuity in years</span>
+<span class="sd">          b (int) : annuity benefit amount</span>
+<span class="sd">          variance : return EPV (True) or variance (False)</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">variance</span><span class="p">:</span>  <span class="c1"># short cut for variance of temporary life annuity</span>
+            <span class="n">A1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endowment_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+            <span class="n">A2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endowment_insurance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">moment</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
+                                          <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annuity_variance</span><span class="p">(</span><span class="n">A2</span><span class="o">=</span><span class="n">A2</span><span class="p">,</span> <span class="n">A1</span><span class="o">=</span><span class="n">A1</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="c1"># difference of whole life on (x) and deferred whole life on (x+t)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">a</span>
+        <span class="n">a_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="p">(</span><span class="n">a_t</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Annuity.deferred_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.deferred_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">deferred_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
+                         <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                         <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deferred life annuity n|t_a_x =  n+t_a_x - n_a_x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          u : years deferred</span>
+<span class="sd">          t : term of annuity in years</span>
+<span class="sd">          b : annuity benefit amount</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="Annuity.certain_life_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.certain_life_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">certain_life_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
+                             <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                             <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Certain and life annuity = certain + deferred</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          u : years of certain annuity</span>
+<span class="sd">          t : term of life annuity in years</span>
+<span class="sd">          b : annuity benefit amount</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deferred_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">annuity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">discrete</span><span class="p">))</span> <span class="o">+</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="Annuity.increasing_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.increasing_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">increasing_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">WHOLE</span><span class="p">,</span> 
+                           <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Increasing annuity</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of life annuity in years</span>
+<span class="sd">          b : benefit amount at end of first year</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">benefit</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># increasing benefit</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="n">benefit</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Annuity.decreasing_annuity"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.decreasing_annuity">[docs]</a>    <span class="k">def</span> <span class="nf">decreasing_annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
+                           <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Identity (Da)_x:n + (Ia)_x:n = (n+1) a_x:n temporary annuity</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : term of life annuity in years</span>
+<span class="sd">          b : benefit amount at end of first year</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="mi">0</span>   <span class="c1"># decreasing must be till term</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_term</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">n</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">increasing_annuity</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">))</span></div>
+
+    <span class="c1">#</span>
+    <span class="c1"># Annuity random variable: Y(t)</span>
+    <span class="c1">#</span>
+<div class="viewcode-block" id="Annuity.Y_t"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_t">[docs]</a>    <span class="k">def</span> <span class="nf">Y_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;T_x given percentile of the r.v. Y = PV of WL or Temporary Annuity</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          prob : desired probability threshold</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">prob</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Insurance</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">target</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="n">prob</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="n">t</span>   <span class="c1"># opposite of insurance</span></div>
+
+<div class="viewcode-block" id="Annuity.Y_from_t"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_from_t">[docs]</a>    <span class="k">def</span> <span class="nf">Y_from_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;PV of insurance payment Y(t), given T_x (or K_x if discrete)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          t : year of death</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">discrete</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">d</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span></div>
+
+<div class="viewcode-block" id="Annuity.Y_to_t"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_to_t">[docs]</a>    <span class="k">def</span> <span class="nf">Y_to_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;T_x  s.t. PV of annuity payments is Y</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          Y : Present value of benefits paid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">delta</span> <span class="o">*</span> <span class="n">Y</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t</span></div>
+
+<div class="viewcode-block" id="Annuity.Y_from_prob"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_from_prob">[docs]</a>    <span class="k">def</span> <span class="nf">Y_from_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Percentile of annuity PV r.v. Y, given probability</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age initially insured</span>
+<span class="sd">          prob : desired probability threshold</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_t</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_from_t</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Annuity.Y_to_prob"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_to_prob">[docs]</a>    <span class="k">def</span> <span class="nf">Y_to_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cumulative density of insurance PV r.v. Y, given percentile value</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age initially insured</span>
+<span class="sd">          Y : present value of benefits paid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_to_t</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>   <span class="c1"># opposite of Insurance</span></div>
+
+<div class="viewcode-block" id="Annuity.Y_x"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_x">[docs]</a>    <span class="k">def</span> <span class="nf">Y_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;EPV of year t annuity benefit for life aged [x]+s: b_x[s]+s(t)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age initially insured</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          t : year of benefit</span>
+<span class="sd">          discrete : annuity due (True) or continuous (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">discrete</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> 
+                    <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_r</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Annuity.Y_plot"><a class="viewcode-back" href="../../actuarialmath.annuity.html#actuarialmath.annuity.Annuity.Y_plot">[docs]</a>    <span class="k">def</span> <span class="nf">Y_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">stop</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+               <span class="n">benefit</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">k</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+               <span class="n">T</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">discrete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>               
+               <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot PV of annuity r.v. Y vs T</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x : age of selection</span>
+<span class="sd">          s : years after selection</span>
+<span class="sd">          stop : time to end plot</span>
+<span class="sd">          benefit : benefit as a function of selection age and time</span>
+<span class="sd">          discrete : discrete or continuous insurance</span>
+<span class="sd">          ax : figure object to plot in</span>
+<span class="sd">          color : color to plot</span>
+<span class="sd">          title : title of plot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="s1">&#39;K&#39;</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="s1">&#39;T&#39;</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">stop</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAXAGE</span> <span class="o">-</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="n">stop</span> <span class="o">/</span> <span class="mf">1000.</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="n">step</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+        <span class="c1"># plot benefit values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">benefit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">+</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_from_t</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">T</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">stepsize</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;pre&#39;</span> <span class="k">if</span> <span class="n">discrete</span> <span class="k">else</span> <span class="s1">&#39;post&#39;</span><span class="p">)</span>
+
+            <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+            <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+            <span class="n">yjig</span> <span class="o">=</span> <span class="p">(</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">)</span> <span class="o">/</span> <span class="mi">50</span>
+            <span class="n">xjig</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">/</span> <span class="mi">50</span>
+            
+            <span class="c1"># indicate PV benefit Y(T*)</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_from_t</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span> <span class="o">*</span> <span class="n">benefit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MINAGE</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="n">xjig</span><span class="p">,</span> <span class="n">Y</span> <span class="o">+</span> <span class="mi">1</span><span class="o">*</span><span class="n">yjig</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Y*=</span><span class="si">{</span><span class="n">Y</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+            <span class="c1"># indicate given T* time of death</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="n">xjig</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">K</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">T</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+
+            <span class="c1"># indicate corresponding probability S(T*)</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>     <span class="c1"># note this is opposite of insurance</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">xmax</span><span class="p">,</span> <span class="n">Y</span> <span class="o">-</span> <span class="n">yjig</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Prob=</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PV annuity r.v. $Y(</span><span class="si">{</span><span class="n">K</span><span class="si">}</span><span class="s2">_</span><span class="se">{{</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="si">}</span><span class="se">}}</span><span class="s2">)$&quot;</span>
+                     <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">title</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$Y(</span><span class="si">{</span><span class="n">K</span><span class="si">}</span><span class="s2">_x)$&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$</span><span class="si">{</span><span class="n">K</span><span class="si">}</span><span class="s2">_x$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Y</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">actuarialmath.sult</span> <span class="kn">import</span> <span class="n">SULT</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">SULT</span><span class="p">()</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">Y_plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="n">life</span><span class="o">.</span><span class="n">Y_t</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))</span>
+
+    
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Annuity</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">set_survival</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">)</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="mf">0.8</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">discrete</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">Y_t</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">Y_from_prob</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="n">prob</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">life</span><span class="o">.</span><span class="n">Y_to_t</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">life</span><span class="o">.</span><span class="n">Y_from_t</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">life</span><span class="o">.</span><span class="n">Y_to_prob</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">))</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">Y_plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="n">discrete</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 5.6:  (D) 1200&quot;</span><span class="p">)</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Annuity</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">annuity_variance</span><span class="p">(</span><span class="n">A2</span><span class="o">=</span><span class="mf">0.22</span><span class="p">,</span> <span class="n">A1</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">annuity_twin</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">portfolio_percentile</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Other usage&quot;</span><span class="p">)</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.04</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.06</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Annuity</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">set_survival</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">endowment_insurance</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">E_x</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.07</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Annuity</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">set_survival</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">whole_life_annuity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>   <span class="c1"># 333.33</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">temporary_annuity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># 197.81</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">interest</span><span class="o">.</span><span class="n">annuity</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>  <span class="c1"># 4.7581</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">deferred_annuity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="c1"># 7.0848</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">certain_life_annuity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>  <span class="c1"># 11.842</span>
+
+    <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">Annuity</span><span class="p">()</span><span class="o">.</span><span class="n">set_interest</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">set_survival</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">life</span><span class="o">.</span><span class="n">decreasing_annuity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>  <span class="c1"># 6.94</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Terence Lim.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

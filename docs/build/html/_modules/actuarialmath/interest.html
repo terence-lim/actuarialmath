@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>actuarialmath.interest &mdash; actuarialmath  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            actuarialmath
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.actuarial.html">actuarial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.interest.html">interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.life.html">life</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.survival.html">survival</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetime.html">lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.fractional.html">fractional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.insurance.html">insurance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.annuity.html">annuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.premiums.html">premiums</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.policyvalues.html">policyvalues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.reserves.html">reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.lifetable.html">lifetable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.sult.html">sult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.selectlife.html">selectlife</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.recursion.html">recursion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mortalitylaws.html">mortalitylaws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.constantforce.html">constantforce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.extrarisk.html">extrarisk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.mthly.html">mthly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.udd.html">udd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../actuarialmath.woolhouse.html">woolhouse</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">actuarialmath</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">actuarialmath.interest</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for actuarialmath.interest</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Interest Theory - Applies interest rate formulas</span>
+
+<span class="sd">MIT License. Copyright (c) 2022-2023 Terence Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">actuarialmath.actuarial</span> <span class="kn">import</span> <span class="n">Actuarial</span>
+
+<div class="viewcode-block" id="Interest"><a class="viewcode-back" href="../../actuarialmath.interest.html#actuarialmath.interest.Interest">[docs]</a><span class="k">class</span> <span class="nc">Interest</span><span class="p">(</span><span class="n">Actuarial</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert between nominal, discount, continously-compounded and 1/m&#39;thly rates,</span>
+<span class="sd">    and compute value of annuity certain</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      i : assumed annual interest rate</span>
+<span class="sd">      d : or assumed discount rate</span>
+<span class="sd">      v : or assumed discount factor</span>
+<span class="sd">      delta : or assumed continuously compounded interest rate</span>
+<span class="sd">      v_t : or assumed discount rate as a function of time</span>
+<span class="sd">      i_m : or assumed monthly interest rate</span>
+<span class="sd">      d_m : or assumed monthly discount rate</span>
+<span class="sd">      m : m&#39;thly frequency, if i_m or d_m are given</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">      i (float) : interest rate</span>
+<span class="sd">      d (float) : discount rate</span>
+<span class="sd">      delta (float) :  continuously compounded interest rate</span>
+<span class="sd">      v (float) : discount factor</span>
+<span class="sd">      v_t (Callable) : discount factor as a function of time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> 
+                 <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">d_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">v_t</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i_m</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># given interest rate mthly compounded</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mthly</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">i_m</span><span class="o">=</span><span class="n">i_m</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d_m</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># given discount rate mthly compounded</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mthly</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">d_m</span><span class="o">=</span><span class="n">d_m</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v_t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>     <span class="c1"># given continously-compounded rate</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>       <span class="c1"># given annual discount rate</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">:</span>      <span class="c1"># given annual discount factor</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">v</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">else</span><span class="p">:</span>              <span class="c1"># given annual interest rate</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;non-negative interest rate not given&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v_t</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">**</span><span class="n">t</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>         <span class="c1"># store discount factor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>    <span class="c1"># store discount rate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span> <span class="c1"># store continuous rate</span>
+        <span class="k">else</span><span class="p">:</span>   <span class="c1"># given discount function</span>
+            <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">v_t</span><span class="p">),</span> <span class="s2">&quot;v_t must be a callable discount function&quot;</span>
+            <span class="k">assert</span> <span class="n">v_t</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;v_t(t=0) must equal 1&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v_t</span> <span class="o">=</span> <span class="n">v_t</span>
+            <span class="c1">#self.i = (1 / v_t(1)) - 1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Interest.annuity"><a class="viewcode-back" href="../../actuarialmath.interest.html#actuarialmath.interest.Interest.annuity">[docs]</a>    <span class="k">def</span> <span class="nf">annuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">due</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute value of the annuity certain factor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          t : number of years of payments</span>
+<span class="sd">          m : m&#39;thly frequency of payments (0 for continuous payments)</span>
+<span class="sd">          due : whether annuity due (True) or immediate (False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v_t</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">**</span><span class="n">t</span>   <span class="c1"># is t finite</span>
+        <span class="k">assert</span> <span class="n">m</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;mthly frequency must be non-negative&quot;</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># if continuous</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">v_t</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span>
+        <span class="k">elif</span> <span class="n">due</span><span class="p">:</span>   <span class="c1"># if annuity due</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">v_t</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mthly</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>       <span class="c1"># if annuity immediate</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">v_t</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mthly</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interest.mthly"><a class="viewcode-back" href="../../actuarialmath.interest.html#actuarialmath.interest.Interest.mthly">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">mthly</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">i_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">d_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to or from m&#39;thly interest rates</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          m : m&#39;thly frequency</span>
+<span class="sd">          i : an annual-pay interest rate, to convert to m&#39;thly</span>
+<span class="sd">          d : or annual-pay discount rate, to convert to m&#39;thly</span>
+<span class="sd">          i_m : or m&#39;thly interest rate, to convert to annual pay</span>
+<span class="sd">          d_m : or m&#39;thly discount rate, to convert to annual pay</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">          &gt;&gt;&gt; i = Interest.mthly(i_m=0.05, m=12)</span>
+<span class="sd">          &gt;&gt;&gt; print(&quot;Convert mthly to annual-pay:&quot;, i)</span>
+<span class="sd">          &gt;&gt;&gt; print(&quot;Convert annual-pay to mthly:&quot;, Interest.mthly(i=i, m=12))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;mthly frequency must be non-negative&quot;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">m</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">m</span><span class="p">))</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i_m</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">i_m</span> <span class="o">/</span> <span class="n">m</span><span class="p">))</span><span class="o">**</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">d_m</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">d_m</span> <span class="o">/</span> <span class="n">m</span><span class="p">))</span><span class="o">**</span><span class="n">m</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no interest rate given to mthly&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interest.double_force"><a class="viewcode-back" href="../../actuarialmath.interest.html#actuarialmath.interest.Interest.double_force">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">double_force</span><span class="p">(</span><span class="n">i</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> 
+                        <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Double the force of interest</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          i : interest rate to double force of interest</span>
+<span class="sd">          d : or discount rate</span>
+<span class="sd">          v : or discount factor</span>
+<span class="sd">          delta : or continuous rate</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          interest rate, of same form as input rate, after doubling force of interest</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">          &gt;&gt;&gt; print(&quot;Double force of interest of i =&quot;, Interest.double_force(i=0.05))</span>
+<span class="sd">          &gt;&gt;&gt; print(&quot;Double force of interest of d =&quot;, Interest.double_force(d=0.05))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">delta</span>
+        <span class="k">elif</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">v</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d</span> <span class="o">-</span> <span class="p">(</span><span class="n">d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no interest rate for double_force&quot;</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOA Question 3.10:  (C) 0.86&quot;</span><span class="p">)</span>
+    <span class="n">interest</span> <span class="o">=</span> <span class="n">Interest</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mi">35</span> <span class="o">*</span> <span class="n">interest</span><span class="o">.</span><span class="n">annuity</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">due</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="mi">75</span> <span class="o">*</span> <span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">interest</span> <span class="o">=</span> <span class="n">Interest</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">15</span> <span class="o">*</span> <span class="n">interest</span><span class="o">.</span><span class="n">annuity</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">due</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25</span> <span class="o">*</span> <span class="n">interest</span><span class="o">.</span><span class="n">v_t</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ans</span> <span class="o">=</span> <span class="n">L</span> <span class="o">/</span> <span class="p">(</span><span class="n">L</span> <span class="o">+</span> <span class="n">R</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ans</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Double the force of interest&quot;</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">i2</span> <span class="o">=</span> <span class="n">Interest</span><span class="o">.</span><span class="n">double_force</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Convert interest to discount rate&quot;</span><span class="p">)</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">Interest</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i2</span><span class="p">)</span><span class="o">.</span><span class="n">d</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Convert mthly to annual-pay:&quot;</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">Interest</span><span class="o">.</span><span class="n">mthly</span><span class="p">(</span><span class="n">i_m</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Convert annual-pay to mthly:&quot;</span><span class="p">)</span>
+    <span class="n">i_m</span> <span class="o">=</span> <span class="n">Interest</span><span class="o">.</span><span class="n">mthly</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i_m</span><span class="p">)</span>
+
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Terence Lim.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
