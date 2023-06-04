@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>policyvalues &mdash; actuarialmath  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="reserves" href="actuarialmath.reserves.html" />
+    <link rel="prev" title="premiums" href="actuarialmath.premiums.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            actuarialmath
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.actuarial.html">actuarial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.interest.html">interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.life.html">life</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.survival.html">survival</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.lifetime.html">lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.fractional.html">fractional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.insurance.html">insurance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.annuity.html">annuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.premiums.html">premiums</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">policyvalues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues"><code class="docutils literal notranslate"><span class="pre">PolicyValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.net_future_loss"><code class="docutils literal notranslate"><span class="pre">PolicyValues.net_future_loss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.net_variance_loss"><code class="docutils literal notranslate"><span class="pre">PolicyValues.net_variance_loss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.net_policy_variance"><code class="docutils literal notranslate"><span class="pre">PolicyValues.net_policy_variance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.net_policy_value"><code class="docutils literal notranslate"><span class="pre">PolicyValues.net_policy_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.gross_future_loss"><code class="docutils literal notranslate"><span class="pre">PolicyValues.gross_future_loss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.gross_variance_loss"><code class="docutils literal notranslate"><span class="pre">PolicyValues.gross_variance_loss()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.gross_policy_variance"><code class="docutils literal notranslate"><span class="pre">PolicyValues.gross_policy_variance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.gross_policy_value"><code class="docutils literal notranslate"><span class="pre">PolicyValues.gross_policy_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.L_from_t"><code class="docutils literal notranslate"><span class="pre">PolicyValues.L_from_t()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.L_to_t"><code class="docutils literal notranslate"><span class="pre">PolicyValues.L_to_t()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.L_from_prob"><code class="docutils literal notranslate"><span class="pre">PolicyValues.L_from_prob()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.L_to_prob"><code class="docutils literal notranslate"><span class="pre">PolicyValues.L_to_prob()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.PolicyValues.L_plot"><code class="docutils literal notranslate"><span class="pre">PolicyValues.L_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#actuarialmath.policyvalues.Contract"><code class="docutils literal notranslate"><span class="pre">Contract</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.Contract.set_contract"><code class="docutils literal notranslate"><span class="pre">Contract.set_contract()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.Contract.premium_terms"><code class="docutils literal notranslate"><span class="pre">Contract.premium_terms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.Contract.renewals"><code class="docutils literal notranslate"><span class="pre">Contract.renewals()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.Contract.renewal_profit"><code class="docutils literal notranslate"><span class="pre">Contract.renewal_profit</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.Contract.initial_cost"><code class="docutils literal notranslate"><span class="pre">Contract.initial_cost</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actuarialmath.policyvalues.Contract.claims_cost"><code class="docutils literal notranslate"><span class="pre">Contract.claims_cost</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.reserves.html">reserves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.lifetable.html">lifetable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.sult.html">sult</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.selectlife.html">selectlife</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.recursion.html">recursion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.mortalitylaws.html">mortalitylaws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.constantforce.html">constantforce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.extrarisk.html">extrarisk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.mthly.html">mthly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.udd.html">udd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actuarialmath.woolhouse.html">woolhouse</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">actuarialmath</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">policyvalues</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/actuarialmath.policyvalues.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-actuarialmath.policyvalues">
+<span id="policyvalues"></span><h1>policyvalues<a class="headerlink" href="#module-actuarialmath.policyvalues" title="Permalink to this heading"></a></h1>
+<p>Policy Values - Computes present value of future losses and reserves</p>
+<p>MIT License. Copyright 2022-2023 Terence Lim</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">actuarialmath.policyvalues.</span></span><span class="sig-name descname"><span class="pre">PolicyValues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="actuarialmath.premiums.html#actuarialmath.premiums.Premiums" title="actuarialmath.premiums.Premiums"><code class="xref py py-class docutils literal notranslate"><span class="pre">Premiums</span></code></a></p>
+<p>Compute net and gross future losses and policy values</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.net_future_loss">
+<span class="sig-name descname"><span class="pre">net_future_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.net_future_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.net_future_loss" title="Permalink to this definition"></a></dt>
+<dd><p>Shortcuts for WL or Endowment Insurance net loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> – insurance factor at age (x)</p></li>
+<li><p><strong>A1</strong> – insurance factor at t years after x</p></li>
+<li><p><strong>b</strong> – benefit amount</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.net_variance_loss">
+<span class="sig-name descname"><span class="pre">net_variance_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.net_variance_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.net_variance_loss" title="Permalink to this definition"></a></dt>
+<dd><p>Shortcuts for variance of net loss of WL or Endowment Insurance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> – insurance factor at age (x)</p></li>
+<li><p><strong>A1</strong> – first moment of insurance factor at t years after x</p></li>
+<li><p><strong>A2</strong> – insurance factor at double force of interest t years after x</p></li>
+<li><p><strong>b</strong> – benefit amount</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.net_policy_variance">
+<span class="sig-name descname"><span class="pre">net_policy_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endowment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.net_policy_variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.net_policy_variance" title="Permalink to this definition"></a></dt>
+<dd><p>Variance of future loss for WL or Endowment Ins assuming equivalence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age of selection</p></li>
+<li><p><strong>s</strong> – years after selection</p></li>
+<li><p><strong>t</strong> – term of life annuity in years</p></li>
+<li><p><strong>n</strong> – number of years premiums paid</p></li>
+<li><p><strong>b</strong> – benefit amount</p></li>
+<li><p><strong>endowment</strong> – endowment amount</p></li>
+<li><p><strong>discrete</strong> – annuity due (True) or continuous (False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.net_policy_value">
+<span class="sig-name descname"><span class="pre">net_policy_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endowment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.net_policy_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.net_policy_value" title="Permalink to this definition"></a></dt>
+<dd><p>Net policy value assuming premiums from equivalence: E[L_t]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age initially insured</p></li>
+<li><p><strong>s</strong> – years after selection</p></li>
+<li><p><strong>n</strong> – number of years of premiums paid</p></li>
+<li><p><strong>t</strong> – year of death</p></li>
+<li><p><strong>b</strong> – benefit amount</p></li>
+<li><p><strong>endowment</strong> – endowment amount</p></li>
+<li><p><strong>discrete</strong> – discrete/annuity due (True) or continuous (False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.gross_future_loss">
+<span class="sig-name descname"><span class="pre">gross_future_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.gross_future_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.gross_future_loss" title="Permalink to this definition"></a></dt>
+<dd><p>Shortcut for WL or Endowment Insurance gross future loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> – insurance factor at age (x)</p></li>
+<li><p><strong>a</strong> – annuity factor at age (x)</p></li>
+<li><p><strong>contract</strong> – policy contract terms and expenses</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.gross_variance_loss">
+<span class="sig-name descname"><span class="pre">gross_variance_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.gross_variance_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.gross_variance_loss" title="Permalink to this definition"></a></dt>
+<dd><p>Shortcuts for variance of gross loss for WL or endowment insurance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A1</strong> – insurance factor</p></li>
+<li><p><strong>A2</strong> – insurance factor at double the force of interest</p></li>
+<li><p><strong>policy</strong> – policy terms and expenses</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.gross_policy_variance">
+<span class="sig-name descname"><span class="pre">gross_policy_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.gross_policy_variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.gross_policy_variance" title="Permalink to this definition"></a></dt>
+<dd><p>Variance of gross policy value for WL and Endowment Insurance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age initially insured</p></li>
+<li><p><strong>s</strong> – years after selection</p></li>
+<li><p><strong>n</strong> – number of years of premiums paid</p></li>
+<li><p><strong>t</strong> – year of death</p></li>
+<li><p><strong>contract</strong> – policy contract terms and expenses</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.gross_policy_value">
+<span class="sig-name descname"><span class="pre">gross_policy_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.gross_policy_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.gross_policy_value" title="Permalink to this definition"></a></dt>
+<dd><p>Gross policy values for insurance: t_V = E[L_t]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age initially insured</p></li>
+<li><p><strong>s</strong> – years after selection</p></li>
+<li><p><strong>t</strong> – number of years of premiums paid</p></li>
+<li><p><strong>n</strong> – term of insurance</p></li>
+<li><p><strong>contract</strong> – policy contract terms</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.L_from_t">
+<span class="sig-name descname"><span class="pre">L_from_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.L_from_t"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.L_from_t" title="Permalink to this definition"></a></dt>
+<dd><p>PV of Loss L(t) at time of death t = T_x (or K_x if discrete)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – year of death</p></li>
+<li><p><strong>contract</strong> – policy contract</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.L_to_t">
+<span class="sig-name descname"><span class="pre">L_to_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.L_to_t"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.L_to_t" title="Permalink to this definition"></a></dt>
+<dd><p>Compute time of death T_x s.t. PV future loss is L</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>L</strong> – PV of future loss</p></li>
+<li><p><strong>contract</strong> – policy contract terms and expenses</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.L_from_prob">
+<span class="sig-name descname"><span class="pre">L_from_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.L_from_prob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.L_from_prob" title="Permalink to this definition"></a></dt>
+<dd><p>Compute PV of future loss at given percentile prob</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age</p></li>
+<li><p><strong>prob</strong> – probability threshold</p></li>
+<li><p><strong>contract</strong> – policy contract</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.L_to_prob">
+<span class="sig-name descname"><span class="pre">L_to_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L:</span> <span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract:</span> <span class="pre">~actuarialmath.policyvalues.Contract</span> <span class="pre">=</span> <span class="pre">&lt;actuarialmath.policyvalues.Contract</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.L_to_prob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.L_to_prob" title="Permalink to this definition"></a></dt>
+<dd><p>Compute percentile of L on the PV of future loss curve”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age selected</p></li>
+<li><p><strong>L</strong> – PV of future loss</p></li>
+<li><p><strong>contract</strong> – policy contract terms and expenses</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.PolicyValues.L_plot">
+<span class="sig-name descname"><span class="pre">L_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T:</span> <span class="pre">float</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract:</span> <span class="pre">~actuarialmath.policyvalues.Contract</span> <span class="pre">=</span> <span class="pre">&lt;actuarialmath.policyvalues.Contract</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax:</span> <span class="pre">~typing.Any</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color='r'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#PolicyValues.L_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.PolicyValues.L_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot PV of future loss r.v. L vs time of death T_x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – age selected</p></li>
+<li><p><strong>s</strong> – years after selection</p></li>
+<li><p><strong>stop</strong> – time to end plot</p></li>
+<li><p><strong>contract</strong> – policy contract terms and expenses</p></li>
+<li><p><strong>T</strong> – point in time to indicate probability and loss values</p></li>
+<li><p><strong>title</strong> – title of plot</p></li>
+<li><p><strong>color</strong> – color to plot curve</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">actuarialmath.policyvalues.</span></span><span class="sig-name descname"><span class="pre">Contract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">premium</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_premium</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renewal_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renewal_premium</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settlement_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benefit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endowment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#Contract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.Contract" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="actuarialmath.actuarial.html#actuarialmath.actuarial.Actuarial" title="actuarialmath.actuarial.Actuarial"><code class="xref py py-class docutils literal notranslate"><span class="pre">Actuarial</span></code></a></p>
+<p>Set and retrieve policy contract terms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>premium</strong> – level premium amount</p></li>
+<li><p><strong>benefit</strong> – insurance death benefit amount</p></li>
+<li><p><strong>settlement_policy</strong> – settlement expense per policy</p></li>
+<li><p><strong>endowment</strong> – endowment benefit amount</p></li>
+<li><p><strong>initial_policy</strong> – first year total expense per policy</p></li>
+<li><p><strong>initial_premium</strong> – first year total premium per $ of gross premium</p></li>
+<li><p><strong>renewal_policy</strong> – renewal expense per policy</p></li>
+<li><p><strong>renewal_premium</strong> – renewal premium per $ of gross premium</p></li>
+<li><p><strong>discrete</strong> – annuity due (True) or continuous (False)</p></li>
+<li><p><strong>T</strong> – term of insurance</p></li>
+<li><p><strong>discrete</strong> – annuity due (True) or continuous (False)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract.set_contract">
+<span class="sig-name descname"><span class="pre">set_contract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">terms</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#Contract.set_contract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.Contract.set_contract" title="Permalink to this definition"></a></dt>
+<dd><p>Update any existing policy contract terms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – one or more contract policy terms, and its value to update</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract.premium_terms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">premium_terms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#actuarialmath.policyvalues.Contract.premium_terms" title="Permalink to this definition"></a></dt>
+<dd><p>Getter returns dict of terms required for calculating gross premiums</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract.renewals">
+<span class="sig-name descname"><span class="pre">renewals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#actuarialmath.policyvalues.Contract" title="actuarialmath.policyvalues.Contract"><span class="pre">Contract</span></a></span></span><a class="reference internal" href="_modules/actuarialmath/policyvalues.html#Contract.renewals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#actuarialmath.policyvalues.Contract.renewals" title="Permalink to this definition"></a></dt>
+<dd><p>Returns contract object with initial terms set to renewal terms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> – number of years after initial</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract.renewal_profit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">renewal_profit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#actuarialmath.policyvalues.Contract.renewal_profit" title="Permalink to this definition"></a></dt>
+<dd><p>Getter returns renewal dollar profit (premium less renewal expenses)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract.initial_cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#actuarialmath.policyvalues.Contract.initial_cost" title="Permalink to this definition"></a></dt>
+<dd><p>Getter returns total initial cost (excludes renewal expenses)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="actuarialmath.policyvalues.Contract.claims_cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">claims_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#actuarialmath.policyvalues.Contract.claims_cost" title="Permalink to this definition"></a></dt>
+<dd><p>Getter returns total claims cost (death benefit + settlement expense)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="actuarialmath.premiums.html" class="btn btn-neutral float-left" title="premiums" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="actuarialmath.reserves.html" class="btn btn-neutral float-right" title="reserves" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Terence Lim.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
