@@ -1,72 +1,103 @@
-# Actuarial Math
+# Introduction
 
-## Actuarial Math - Life Contingent Risks
+__actuarialmath -- Life Contingent Risks with Python__
 
-This `actuarialmath` package implements in Python the general
-formulas, recursive relationships and shortcut equations for
-Fundamentals of Long Term Actuarial Mathematics, to solve the SOA
-sample FAM-L questions and more.
+This package implements fundamental methods for modeling life contingent risks, and closely follows traditional topics covered in actuarial exams and standard texts such as the "Fundamentals of Actuarial Math - Long-term" exam syllabus by the Society of Actuaries, and "Actuarial Mathematics for Life Contingent Risks" by Dickson, Hardy and Waters.
 
-- The concepts are developed hierarchically in [object-oriented Python](https://github.com/terence-lim/actuarialmath.git).
+The actuarial concepts are introduced hierarchically, and realized by corresponding derivations of Python classes. It is hoped that the use of this package can support a learner's journey through actuarial problem-solving and computing.
 
-- Each module incrementally introduces the [formulas used](https://terence-lim.github.io/notes/actuarialmath.pdf).
-
-- The SOA sample questions (released in August 2022) are solved in an
-[executable Google Colab Notebook](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing).
+The resources listed below should be helpful for getting started. In particular, you can run, and modify, the code chunks demonstrated in a [Jupyter Notebook](https://terence-lim.github.io/actuarialmath-tutorial/_sources/faml.ipynb), to solve each of the sample FAM-L exam questions released by the SOA.
 
 Enjoy!
 
 Terence Lim
 
-MIT License. Copyright 2022, Terence Lim
-
 ## Concepts and Classes
 
-![actuarialmath](FAM-L.png)
+```{image} FAM-L.png
+:name: label
+```
+
+## Quick Start
+
+1. `pip install actuarialmath`
+2. Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectTable` or `Recursion`.
+3. Call tappropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
+4. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 ## Examples
 
-- SOA sample question 5.7: Given $A_{35} = 0.188$, $A_{65} = 0.498$, $S_{35}(30) = 0.883$, calculate the EPV of a temporary annuity $\ddot{a}^{(2)}_{35:\overline{30|}}$ paid half-yearly using the Woolhouse approximation.
+__SOA FAM-L sample question 5.7__: 
+
+Given $A_{35} = 0.188$, $A_{65} = 0.498$, $S_{35}(30) = 0.883$, calculate the EPV of a temporary annuity $\ddot{a}^{(2)}_{35:\overline{30|}}$ paid half-yearly using the Woolhouse approximation.
 
 ```
-life = Recursion(interest=dict(i=0.04))
-life.set_A(0.188, x=35).set_A(0.498, x=65).set_p(0.883, x=35, t=30)
+from actuarialmath.recursion import Recursion
+from actuarialmath.woolhouse import Woolhouse
+# initialize Recursion class with actuarial inputs
+life = Recursion().set_interest(i=0.04)\
+                  .set_A(0.188, x=35)\
+                  .set_A(0.498, x=65)\
+                  .set_p(0.883, x=35, t=30)
+# modfy the standard results with Woolhouse mthly approximation
 mthly = Woolhouse(m=2, life=life, three_term=False)
-print(1000 * mthly.temporary_annuity(35, t=30))
+# compute the desired temporary annuity value
+print(1000 * mthly.temporary_annuity(35, t=30)) #   solution = 17376.7
 ```
 
-- SOA sample question 7.20: Calculate the policy value and
-  modified reserve, where gross premiums are given by the 
-  equivalence principle, of a whole life insurance where 
-  mortality follows the Standard Ultimate Life Table.
+__SOA FAM-L sample question 7.20__:
 
+For a fully discrete whole life insurance of 1000 on (35), you are given
+- First year expenses are 30% of the gross premium plus 300
+- Renewal expenses are 4% of the gross premium plus 30
+- All expenses are incurred at the beginning of the policy year
+- Gross premiums are calculated using the equivalence principle
+- The gross premium policy value at the end of the first policy year is R
+- Using the Full Preliminary Term Method, the modified reserve at the end of the first policy year is S
+- Mortality follows the Standard Ultimate Life Table
+- _i_ = 0.05
+
+Calculate R − S
 ```
+from actuarialmath.sult import SULT   # use Standard Ultimate Life Table
+from actuarialmath.policyvalues import Contract
 life = SULT()
-S = life.FPT_policy_value(35, t=1, b=1000)
-policy = Policy(benefit=1000, initial_premium=.3, initial_policy=300,
-                renewal_premium=.04, renewal_policy=30)
-P = life.gross_premium(A=life.whole_life_insurance(35), **policy.premium_terms)
-R = life.gross_policy_value(35, t=1, policy=policy.set(premium=P))
+# compute the required FPT policy value
+S = life.FPT_policy_value(35, t=1, b=1000)  # is always 0 in year 1!
+# input the given policy contract terms
+contract = Contract(benefit=1000,
+                    initial_premium=.3,
+                    initial_policy=300,
+                    renewal_premium=.04,
+                    renewal_policy=30)
+# compute gross premium using the equivalence principle
+G = life.gross_premium(A=life.whole_life_insurance(35), **contract.premium_terms)
+# compute the required policy value
+R = life.gross_policy_value(35, t=1, contract=contract.set_contract(premium=G))
+print(R-S)   # solution = -277.19
 ```
+
 
 ## Resources
 
-- Documentation of formulas, classes and methods: [actuarialmath.pdf](https://terence-lim.github.io/notes/actuarialmath.pdf)
+1. [Jupyter Notebook](https://terence-lim.github.io/actuarialmath-tutorial/_sources/faml.ipynb), or [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing), with code chunks to solve all sample SOA FAM-L exam questions.
 
-- Executable Google Colab notebook: [faml.ipynb](https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing)
+2. [Online tutorial](https://terence-lim.github.io/actuarialmath-tutorial/) or [pdf version](https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf).
 
-- Github repo: [https://github.com/terence-lim/actuarialmath.git](https://github.com/terence-lim/actuarialmath.git)
+3. [Github repo and issues](https://github.com/terence-lim/actuarialmath).
 
-- SOA FAM-L Sample Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
+4. [Code documentation](https://actuarialmath.readthedocs.io/en/latest/index.html).
+
+
+
+## Sources
 
 - SOA FAM-L Sample Questions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf)
 
-- Actuarial Mathematics for Life Contingent Risks (Dickson, Hardy and Waters), Institute and Faculty of Actuaries, published by Cambridge University Press
+- SOA FAM-L Sample Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
 
-## Contact me
+- Actuarial Mathematics for Life Contingent Risks, by David Dickson, Mary Hardy and Howard Waters, published by Cambridge University Press.
 
-Linkedin: [https://www.linkedin.com/in/terencelim](https://www.linkedin.com/in/terencelim)
+## Contact
 
 Github: [https://terence-lim.github.io](https://terence-lim.github.io)
-
-
