@@ -13,10 +13,7 @@ Enjoy!
 Terence Lim
 
 ## Concepts and Classes
-
-```{image} FAM-L.png
-:name: label
-```
+![concepts and classes](FAM-L.png)
 
 ## Quick Start
 
