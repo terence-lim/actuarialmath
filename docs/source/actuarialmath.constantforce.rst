@@ -1,5 +1,5 @@
-constantforce
-=============
+actuarialmath.constantforce module
+==================================
 
 .. automodule:: actuarialmath.constantforce
    :members:

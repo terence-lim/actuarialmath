@@ -1,5 +1,5 @@
-policyvalues
-============
+actuarialmath.policyvalues module
+=================================
 
 .. automodule:: actuarialmath.policyvalues
    :members:

@@ -1,5 +1,5 @@
-mthly
-=====
+actuarialmath.mthly module
+==========================
 
 .. automodule:: actuarialmath.mthly
    :members:

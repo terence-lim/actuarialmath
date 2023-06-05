@@ -1,5 +1,5 @@
-recursion
-=========
+actuarialmath.recursion module
+==============================
 
 .. automodule:: actuarialmath.recursion
    :members:

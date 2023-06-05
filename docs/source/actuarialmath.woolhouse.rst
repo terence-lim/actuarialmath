@@ -1,5 +1,5 @@
-woolhouse
-=========
+actuarialmath.woolhouse module
+==============================
 
 .. automodule:: actuarialmath.woolhouse
    :members:

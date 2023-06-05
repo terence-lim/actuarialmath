@@ -1,5 +1,5 @@
-survival
-========
+actuarialmath.survival module
+=============================
 
 .. automodule:: actuarialmath.survival
    :members:

@@ -1,5 +1,5 @@
-reserves
-========
+actuarialmath.reserves module
+=============================
 
 .. automodule:: actuarialmath.reserves
    :members:

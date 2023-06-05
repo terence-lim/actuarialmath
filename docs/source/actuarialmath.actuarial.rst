@@ -1,5 +1,5 @@
-actuarial
-=========
+actuarialmath.actuarial module
+==============================
 
 .. automodule:: actuarialmath.actuarial
    :members:

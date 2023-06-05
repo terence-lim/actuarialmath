@@ -36,10 +36,10 @@ Quick Start
 Examples
 --------
 
-SOA FAM-L sample question 5.7
 
-.. code-block:: python
+::
 
+  # SOA FAM-L sample question 5.7
   from actuarialmath.recursion import Recursion
   from actuarialmath.woolhouse import Woolhouse
   # initialize Recursion class with actuarial inputs
@@ -52,10 +52,9 @@ SOA FAM-L sample question 5.7
   # compute the desired temporary annuity value
   print(1000 * mthly.temporary_annuity(35, t=30)) #   solution = 17376.7
 
-SOA FAM-L sample question 7.20
+::
 
-.. code-block:: python
-
+  # SOA FAM-L sample question 7.20
   from actuarialmath.sult import SULT   # use Standard Ultimate Life Table
   from actuarialmath.policyvalues import Contract
   life = SULT()
@@ -76,40 +75,19 @@ SOA FAM-L sample question 7.20
 Resources
 ---------
 
-1. `Notebook <https://terence-lim.github.io/notes/faml.pdf>`_ (or `Colab <https://colab.research.google.com/drive/1qguTCMQSk0m273IHApXA7IpUJwSoKEb-?usp=sharing>`_) with code snippets to solve all sample SOA FAM-L exam questions.
+1. `Colab <https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing>`_ or `Jupyter notebook <https://terence-lim.github.io/notes/faml.ipynb>`_, to solve all sample SOA FAM-L exam questions
 
-2. `Online tutorial <https://terence-lim.github.io/notes/faml.pdf>`_ (or `pdf copy <http://terence-lim.github.io/notes/faml.pdf>`_)
+2. `Online tutorial <https://terence-lim.github.io/actuarialmath-tutorial/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf>`_
 
-3. `Github repo and issues <https://github.com/terence-lim/mathlc.git>`_
+3. `Code documentation <https://actuarialmath.readthedocs.io/en/latest/index.html>`_
 
-4. `Code documentation <https://github.com/terence-lim/mathlc.git>`_
+4. `Github repo <https://github.com/terence-lim/actuarialmath.git>`_ and `issues <https://github.com/terence-lim/actuarialmath/issues>`_
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
    :caption: Contents:
 
-   actuarialmath.actuarial
-   actuarialmath.interest
-   actuarialmath.life
-   actuarialmath.survival
-   actuarialmath.lifetime
-   actuarialmath.fractional
-   actuarialmath.insurance
-   actuarialmath.annuity
-   actuarialmath.premiums
-   actuarialmath.policyvalues
-   actuarialmath.reserves
-   actuarialmath.lifetable
-   actuarialmath.sult
-   actuarialmath.selectlife
-   actuarialmath.recursion
-   actuarialmath.mortalitylaws
-   actuarialmath.constantforce
-   actuarialmath.extrarisk
-   actuarialmath.mthly
-   actuarialmath.udd
-   actuarialmath.woolhouse
-
+   modules
 
 Indices and tables
 ------------------

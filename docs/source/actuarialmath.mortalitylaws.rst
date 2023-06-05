@@ -1,5 +1,5 @@
-mortalitylaws
-=============
+actuarialmath.mortalitylaws module
+==================================
 
 .. automodule:: actuarialmath.mortalitylaws
    :members:

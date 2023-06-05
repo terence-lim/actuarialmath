@@ -1,8 +1,11 @@
 actuarialmath package
 =====================
 
+Submodules
+----------
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    actuarialmath.actuarial
    actuarialmath.annuity
