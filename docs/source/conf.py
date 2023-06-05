@@ -37,4 +37,6 @@ html_static_path = ['_static']
 autodoc_member_order = 'bysource'  #'groupwise'
 
 import sys
-sys.path.insert(0, '../src')
+import os
+sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../src'))
