@@ -12,15 +12,31 @@
 #     name: python3
 # ---
 
-# + [markdown] id="j-xP1JxMKaiC"
+# + [markdown] id="11569414"
 # # Sample Solutions and Hints
+#
+# __actuarialmath -- Life Contingent Risks with Python__
+#
+# This package implements fundamental methods for modeling life contingent risks, and closely follows traditional topics covered in actuarial exams and standard texts such as the "Fundamentals of Actuarial Math - Long-term" exam syllabus by the Society of Actuaries, and "Actuarial Mathematics for Life Contingent Risks" by Dickson, Hardy and Waters.  These code chunks demonstrate how to solve each of the sample FAM-L exam questions released by the SOA.
+#
+# Sources:
+#
+# - actuarialmath [github repo](https://github.com/terence-lim/actuarialmath.git)
+#
+# - [online tutorial](https://terence-lim.github.io/actuarialmath-tutorial/) or [pdf copy](https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf/)
+#
+# - SOA FAM-L Sample Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
+#
+# - SOA FAM-L Sample Questions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf)
+#
 
-# + id="qjZAYOOm9vGS" vscode={"languageId": "python"}
-"""Solutions code for SOA FAM-L sample questions
+# + colab={"base_uri": "https://localhost:8080/"} id="i9j4jVPE-Fpk" outputId="5ffeb283-f49e-4be6-cdb4-50c727350d88"
+# # ! pip install actuarialmath
 
-Copyright 2022-2023, Terence Lim
+# + id="a0729fd1"
+"""Solutions code and hints for SOA FAM-L sample questions
 
-MIT License
+MIT License.  Copyright 2022-2023, Terence Lim
 """
 import math
 import pandas as pd
@@ -40,16 +56,17 @@ from actuarialmath.recursion import Recursion
 from actuarialmath.lifetable import LifeTable
 from actuarialmath.sult import SULT
 from actuarialmath.selectlife import SelectLife
+from actuarialmath.mortalitylaws import MortalityLaws, Beta, Uniform, Makeham, Gompertz
 from actuarialmath.constantforce import ConstantForce
 from actuarialmath.extrarisk import ExtraRisk
 from actuarialmath.mthly import Mthly
 from actuarialmath.udd import UDD
 from actuarialmath.woolhouse import Woolhouse
 
-# + [markdown] id="YNWb-AbrUimB"
+# + [markdown] id="c2b4cbf3"
 # __Helper to compare computed answers to expected solutions__
 
-# + id="3PKYpYkr9vGU" vscode={"languageId": "python"}
+# + id="903e972b"
 class IsClose:
     """Helper class for testing and reporting if two values are close"""
     def __init__(self, rel_tol : float = 0.01, score : bool = False,
@@ -89,7 +106,7 @@ class IsClose:
         return f"Passed: {self.num}/{self.den}\n" + "\n".join(self.incorrect)
 isclose = IsClose(0.01, score=False, verbose=True)
 
-# + [markdown] id="Y_syVwbN9vGV"
+# + [markdown] id="831d29e6"
 # ## 1 Tables
 #
 #
@@ -100,30 +117,30 @@ isclose = IsClose(0.01, score=False, verbose=True)
 #
 # but you actually do not need them here!
 
-# + colab={"base_uri": "https://localhost:8080/", "height": 224} id="4nJ6b-Gq9vGV" outputId="ddab64ab-54ea-4947-c7da-f5c06e11e399" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/", "height": 224} id="a6dc0057" outputId="6bedde0d-a830-4a3b-e6f5-da8508c35a21"
 print("Interest Functions at i=0.05")
 UDD.interest_frame()
 
-# + colab={"base_uri": "https://localhost:8080/"} id="eI07yLAj9vGW" outputId="2d8a0ca2-7af3-4f0d-d3fc-a6aab7df1a5b" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b3de4194" outputId="f79d8eb3-8e4a-4f82-eea1-74fb88c980b7"
 print("Values of z for selected values of Pr(Z<=z)")
 print(Life.quantiles_frame().to_string(float_format=lambda x: f"{x:.3f}"))
 
-# + colab={"base_uri": "https://localhost:8080/", "height": 441} id="MUqzz5s79vGX" outputId="b1d3bf7c-d324-4df9-dc09-18dbcda5c34a" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/", "height": 441} id="1c334975" outputId="e82e6c6a-822f-4ffa-c8a3-75895fdfd0b7"
 print("Standard Ultimate Life Table at i=0.05")
 SULT().frame()
 
 
-# + [markdown] id="EtWXmyOv9vGX"
+# + [markdown] id="f7eb3c8d"
 # ## 2 Survival models
 
-# + [markdown] id="apYDkhZd9vGX"
+# + [markdown] id="c41c8385"
 # SOA Question 2.1: (B) 2.5
 # - derive formula for $\mu$ from given survival function
 # - solve for $\omega$ given $\mu_{65}$
 # - calculate $e$ by summing survival probabilities
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="IvNoq-Ky9vGX" outputId="9fb08695-47cf-4a99-81af-d4d3cbf02d42" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="59f81e7f" outputId="c819294e-6baa-403d-c29f-f81a055fda34"
 life = Lifetime()
 def mu_from_l(omega):   # first solve for omega, given mu_65 = 1/180            
     return life.set_survival(l=lambda x,s: (1 - (x+s)/omega)**0.25).mu_x(65)
@@ -132,45 +149,45 @@ e = life.set_survival(l=lambda x,s:(1 - (x + s)/omega)**.25, maxage=omega)\
         .e_x(106)       # then solve expected lifetime from omega              
 isclose(2.5, e, question="Q2.1")
 
-# + [markdown] id="56F6N4eH9vGY"
+# + [markdown] id="f2310896"
 # SOA Question 2.2: (D) 400
 # - calculate survival probabilities for the two scenarios
 # - apply conditional variance formula (or mixed distribution)
 
-# + colab={"base_uri": "https://localhost:8080/"} id="3Ot-ELpG9vGY" outputId="1aa0ca33-9697-4011-e347-7ec7b7f0cff7" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="1f07bbbd" outputId="b91211ff-271c-4c32-f5ac-ebb1b6b1c071"
 p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
 p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
 std = math.sqrt(Life.conditional_variance(p=.2, p1=p1, p2=p2, N=100000))
 isclose(400, std, question="Q2.2")
 
-# + [markdown] id="u00epu5W9vGY"
+# + [markdown] id="246aaf2d"
 # SOA Question 2.3: (A) 0.0483
 # 1. Derive formula for $f$ given survival function
 
-# + colab={"base_uri": "https://localhost:8080/"} id="SzkD8YvY9vGY" outputId="a5271002-1dd6-4b4f-d416-6a4d1837cc86" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e36facdd" outputId="dd66846d-4fae-4377-faa8-af496b5689ba"
 B, c = 0.00027, 1.1
 S = lambda x,s,t: math.exp(-B * c**(x+s) * (c**t - 1)/math.log(c))
 life = Survival().set_survival(S=S)
 f = life.f_x(x=50, t=10)
 isclose(0.0483, f, question="Q2.3")
 
-# + [markdown] id="tLF2sqau9vGZ"
+# + [markdown] id="166f7d31"
 # SOA Question 2.4: (E) 8.2
 # - derive survival probability function $_tp_x$ given $_tq_0$
 # - compute $\overset{\circ}{e}$ by integration
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="OwnBc1a09vGZ" outputId="5e9b08e0-a8c7-4935-9678-fca85c26be5f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a6412173" outputId="4fd51cd2-d372-4ac0-d7b5-d83963746e1c"
 def l(x, s): return 0. if (x+s) >= 100 else 1 - ((x + s)**2) / 10000.
 e = Lifetime().set_survival(l=l).e_x(75, t=10, curtate=False)
 isclose(8.2, e, question="Q2.4")
 
-# + [markdown] id="OlHhfW0y9vGZ"
+# + [markdown] id="b73ac219"
 # SOA Question 2.5:  (B) 37.1
 # - solve for $e_{40}$ from limited lifetime formula
 # - compute $e_{41}$ using backward recursion
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Xsz2NQ0S9vGZ" outputId="7a9324f7-5ba5-4327-d922-a3d280fd3158" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7485cb2a" outputId="32aac3dc-adca-4f03-c812-13a7cce815e9"
 life = Recursion(verbose=False).set_e(25, x=60, curtate=True)\
                                .set_q(0.2, x=40, t=20)\
                                .set_q(0.003, x=40)
@@ -183,31 +200,31 @@ fun(e40)
 e41 = life.e_x(41, curtate=True)
 isclose(37.1, e41, question="Q2.5")
 
-# + [markdown] id="kKmy8mEM9vGa"
+# + [markdown] id="b626c732"
 # SOA Question 2.6: (C) 13.3
 # - derive force of mortality function $\mu$ from given survival function
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="_m2YW3rR9vGa" outputId="6841d764-f5f3-434c-c5c5-ccaa241510dc" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b4a5e978" outputId="7c2a114c-5048-4d02-c2e7-5800eb3d632c"
 life = Survival().set_survival(l=lambda x,s: (1 - (x+s)/60)**(1/3))
 mu = 1000 * life.mu_x(35)
 isclose(13.3, mu, question="Q2.6")
 
-# + [markdown] id="b6ENXbNF9vGa"
+# + [markdown] id="3406e6fd"
 # SOA Question 2.7: (B) 0.1477
 # - calculate from given survival function
 
-# + colab={"base_uri": "https://localhost:8080/"} id="PQvNwS069vGa" outputId="9482dbc9-96c8-4cde-f595-4e0236e8f962" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="1cbb1f35" outputId="aa3c294a-428d-4a24-8ebb-2f55b1ee937f"
 l = lambda x,s: (1-((x+s)/250) if (x+s)<40 else 1-((x+s)/100)**2)
 q = Survival().set_survival(l=l).q_x(30, t=20)
 isclose(0.1477, q, question="Q2.7")
 
-# + [markdown] id="5ciwwj969vGb"
+# + [markdown] id="59f19984"
 # SOA Question 2.8: (C) 0.94
 # - relate $p_{male}$ and $p_{female}$ through the common term $\mu$ and the given proportions
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="-8592SF99vGb" outputId="a01b8527-99c5-446a-da0a-3c56544d5602" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="d9433c52" outputId="84e65aad-9d80-4af3-e417-1e7fbfcb4d80"
 def fun(mu):  # Solve first for mu, given ratio of start and end proportions
     male = Survival().set_survival(mu=lambda x,s: 1.5 * mu)
     female = Survival().set_survival(mu=lambda x,s: mu)
@@ -216,15 +233,15 @@ mu = Survival.solve(fun, target=85/15, grid=[0.89, 0.99])
 p = Survival().set_survival(mu=lambda x,s: mu).p_x(0, t=1)
 isclose(0.94, p, question="Q2.8")
 
-# + [markdown] id="-NtYFLJe9vGb"
+# + [markdown] id="42e1818d"
 # ## 3 Life tables and selection
 
-# + [markdown] id="ITFsT3UN9vGb"
+# + [markdown] id="8158646b"
 # SOA Question 3.1:  (B) 117
 # - interpolate with constant force of maturity
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="QH6OUCeM9vGc" outputId="867b9603-bcdb-4973-da71-0a09624324e3" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="07539d91" outputId="88aa2e68-27b1-470a-8c28-a39e47d42521"
 life = SelectLife().set_table(l={60: [80000, 79000, 77000, 74000],
                                  61: [78000, 76000, 73000, 70000],
                                  62: [75000, 72000, 69000, 67000],
@@ -232,13 +249,13 @@ life = SelectLife().set_table(l={60: [80000, 79000, 77000, 74000],
 q = 1000 * life.q_r(60, s=0, r=0.75, t=3, u=2)
 isclose(117, q, question="Q3.1")
 
-# + [markdown] id="tBMXphAz9vGc"
+# + [markdown] id="17e5b9f4"
 # SOA Question 3.2:  (D) 14.7
 # - UDD $\Rightarrow \overset{\circ}{e}_{x} = e_x + 0.5$
 # - fill select table using curtate expectations 
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="0ytZ_yjK9vGc" outputId="a57bfdcf-92c6-497e-b7a1-a3cbbe370a4c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b3c05afd" outputId="4c9c4a7f-71b6-4585-ab64-5c6d40347584"
 e_curtate = Fractional.e_approximate(e_complete=15)
 life = SelectLife(udd=True).set_table(l={65: [1000, None,],
                                          66: [955, None]},
@@ -248,11 +265,11 @@ life = SelectLife(udd=True).set_table(l={65: [1000, None,],
 e = life.e_r(66)
 isclose(14.7, e, question="Q3.2")
 
-# + [markdown] id="mYqBhG_O9vGc"
+# + [markdown] id="fb02d76f"
 # SOA Question 3.3:  (E) 1074
 # - interpolate lives between integer ages with UDD
 
-# + colab={"base_uri": "https://localhost:8080/"} id="RKyrAGA49vGc" outputId="8c1e364d-e663-4c29-8660-1dda9c86a3e1" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9576af60" outputId="a1c2617e-a3b7-40f4-c977-9dac5b2bfa40"
 life = SelectLife().set_table(l={50: [99, 96, 93],
                                  51: [97, 93, 89],
                                  52: [93, 88, 83],
@@ -260,22 +277,22 @@ life = SelectLife().set_table(l={50: [99, 96, 93],
 q = 10000 * life.q_r(51, s=0, r=0.5, t=2.2)
 isclose(1074, q, question="Q3.3")
 
-# + [markdown] id="zs6-mPxu9vGd"
+# + [markdown] id="2247b56f"
 # SOA Question 3.4:  (B) 815
 # - compute portfolio percentile with N=4000, and mean and variance  from binomial distribution
 
-# + colab={"base_uri": "https://localhost:8080/"} id="ayBjo7eX9vGd" outputId="9712b5fc-cc4f-4819-9ccd-b9302aa08437" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="fb29aeca" outputId="73eb5435-6450-4a03-8267-59193145e5f0"
 sult = SULT()
 mean = sult.p_x(25, t=95-25)
 var = sult.bernoulli(mean, variance=True)
 pct = sult.portfolio_percentile(N=4000, mean=mean, variance=var, prob=0.1)
 isclose(815, pct, question="Q3.4")
 
-# + [markdown] id="PcHjyYvt9vGd"
+# + [markdown] id="a989a344"
 # SOA Question 3.5:  (E) 106
 # - compute mortality rates by interpolating lives between integer ages, with UDD and constant force of mortality assumptions
 
-# + colab={"base_uri": "https://localhost:8080/"} id="yasU-2fB9vGd" outputId="37f0b235-abf1-4c05-8d0b-65c73d29bc74" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="4a01bc25" outputId="ddcc8fc2-dbdb-4e5d-89c8-ea1965e08512"
 l = [99999, 88888, 77777, 66666, 55555, 44444, 33333, 22222]
 a = LifeTable(udd=True).set_table(l={age:l for age,l in zip(range(60, 68), l)})\
                        .q_r(60, u=3.4, t=2.5)
@@ -283,12 +300,12 @@ b = LifeTable(udd=False).set_table(l={age:l for age,l in zip(range(60, 68), l)})
                         .q_r(60, u=3.4, t=2.5)
 isclose(106, 100000 * (a - b), question="Q3.5")
 
-# + [markdown] id="8sjosZUB9vGd"
+# + [markdown] id="cc6f9e8f"
 # SOA Question 3.6:  (D) 15.85
 # - apply recursion formulas for curtate expectation
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="97N6Zr_A9vGe" outputId="56629dd6-6d08-4597-8eac-7f37f7bf27e5" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="ab3dfad5" outputId="8f050db5-93d6-4245-f27a-66392d065220"
 e = SelectLife().set_table(q={60: [.09, .11, .13, .15],
                               61: [.1, .12, .14, .16],
                               62: [.11, .13, .15, .17],
@@ -298,14 +315,14 @@ e = SelectLife().set_table(q={60: [.09, .11, .13, .15],
                 .e_x(61)
 isclose(5.85, e, question="Q3.6")
 
-# + [markdown] id="YI1-y6aZ9vGe"
+# + [markdown] id="6e9d1f8c"
 # SOA Question 3.7: (b) 16.4
 # - use deferred mortality formula
 # - use chain rule for survival probabilities,
 # - interpolate between integer ages with constant force of mortality
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="UbANhNs89vGe" outputId="f39f76bf-ea99-41fc-9d66-eaf88c5c9703" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b745cec2" outputId="98929f53-6809-4c03-dfb3-b788d6d7d8de"
 life = SelectLife().set_table(q={50: [.0050, .0063, .0080],
                                  51: [.0060, .0073, .0090],
                                  52: [.0070, .0083, .0100],
@@ -313,12 +330,12 @@ life = SelectLife().set_table(q={50: [.0050, .0063, .0080],
 q = 1000 * life.q_r(50, s=0, r=0.4, t=2.5)
 isclose(16.4, q, question="Q3.7")
 
-# + [markdown] id="RLBoPZc49vGe"
+# + [markdown] id="b66e6e89"
 # SOA Question 3.8:  (B) 1505
 # - compute portfolio means and variances from sum of 2000 independent members' means and variances of survival.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="gCl-zHJt9vGe" outputId="8d4761b4-7c19-4d0d-8b53-aaf7c379d76e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="907c1755" outputId="09dadcaa-d77f-4a77-86fe-29a3db9fc85b"
 sult = SULT()
 p1 = sult.p_x(35, t=40)
 p2 = sult.p_x(45, t=40)
@@ -328,13 +345,13 @@ var = (sult.bernoulli(p1, variance=True) * 1000
 pct = sult.portfolio_percentile(mean=mean, variance=var, prob=.95)
 isclose(1505, pct, question="Q3.8")
 
-# + [markdown] id="vFdt6XLC9vGf"
+# + [markdown] id="71438d84"
 # SOA Question 3.9:  (E) 3850
 # - compute portfolio means and variances as sum of 4000 independent members' means and variances (of survival)
 # - retrieve normal percentile
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Gsl5hbLG9vGf" outputId="f923df97-fd2c-4fdc-f9d8-0338af0584dd" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="5e87a932" outputId="004b7caf-8522-40ee-b49d-e3c3b86a0f60"
 sult = SULT()
 p1 = sult.p_x(20, t=25)
 p2 = sult.p_x(45, t=25)
@@ -344,35 +361,35 @@ var = (sult.bernoulli(p1, variance=True) * 2000
 pct = sult.portfolio_percentile(mean=mean, variance=var, prob=.99)
 isclose(3850, pct, question="Q3.9")
 
-# + [markdown] id="ZvOJY-Om9vGf"
+# + [markdown] id="5430d382"
 # SOA Question 3.10:  (C) 0.86
 # - reformulate the problem by reversing time: survival to year 6 is calculated in reverse as discounting by the same number of years. 
 #
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="DuRXTRuj9vGf" outputId="1d04e74d-5e3d-4b8c-dd2b-dc396c02faa3" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="cfd72881" outputId="1507d135-1dea-4ed7-9a1a-403c683ad856"
 interest = Interest(v=0.75)
 L = 35*interest.annuity(t=4, due=False) + 75*interest.v_t(t=5)
 interest = Interest(v=0.5)
 R = 15*interest.annuity(t=4, due=False) + 25*interest.v_t(t=5)
 isclose(0.86, L / (L + R), question="Q3.10")
 
-# + [markdown] id="j1u9d7mY9vGf"
+# + [markdown] id="a51f9f7a"
 # SOA Question 3.11:  (B) 0.03
 # - calculate mortality rate by interpolating lives assuming UDD
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="3a01O1mI9vGf" outputId="881c1038-acc7-499d-8bdf-32278952314b" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="ced9708b" outputId="687b3111-f37d-4e01-9823-c3958ca5a49a"
 life = LifeTable(udd=True).set_table(q={50//2: .02, 52//2: .04})
 q = life.q_r(50//2, t=2.5/2)
 isclose(0.03, q, question="Q3.11")
 
-# + [markdown] id="8__Xih3p9vGg"
+# + [markdown] id="6dae2d07"
 # SOA Question 3.12: (C) 0.055 
 # - compute survival probability by interpolating lives assuming constant force
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="UFMwKnsv9vGg" outputId="cc49bfd6-af4a-4545-fd36-00d9659eadf5" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7e5ce19d" outputId="e5513e9b-ac5e-4024-e9a7-b6831bb27020"
 life = SelectLife(udd=False).set_table(l={60: [10000, 9600, 8640, 7771],
                                           61: [8654, 8135, 6996, 5737],
                                           62: [7119, 6549, 5501, 4016],
@@ -380,13 +397,13 @@ life = SelectLife(udd=False).set_table(l={60: [10000, 9600, 8640, 7771],
 q = life.q_r(60, s=1, t=3.5) - life.q_r(61, s=0, t=3.5)               
 isclose(0.055, q, question="Q3.12")
 
-# + [markdown] id="_jC3gF9i9vGg"
+# + [markdown] id="459b6c3d"
 # SOA Question 3.13:  (B) 1.6
 # - compute curtate expectations using recursion formulas
 # - convert to complete expectation assuming UDD
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="zvLIlGMT9vGg" outputId="9771a171-0863-40b0-93b4-5a8cec29a569" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="8db335e1" outputId="9ce4b4f4-85e5-45f4-b1ad-63e3b7c13491"
 life = SelectLife().set_table(l={55: [10000, 9493, 8533, 7664],
                                  56: [8547, 8028, 6889, 5630],
                                  57: [7011, 6443, 5395, 3904],
@@ -395,12 +412,12 @@ life = SelectLife().set_table(l={55: [10000, 9493, 8533, 7664],
 e = life.e_r(58, s=2)
 isclose(1.6, e, question="Q3.13")
 
-# + [markdown] id="jGkN4MxF9vGh"
+# + [markdown] id="b784697d"
 # SOA Question 3.14:  (C) 0.345
 # - compute mortality by interpolating lives between integer ages assuming UDD
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="5VIidCUH9vGh" outputId="5fab7f27-b99e-4797-8272-9ff8f33bd730" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="39107fed" outputId="7bdf2ff4-5105-408f-84dd-6d890ca4ca67"
 life = LifeTable(udd=True).set_table(l={90: 1000, 93: 825},
                                      d={97: 72},
                                      p={96: .2},
@@ -408,16 +425,16 @@ life = LifeTable(udd=True).set_table(l={90: 1000, 93: 825},
 q = life.q_r(90, u=93-90, t=95.5 - 93)
 isclose(0.345, q, question="Q3.14")
 
-# + [markdown] id="xu628P689vGh"
+# + [markdown] id="0c0888ae"
 # ## 4 Insurance benefits
 
-# + [markdown] id="7SFaQ8Vf9vGh"
+# + [markdown] id="52a66927"
 # SOA Question 4.1:  (A) 0.27212
 # - solve EPV as sum of term and deferred insurance
 # - compute variance as difference of second moment and first moment squared
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="OyKmE7sr9vGh" outputId="c4cac0f0-573b-46a9-e237-c52e1356820f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7a9f699d" outputId="6018551e-08ce-490a-b38a-d5c1edca7ae6"
 life = Recursion().set_interest(i=0.03)
 life.set_A(0.36987, x=40).set_A(0.62567, x=60)
 life.set_E(0.51276, x=40, t=20).set_E(0.17878, x=60, t=20)
@@ -426,13 +443,13 @@ A = (2 * life.term_insurance(40, t=20) + life.deferred_insurance(40, u=20))
 std = math.sqrt(life.insurance_variance(A2=Z2, A1=A))
 isclose(0.27212, std, question="Q4.1")
 
-# + [markdown] id="PMizQeAd9vGh"
+# + [markdown] id="0255b59a"
 # SOA Question 4.2:  (D) 0.18
 # - calculate Z(t) and deferred mortality for each half-yearly t
 # - sum the deferred mortality probabilities for periods when PV > 277000 
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="y5YHGW479vGi" outputId="5e8415d8-0054-4aeb-b6f3-1ac3ec090f19" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="2145a29e" outputId="f68f055b-c4bf-462d-d679-26e17465379f"
 life = LifeTable(udd=False).set_table(q={0: .16, 1: .23})\
                            .set_interest(i_m=.18, m=2)
 mthly = Mthly(m=2, life=life)
@@ -440,13 +457,13 @@ Z = mthly.Z_m(0, t=2, benefit=lambda x,t: 300000 + t*30000*2)
 p = Z[Z['Z'] >= 277000]['q'].sum()
 isclose(0.18, p, question="Q4.2")
 
-# + [markdown] id="-uc-Hq4O9vGi"
+# + [markdown] id="f749bbb5"
 # SOA Question 4.3: (D) 0.878
 # - solve $q_{61}$ from endowment insurance EPV formula
 # - solve $A_{60:\overline{3|}}$ with new $i=0.045$ as EPV of endowment insurance benefits.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="8F-OgIlf9vGi" outputId="98185107-8620-4ffa-c6e5-3328d2992d23" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="db579f3b" outputId="19a03ee3-dd68-42f4-dc46-221ca7063dca"
 life = Recursion(verbose=False).set_interest(i=0.05).set_q(0.01, x=60)
 def fun(q):   # solve for q_61
     return life.set_q(q, x=61).endowment_insurance(60, t=3)
@@ -454,13 +471,13 @@ life.solve(fun, target=0.86545, grid=0.01)
 A = life.set_interest(i=0.045).endowment_insurance(60, t=3)
 isclose(0.878, A, question="Q4.3")
 
-# + [markdown] id="o-gdUvGK9vGi"
+# + [markdown] id="de2d0427"
 # SOA Question 4.4  (A) 0.036
 # - integrate to find EPV of $Z$ and $Z^2$
 # - variance is difference of second moment and first moment squared
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="L3VMj3PE9vGi" outputId="dfe180d2-92c7-4f4c-ca42-58ff8b4d6bdf" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="3fa24393" outputId="04aecb56-aacb-4462-d973-b670a4007ac2"
 x = 40
 life = Insurance().set_survival(f=lambda *x: 0.025, maxage=x+40)\
                   .set_interest(v_t=lambda t: (1 + .2*t)**(-2))
@@ -470,23 +487,23 @@ A2 = life.A_x(x, moment=2, benefit=benefit, discrete=False)
 var = A2 - A1**2
 isclose(0.036, var, question="Q4.4")
 
-# + [markdown] id="SgPDXery9vGj"
+# + [markdown] id="2bb789fa"
 # SOA Question 4.5:  (C) 35200
 # - interpolate between integer ages with UDD, and find lifetime that mortality rate exceeded
 # - compute PV of death benefit paid at that time.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="SBuV1-di9vGj" outputId="94f3651a-90ae-4ccb-e381-a6c3efc47050" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="3c9d0b1e" outputId="acbc851b-6764-4f4a-8bc6-24993db5166c"
 sult = SULT(udd=True).set_interest(delta=0.05)
 Z = 100000 * sult.Z_from_prob(45, 0.95, discrete=False)
 isclose(35200, Z, question="Q4.5")
 
-# + [markdown] id="pD76ZxaT9vGj"
+# + [markdown] id="1792b7aa"
 # SOA Question 4.6:  (B) 29.85
 # - calculate adjusted mortality rates
 # - compute term insurance as EPV of benefits
 
-# + colab={"base_uri": "https://localhost:8080/"} id="leNwlHUj9vGj" outputId="7f3b04b9-5bf1-4e01-c52b-512857f4cc50" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f31ee601" outputId="a630fe03-52f5-435e-8d76-836832867aca"
 sult = SULT()
 life = LifeTable().set_interest(i=0.05)\
                   .set_table(q={70+k: .95**k * sult.q_x(70+k) for k in range(3)})
@@ -494,12 +511,12 @@ A = life.term_insurance(70, t=3, b=1000)
 isclose(29.85, A, question="Q4.6")
 
 
-# + [markdown] id="zTFV6rvp9vGj"
+# + [markdown] id="230429ad"
 # SOA Question 4.7:  (B) 0.06
 # - use Bernoulli shortcut formula for variance of pure endowment Z 
 # - solve for $i$, since $p$ is given.
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Q45Wwz8W9vGk" outputId="23b0d69f-03d6-4474-ae28-5cb6286a20b4" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f38c4ab6" outputId="1963f0c7-ffc6-41c5-bbbf-d67fd0891b39"
 def fun(i):
     life = Recursion(verbose=False).set_interest(i=i)\
                                    .set_p(0.57, x=0, t=25)
@@ -507,23 +524,23 @@ def fun(i):
 i = Recursion.solve(fun, target=0, grid=[0.058, 0.066])
 isclose(0.06, i, question="Q4.7")
 
-# + [markdown] id="fvqumlvt9vGk"
+# + [markdown] id="ccb0f3ff"
 # SOA Question 4.8  (C) 191
 #
 # - use insurance recursion with special interest rate $i=0.04$ in first year.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="a1kCG1qL9vGk" outputId="21a64320-13db-443d-f733-3429100ef8c2" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f3ad0bbe" outputId="efc4f3d3-2609-4252-995f-57ab578991fd"
 def v_t(t): return 1.04**(-t) if t < 1 else 1.04**(-1) * 1.05**(-t+1)
 A = SULT().set_interest(v_t=v_t).whole_life_insurance(50, b=1000)
 isclose(191, A, question="Q4.8")
 
-# + [markdown] id="w08yNX6S9vGk"
+# + [markdown] id="4408c9ef"
 # SOA Question 4.9:  (D) 0.5
 # - use whole-life, term and endowment insurance relationships.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="oElA_bNq9vGk" outputId="c8a4c7e1-9eb6-4546-c91f-61d79a2ef857" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="0ab006d1" outputId="6186bf3e-bd92-4ab3-9054-2648b798a006"
 E = Recursion().set_A(0.39, x=35, t=15, endowment=1)\
                .set_A(0.25, x=35, t=15)\
                .E_x(35, t=15)
@@ -533,12 +550,12 @@ def fun(A): return life.set_A(A, x=50).term_insurance(35, t=15)
 A = life.solve(fun, target=0.25, grid=[0.35, 0.55])
 isclose(0.5, A, question="Q4.9")
 
-# + [markdown] id="o-YWaRHc9vGl"
+# + [markdown] id="f46ca953"
 # SOA Question 4.10:  (D)
 # - draw and compared benefit diagrams
 #
 
-# + colab={"base_uri": "https://localhost:8080/", "height": 282} id="GPiuEBqc9vGl" outputId="2ef1a7d0-1adb-49bf-f7d5-95006182659e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/", "height": 521} id="14fca3d8" outputId="b81eff4e-af91-4bf7-d399-5139fb35bb5c"
 life = Insurance().set_interest(i=0.0).set_survival(S=lambda x,s,t: 1, maxage=40)
 def fun(x, t):
     if 10 <= t <= 20: return life.interest.v_t(t)
@@ -572,13 +589,13 @@ z = [sum(abs(b(0, t) - fun(0, t)) for t in range(40)) for b in benefits]
 ans = "ABCDE"[np.argmin(z)]
 isclose('D', ans, question="Q4.10")
 
-# + [markdown] id="6ZsrFQqm9vGl"
+# + [markdown] id="8dae2f7c"
 # SOA Question 4.11:  (A) 143385
 # - compute endowment insurance = term insurance + pure endowment 
 # - apply formula of variance as the difference of second moment and first moment squared.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="zFQaNDuK9vGl" outputId="a4a0b471-073c-4635-b63d-d42efc6f40bd" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a3858d16" outputId="c63b4fda-e60f-40f6-a4d3-b09e0c74548e"
 A1 = 528/1000   # E[Z1]  term insurance
 C1 = 0.209      # E[pure_endowment]
 C2 = 0.136      # E[pure_endowment^2]
@@ -590,22 +607,22 @@ A2 = Insurance.solve(fun, target=15000/(1000*1000), grid=[143400, 279300])
 var = Insurance.insurance_variance(A2=A2, A1=A1, b=1000)
 isclose(143385, var, question="Q4.11")
 
-# + [markdown] id="Zz-8ysEx9vGl"
+# + [markdown] id="4a79514c"
 # SOA Question 4.12:  (C) 167 
 # - since $Z_1,~Z_2$ are non-overlapping, $E[Z_1~ Z_2] = 0$ for computing $Cov(Z_1, Z_2)$
 # - whole life is sum of term and deferred, hence equals variance of components plus twice their covariance
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="4TdupEj_9vGm" outputId="9bbe3441-b9c6-4c3e-d949-a2e92abc8725" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b34e726c" outputId="fec05279-1701-4d88-93ae-33562b90cb5c"
 cov = Life.covariance(a=1.65, b=10.75, ab=0)  # E[Z1 Z2] = 0 nonoverlapping
 var = Life.variance(a=2, b=1, var_a=46.75, var_b=50.78, cov_ab=cov)
 isclose(167, var, question="Q4.12")
 
-# + [markdown] id="ErkNkhz49vGm"
+# + [markdown] id="ae69b52f"
 # SOA Question 4.13:  (C) 350 
 # - compute term insurance as EPV of benefits
 
-# + colab={"base_uri": "https://localhost:8080/"} id="EFwyjXOa9vGm" outputId="a275717e-efdb-44a7-c24b-3f47bbb08185" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a838d9f1" outputId="8ca77d7d-f3d6-4486-ce84-07d6a7a25796"
 life = SelectLife().set_table(q={65: [.08, .10, .12, .14],
                                  66: [.09, .11, .13, .15],
                                  67: [.10, .12, .14, .16],
@@ -615,12 +632,12 @@ life = SelectLife().set_table(q={65: [.08, .10, .12, .14],
 A = life.deferred_insurance(65, t=2, u=2, b=2000)
 isclose(350, A, question="Q4.13")
 
-# + [markdown] id="eZf5HCyv9vGm"
+# + [markdown] id="3f3b547c"
 # SOA Question 4.14:  (E) 390000
 # - discount (by interest rate $i=0.05$) the value at the portfolio percentile, of the sum of 400 bernoulli r.v. with survival probability $_{25}p_{60}$
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="DUqv602M9vGm" outputId="e452a3ef-7319-4fea-8645-d73e23527485" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f0e506f8" outputId="146c93cc-c3a1-4537-cba6-4351ae2f019c"
 sult = SULT()
 p = sult.p_x(60, t=85-60)
 mean = sult.bernoulli(p)
@@ -629,12 +646,12 @@ F = sult.portfolio_percentile(mean=mean, variance=var, prob=.86, N=400)
 F *= 5000 * sult.interest.v_t(85-60)
 isclose(390000, F, question="Q4.14")
 
-# + [markdown] id="lNmrHU8c9vGm"
+# + [markdown] id="c736d0c5"
 # SOA Question 4.15  (E) 0.0833 
 # - this special benefit function has effect of reducing actuarial discount rate to use in constant force of mortality shortcut formulas
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="LYpdSDwG9vGn" outputId="1b409a7d-ce84-42a0-dd99-05e4c7812980" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="4b7eee09" outputId="488f89c2-79a0-4ef7-96cc-198e738d32a0"
 life = Insurance().set_survival(mu=lambda *x: 0.04).set_interest(delta=0.06)
 benefit = lambda x,t: math.exp(0.02*t)
 A1 = life.A_x(0, benefit=benefit, discrete=False)
@@ -642,11 +659,11 @@ A2 = life.A_x(0, moment=2, benefit=benefit, discrete=False)
 var = life.insurance_variance(A2=A2, A1=A1)
 isclose(0.0833, var, question="Q4.15")
 
-# + [markdown] id="Mc72yVrV9vGn"
+# + [markdown] id="79f63326"
 # SOA Question 4.16:  (D) 0.11
 # - compute EPV of future benefits with adjusted mortality rates
 
-# + colab={"base_uri": "https://localhost:8080/"} id="rlvtqXRz9vGn" outputId="ff80a79a-ff5e-4954-a213-3e2108cabc84" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="3c74f0e6" outputId="e58bd9a6-1a51-4f71-ca4f-056901d3e435"
 q = [.045, .050, .055, .060]
 q = {50 + x: [q[x] * 0.7 if x < len(q) else None, 
               q[x+1] * 0.8 if x + 1 < len(q) else None, 
@@ -656,24 +673,24 @@ life = SelectLife().set_table(q=q).set_interest(i=.04)
 A = life.term_insurance(50, t=3)
 isclose(0.1116, A, question="Q4.16")
 
-# + [markdown] id="INvNvhLP9vGn"
+# + [markdown] id="2ab65168"
 # SOA Question 4.17:  (A) 1126.7
 # - find future lifetime with 50\% survival probability
 # - compute EPV of special whole life as sum of term and deferred insurance, that have different benefit amounts before and after median lifetime.
 
-# + colab={"base_uri": "https://localhost:8080/"} id="5IzEgZjD9vGn" outputId="2b7afa40-e195-41ae-9a28-a4f4463ec285" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="330ac8db" outputId="995c4c92-efc6-4d62-e056-97e9104550ea"
 sult = SULT()
 median = sult.Z_t(48, prob=0.5, discrete=False)
 def benefit(x,t): return 5000 if t < median else 10000
 A = sult.A_x(48, benefit=benefit)
 isclose(1130, A, question="Q4.17")
 
-# + [markdown] id="14_c7W0X9vGn"
+# + [markdown] id="258c80e6"
 # SOA Question 4.18  (A) 81873 
 # - find values of limits such that integral of lifetime density function equals required survival probability
 #
 
-# + colab={"base_uri": "https://localhost:8080/", "height": 314} id="mV-7K5th9vGn" outputId="0abe02dc-a935-48d2-90af-eebe3be7211f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="53795941" outputId="d622625f-e404-4a8d-cc02-dd7ed2d602e6"
 def f(x,s,t): return 0.1 if t < 2 else 0.4*t**(-2)
 life = Insurance().set_interest(delta=0.05)\
                   .set_survival(f=f, maxage=10)
@@ -683,13 +700,13 @@ T = life.Z_t(0, prob=prob)
 Z = life.Z_from_t(T) * benefit(0, T)
 isclose(81873, Z, question="Q4.18")
 
-# + [markdown] id="7XZ1FdCx9vGo"
+# + [markdown] id="04492903"
 # SOA Question 4.19:  (B) 59050
 # - calculate adjusted mortality for the one-year select period
 # - compute whole life insurance using backward recursion formula
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="EqjNsyIk9vGo" outputId="053f9219-729d-47f0-b462-fc26c3f0d420" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="13a8420d" outputId="198dd641-b474-4487-92b4-76f37d376b04"
 life = SULT()
 q = ExtraRisk(life=life, extra=0.8, risk="MULTIPLY_RATE")['q']
 select = SelectLife(periods=1).set_select(s=0, age_selected=True, q=q)\
@@ -699,28 +716,28 @@ select = SelectLife(periods=1).set_select(s=0, age_selected=True, q=q)\
 A = 100000 * select.whole_life_insurance(80, s=0)
 isclose(59050, A, question="Q4.19")
 
-# + [markdown] id="EfWl21389vGo"
+# + [markdown] id="c52b272d"
 # ## 5 Annuities
 
-# + [markdown] id="wanGyzF39vGo"
+# + [markdown] id="4e448f05"
 # SOA Question 5.1: (A) 0.705
 # - sum of annuity certain and deferred life annuity with constant force of mortality shortcut
 # - use equation for PV annuity r.v. Y to infer lifetime
 # - compute survival probability from constant force of mortality function.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="DDhYQPYN9vGo" outputId="ff9962e7-a9e5-4cbe-f483-7e7b680807fa" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="18b1a0c0" outputId="089a36f0-e632-46fc-a0f3-3834faada710"
 life = ConstantForce(mu=0.01).set_interest(delta=0.06)
 EY = life.certain_life_annuity(0, u=10, discrete=False)
 p = life.p_x(0, t=life.Y_to_t(EY))
 isclose(0.705, p, question="Q5.1")  # 0.705
 
-# + [markdown] id="NhB04ckb9vGo"
+# + [markdown] id="f90b71c6"
 # SOA Question 5.2:  (B) 9.64
 # - compute term life as difference of whole life and deferred insurance
 # - compute twin annuity-due, and adjust to an immediate annuity. 
 
-# + colab={"base_uri": "https://localhost:8080/"} id="a1eZLQRA9vGp" outputId="aa0376b0-ca73-4c8b-873a-a7ec900c1365" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="206b600b" outputId="dcd5e778-d641-49c7-ce9a-1a427a0cf4f8"
 x, n = 0, 10
 a = Recursion().set_interest(i=0.05)\
                .set_A(0.3, x)\
@@ -729,35 +746,35 @@ a = Recursion().set_interest(i=0.05)\
                .immediate_annuity(x, t=n)
 isclose(9.64, a, question="Q5.2")
 
-# + [markdown] id="1bajTwJZ9vGp"
+# + [markdown] id="439db468"
 # SOA Question 5.3:  (C) 6.239
 # - Differential reduces to the the EPV of the benefit payment at the upper time limit.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="9gZ6XJt_9vGp" outputId="ad4c1f19-70fa-4dcb-dc12-ea3460726e9f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="eeca16c1" outputId="6b109a8b-0194-421b-e7fd-23ea222bde92"
 t = 10.5
 E = t * SULT().E_r(40, t=t)
 isclose(6.239, E, question="Q5.3")
 
-# + [markdown] id="4UlYXhJv9vGp"
+# + [markdown] id="cd3027da"
 # SOA Question 5.4:  (A) 213.7
 # - compute certain and life annuity factor as the sum of a certain annuity and a deferred life annuity.
 # - solve for amount of annual benefit that equals given EPV
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="CfXai-Ra9vGp" outputId="18325841-5f2a-4fa2-abd6-4aa0b4ba091b" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="297311f0" outputId="37039fca-a943-424f-9786-6e827cbd042e"
 life = ConstantForce(mu=0.02).set_interest(delta=0.01)
 u = life.e_x(40, curtate=False)
 P = 10000 / life.certain_life_annuity(40, u=u, discrete=False)
 isclose(213.7, P, question="Q5.4") # 213.7
 
-# + [markdown] id="OeL1Jvl79vGp"
+# + [markdown] id="46f357cd"
 # SOA Question 5.5: (A) 1699.6
 # - adjust mortality rate for the extra risk
 # - compute annuity by backward recursion.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="s0KqIsfs9vGp" outputId="8a79f52e-8133-4e1d-d967-627aae7c6530" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9737dc8d" outputId="ecae4e5a-65be-4408-9b24-607b3c3dce0c"
 life = SULT()   # start with SULT life table
 q = ExtraRisk(life=life, extra=0.05, risk="ADD_FORCE")['q']
 select = SelectLife(periods=1).set_select(s=0, age_selected=True, q=q)\
@@ -767,25 +784,25 @@ select = SelectLife(periods=1).set_select(s=0, age_selected=True, q=q)\
 a = 100 * select['a'][45][0]
 isclose(1700, a, question="Q5.5")
 
-# + [markdown] id="PY9BK9NQ9vGq"
+# + [markdown] id="3387fd23"
 # SOA Question 5.6:  (D) 1200
 # - compute mean and variance of EPV of whole life annuity from whole life insurance twin and variance identities. 
 # - portfolio percentile of the sum of $N=100$ life annuity payments
 
-# + colab={"base_uri": "https://localhost:8080/"} id="p5mvdVAg9vGq" outputId="909f5e0e-a5ee-4a76-b470-233415eb6626" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="8445b834" outputId="5c7fd1d0-5a71-4949-a0bf-e66a02129970"
 life = Annuity().set_interest(i=0.05)
 var = life.annuity_variance(A2=0.22, A1=0.45)
 mean = life.annuity_twin(A=0.45)
 fund = life.portfolio_percentile(mean, var, prob=.95, N=100)
 isclose(1200, fund, question="Q5.6")
 
-# + [markdown] id="uG4P5eWY9vGq"
+# + [markdown] id="b7c08c39"
 # SOA Question 5.7:  (C) 
 # - compute endowment insurance from relationships of whole life, temporary and deferred insurances.
 # - compute temporary annuity from insurance twin
 # - apply Woolhouse approximation
 
-# + colab={"base_uri": "https://localhost:8080/"} id="NEo5b0uY9vGq" outputId="dff2ba1a-80ed-488d-bc86-32bcfae9bc16" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="93c40a7c" outputId="b98a00cd-5c4d-4df1-c7e2-05c49341b169"
 life = Recursion().set_interest(i=0.04)\
                   .set_A(0.188, x=35)\
                   .set_A(0.498, x=65)\
@@ -794,25 +811,25 @@ mthly = Woolhouse(m=2, life=life, three_term=False)
 a = 1000 * mthly.temporary_annuity(35, t=30)
 isclose(17376.7, a, question="Q5.7")
 
-# + [markdown] id="ZasxaEEQ9vGr"
+# + [markdown] id="0851fa7c"
 # SOA Question 5.8: (C) 0.92118
 # - calculate EPV of certain and life annuity.
 # - find survival probability of lifetime s.t. sum of annual payments exceeds EPV
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="eoJrcxfS9vGr" outputId="f42d8fea-2f24-4756-8bbb-d592e0c2231a" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="3db058df" outputId="c43253f6-a9e5-42d3-86b9-388c9ffb4339"
 sult = SULT()
 a = sult.certain_life_annuity(55, u=5)
 p = sult.p_x(55, t=math.floor(a))
 isclose(0.92118, p, question="Q5.8")
 
-# + [markdown] id="Di8lim4M9vGr"
+# + [markdown] id="ad7d5d47"
 # SOA Question 5.9:  (C) 0.015
 # - express both EPV's expressed as forward recursions
 # - solve for unknown constant $k$.
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="8tOnpRj-9vGr" outputId="d37bf7fe-987c-460d-809c-0e8c62415046" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="1937f550" outputId="c19cd806-89c9-4194-b1f1-0e750fe1ba0a"
 x, p = 0, 0.9  # set arbitrary p_x = 0.9
 a = Recursion().set_a(21.854, x=x)\
                .set_p(p, x=x)\
@@ -822,25 +839,25 @@ def fun(k): return a - life.set_p((1 + k) * p, x=x).whole_life_annuity(x + 1)
 k = life.solve(fun, target=0, grid=[0.005, 0.025])
 isclose(0.015, k, question="Q5.9")
 
-# + [markdown] id="XyxNk-Ai9vGr"
+# + [markdown] id="2bc86ecf"
 # ## 6 Premium Calculation
 
-# + [markdown] id="MMk89pUe9vGr"
+# + [markdown] id="c4aafcee"
 # SOA Question 6.1: (D) 35.36
 # - calculate IA factor for return of premiums without interest
 # - solve net premium such that EPV benefits = EPV premium
 
-# + colab={"base_uri": "https://localhost:8080/"} id="sPt-YT1N9vGs" outputId="34065885-fa3f-4a25-cd0f-68629af96f7c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="68d68c2e" outputId="4dd66c03-1353-4778-8971-a2ffd8106001"
 P = SULT().set_interest(i=0.03)\
           .net_premium(80, t=2, b=1000, return_premium=True)
 isclose(35.36, P, question="Q6.1")
 
-# + [markdown] id="RKxWJOZ99vGs"
+# + [markdown] id="8a9f7924"
 # SOA Question 6.2: (E) 3604
 # - EPV return of premiums without interest = Premium $\times$ IA factor
 # - solve for gross premiums such that EPV premiums = EPV benefits and expenses
 
-# + colab={"base_uri": "https://localhost:8080/"} id="XpBG7-PW9vGs" outputId="3c1634bc-f3a3-4679-e95a-33406865c513" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="cde906a7" outputId="94851ba5-0840-49bc-88f2-2a362ecf458a"
 life = Premiums()
 A, IA, a = 0.17094, 0.96728, 6.8865
 P = life.gross_premium(a=a, A=A, IA=IA, benefit=100000,
@@ -848,23 +865,23 @@ P = life.gross_premium(a=a, A=A, IA=IA, benefit=100000,
                        renewal_policy=200, initial_policy=200)
 isclose(3604, P, question="Q6.2")
 
-# + [markdown] id="Rb2mjaAR9vGs"
+# + [markdown] id="c4fc553b"
 # SOA Question 6.3:  (C) 0.390
 # - solve lifetime $t$ such that PV annuity certain = PV whole life annuity at age 65
 # - calculate mortality rate through the year before curtate lifetime   
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="zLIlMfiE9vGs" outputId="efc84152-c288-49da-f6ef-65d1bf733cc7" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="1d438209" outputId="35bcc829-f499-4b25-8269-6fc53cd61006"
 life = SULT()
 t = life.Y_to_t(life.whole_life_annuity(65))
 q = 1 - life.p_x(65, t=math.floor(t) - 1)
 isclose(0.39, q, question="Q6.3")
 
-# + [markdown] id="E9HlINxZ9vGt"
+# + [markdown] id="8afc2a87"
 # SOA Question 6.4:  (E) 1890
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="5XQBHhMb9vGt" outputId="afe20274-9b92-4be1-ed01-034cbf786f7e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="5b9948fb" outputId="ede1b846-6d99-43c2-b8fb-8d84639d05ef"
 mthly = Mthly(m=12, life=Annuity().set_interest(i=0.06))
 A1, A2 = 0.4075, 0.2105
 mean = mthly.annuity_twin(A1) * 15 * 12
@@ -872,22 +889,22 @@ var = mthly.annuity_variance(A1=A1, A2=A2, b=15 * 12)
 S = Annuity.portfolio_percentile(mean=mean, variance=var, prob=.9, N=200) / 200
 isclose(1890, S, question="Q6.4")
 
-# + [markdown] id="nD3_eiZI9vGt"
+# + [markdown] id="fd4150b6"
 # SOA Question 6.5:  (D) 33
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="1sNfYIO79vGt" outputId="776183c8-5c99-4eba-ed6f-fe5627bbfce1" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="bda89a9a" outputId="063f4003-ee0e-481d-b298-291dc56bf89f"
 life = SULT()
 P = life.net_premium(30, b=1000)
 def gain(k): return life.Y_x(30, t=k) * P - life.Z_x(30, t=k) * 1000
 k = min([k for k in range(20, 40) if gain(k) < 0])
 isclose(33, k, question="Q6.5")
 
-# + [markdown] id="7hH6SXGZ9vGu"
+# + [markdown] id="bba959b2"
 # SOA Question 6.6:  (B) 0.79
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="oDi-k3c69vGu" outputId="51ef2d50-b251-45fc-f953-988a9adfb17f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="2a248f2c" outputId="39918b18-0f8f-4783-967c-ab0193b10283"
 life = SULT()
 P = life.net_premium(62, b=10000)
 contract = Contract(premium=1.03*P,
@@ -900,11 +917,11 @@ var = life.gross_policy_variance(62, contract=contract)
 prob = life.portfolio_cdf(mean=L, variance=var, value=40000, N=600)
 isclose(.79, prob, question="Q6.6")
 
-# + [markdown] id="jTVCT7529vGu"
+# + [markdown] id="efd51de5"
 # SOA Question 6.7:  (C) 2880
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="VsCbviTa9vGu" outputId="a05f7a76-cb47-4cd7-fba7-6e8a1bc24ea3" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="56437e4c" outputId="a738dad9-a925-495e-980e-478171e3f7de"
 life = SULT()
 a = life.temporary_annuity(40, t=20) 
 A = life.E_x(40, t=20)
@@ -912,25 +929,25 @@ IA = a - life.interest.annuity(t=20) * life.p_x(40, t=20)
 G = life.gross_premium(a=a, A=A, IA=IA, benefit=100000)
 isclose(2880, G, question="Q6.7")
 
-# + [markdown] id="iKUNQKe69vGu"
+# + [markdown] id="af651363"
 # SOA Question 6.8:  (B) 9.5
 #
 # - calculate EPV of expenses as deferred life annuities
 # - solve for level premium
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="tlQ3auqs9vGu" outputId="eebb05b4-f5cc-4d30-e013-0605b4d5393f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e90a196f" outputId="cb9e0ce6-0789-418b-b150-7e0d3d9f1377"
 life = SULT()
 initial_cost = (50 + 10 * life.deferred_annuity(60, u=1, t=9)
                 + 5 * life.deferred_annuity(60, u=10, t=10))
 P = life.net_premium(60, initial_cost=initial_cost)
 isclose(9.5, P, question="Q6.8")
 
-# + [markdown] id="8JlSpUV89vGv"
+# + [markdown] id="cc58d89d"
 # SOA Question 6.9:  (D) 647
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="LI4rbm-a9vGv" outputId="c6229f5d-238b-4919-b039-242ef4ebdeae" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a5ff35d6" outputId="e7696dfd-5c6a-4aef-e0b2-a29803de55d2"
 life = SULT()
 a = life.temporary_annuity(50, t=10)
 A = life.term_insurance(50, t=20)
@@ -940,11 +957,11 @@ P = life.gross_premium(a=a, A=A, benefit=100000,
                        initial_policy=75 + initial_cost, renewal_policy=25)
 isclose(647, P, question="Q6.9")
 
-# + [markdown] id="wC--Jm4z9vGv"
+# + [markdown] id="196e0607"
 # SOA Question 6.10:  (D) 0.91
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Q_CLIxYw9vGv" outputId="56b7d524-1719-4bbc-e619-6a7a327e4cd0" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a6ea62e1" outputId="bdde781d-23f6-4c97-ab70-efdb3cd5e5bd"
 x = 0
 life = Recursion(verbose=False).set_interest(i=0.06).set_p(0.975, x=x)
 a = 152.85/56.05
@@ -956,11 +973,11 @@ def fun(p):
 p = life.solve(fun, target=152.85, grid=0.975)  # finally solve p_x+3, given A_x:3
 isclose(0.91, p, question="Q6.10")
 
-# + [markdown] id="Lle5ExS79vGv"
+# + [markdown] id="1a93e76e"
 # SOA Question 6.11:  (C) 0.041
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="_MkpvlkU9vGv" outputId="39922f59-657c-4e4e-c884-0b25f06e03d5" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="84bc4d87" outputId="1de2ce6f-f4c9-443a-a601-597f4587130b"
 life = Recursion().set_interest(i=0.04)
 A = life.set_A(0.39788, 51)\
         .set_q(0.0048, 50)\
@@ -970,11 +987,11 @@ A = life.set_q(0.048, 50).whole_life_insurance(50)
 loss = A - life.annuity_twin(A) * P
 isclose(0.041, loss, question="Q6.11")
 
-# + [markdown] id="NdKUGnPz9vGw"
+# + [markdown] id="2d504c4a"
 # SOA Question 6.12:  (E) 88900
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="8BvYef7L9vGw" outputId="2b6e3344-2dab-4b57-cab6-bb7b99ad3ecf" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="761a8575" outputId="71728a43-b669-4099-a492-23389687fb83"
 life = PolicyValues().set_interest(i=0.06)
 a = 12
 A = life.insurance_twin(a)
@@ -985,11 +1002,11 @@ contract.premium = life.gross_premium(A=A, a=a, **contract.premium_terms)
 L = life.gross_variance_loss(A1=A, A2=0.14, contract=contract)
 isclose(88900, L, question="Q6.12")
 
-# + [markdown] id="icuPfe0I9vGw"
+# + [markdown] id="eabcd0f2"
 # SOA Question 6.13:  (D) -400
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="DOSmNBdZ9vGw" outputId="188263d8-d084-4220-8754-70bf4d82453d" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/", "height": 522} id="3d187b82" outputId="38762b89-933e-4efb-c590-825bf0b3fe61"
 life = SULT().set_interest(i=0.05)
 A = life.whole_life_insurance(45)
 contract = Contract(benefit=10000, initial_premium=.8, renewal_premium=.1)
@@ -1000,22 +1017,22 @@ L = life.gross_policy_value(45, contract=contract)
 life.L_plot(x=45, T=10.5, contract=contract)
 isclose(-400, L, question="Q6.13")
 
-# + [markdown] id="LDdSgirA9vGw"
+# + [markdown] id="73a7c727"
 # SOA Question 6.14  (D) 1150
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="L14v2XwM9vGw" outputId="c4bf71e8-8487-49ae-ff8e-1f6663a89ce0" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="d6f0c625" outputId="1ccad21d-8f41-4296-f844-f2bb28f48d17"
 life = SULT().set_interest(i=0.05)
 a = life.temporary_annuity(40, t=10) + 0.5*life.deferred_annuity(40, u=10, t=10)
 A = life.whole_life_insurance(40)
 P = life.gross_premium(a=a, A=A, benefit=100000)
 isclose(1150, P, question="Q6.14")
 
-# + [markdown] id="Qdk7fKTe9vGx"
+# + [markdown] id="ba7ed0a0"
 # SOA Question 6.15:  (B) 1.002
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="NQhP6eiu9vGx" outputId="2624d277-11df-4dd0-f03c-7e762436b4cc" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="3b081e5c" outputId="3a25d717-83e5-43b3-fad2-6fe3a2779dcc"
 life = Recursion().set_interest(i=0.05).set_a(3.4611, x=0)
 A = life.insurance_twin(3.4611)
 udd = UDD(m=4, life=life)
@@ -1025,11 +1042,11 @@ a2 = woolhouse.whole_life_annuity(x=x)
 P = life.gross_premium(a=a1, A=A)/life.gross_premium(a=a2, A=A)
 isclose(1.002, P, question="Q6.15")
 
-# + [markdown] id="yqA_2NZg9vGx"
+# + [markdown] id="d328bce8"
 # SOA Question 6.16: (A) 2408.6
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="hJD9EitR9vGx" outputId="059909aa-5c73-4aa1-b800-d2b46cbd3bd8" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b4867776" outputId="b667545f-60fc-4406-c494-7f6b89fbffc1"
 life = Premiums().set_interest(d=0.05)
 A = life.insurance_equivalence(premium=2143, b=100000)
 a = life.annuity_equivalence(premium=2143, b=100000)
@@ -1038,11 +1055,11 @@ p = life.gross_premium(A=A, a=a, benefit=100000, settlement_policy=0,
                        renewal_policy=50, renewal_premium=0.04 + 0.02) 
 isclose(2410, p, question="Q6.16")
 
-# + [markdown] id="37LjDzIH9vGx"
+# + [markdown] id="f8b3364c"
 # SOA Question 6.17:  (A) -30000
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="nG01nwmd9vGy" outputId="aa8e8771-ce2a-47c1-e8ea-f24b16026025" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e84e6eb4" outputId="12fb5684-9a7d-43be-fc7a-bd351711df05"
 x = 0
 life = ConstantForce(mu=0.1).set_interest(i=0.08)
 A = life.endowment_insurance(x, t=2, b=100000, endowment=30000)
@@ -1055,11 +1072,11 @@ contract = Contract(premium=P*2, benefit=100000, endowment=30000)
 L = life1.gross_policy_value(x, t=0, n=2, contract=contract)
 isclose(-30000, L, question="Q6.17")
 
-# + [markdown] id="QoVCw8Pa9vGy"
+# + [markdown] id="b8298896"
 # SOA Question 6.18:  (D) 166400
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="rMBOIppO9vGy" outputId="18d3b8d7-d382-45d5-8b74-2b44e940820c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="0f94e213" outputId="fc40007d-a337-40f4-8756-fd23736efed6"
 life = SULT().set_interest(i=0.05)
 def fun(P):
     A = (life.term_insurance(40, t=20, b=P)
@@ -1068,11 +1085,11 @@ def fun(P):
 P = life.solve(fun, target=0, grid=[162000, 168800])
 isclose(166400, P, question="Q6.18")
 
-# + [markdown] id="ZcMqA89S9vGy"
+# + [markdown] id="023fb15f"
 # SOA Question 6.19:  (B) 0.033
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="TFWmVLHq9vGy" outputId="db3a29a2-789f-468f-8724-1522278b9238" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="0ad57ec7" outputId="1dfcb6d7-67c7-4e64-af1a-8afb7d741aa8"
 life = SULT()
 contract = Contract(initial_policy=.2, renewal_policy=.01)
 a = life.whole_life_annuity(50)
@@ -1081,11 +1098,11 @@ contract.premium = life.gross_premium(A=A, a=a, **contract.premium_terms)
 L = life.gross_policy_variance(50, contract=contract)
 isclose(0.033, L, question="Q6.19")
 
-# + [markdown] id="00sgYJBt9vGy"
+# + [markdown] id="63fbc144"
 # SOA Question 6.20:  (B) 459
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="b8EAxOB89vGz" outputId="6f208979-92ae-4a29-cd3b-f876d31b8ae5" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="d1afe338" outputId="5eb69abc-ca16-4491-e78b-e8329ed2cfa6"
 life = LifeTable().set_interest(i=.04).set_table(p={75: .9, 76: .88, 77: .85})
 a = life.temporary_annuity(75, t=3)
 IA = life.increasing_insurance(75, t=2)
@@ -1094,11 +1111,11 @@ def fun(P): return life.gross_premium(a=a, A=P*IA + A*10000) - P
 P = life.solve(fun, target=0, grid=[449, 489])
 isclose(459, P, question="Q6.20")
 
-# + [markdown] id="jaapeEum9vGz"
+# + [markdown] id="b44723ae"
 # SOA Question 6.21:  (C) 100
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="wIqhDwJ59vGz" outputId="a42bb458-c8b2-4129-d37a-d0ce1128e6cf" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7c07aea5" outputId="e1f70069-9d46-48a0-e5f5-45a0cda9402e"
 life = Recursion(verbose=False).set_interest(d=0.04)
 life.set_A(0.7, x=75, t=15, endowment=1)
 life.set_E(0.11, x=75, t=15)
@@ -1108,22 +1125,22 @@ def fun(P):
 P = life.solve(fun, target=0, grid=(80, 120))
 isclose(100, P, question="Q6.21")
 
-# + [markdown] id="OKTQ_TC89vG0"
+# + [markdown] id="e1792e95"
 # SOA Question 6.22:  (C) 102
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="7aF-4oV_9vG0" outputId="93a294cc-accc-431e-a007-7de77464faca" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e154a4ce" outputId="9a6f9e8d-81b8-4709-d905-361426bd1d41"
 life=SULT(udd=True)
 a = UDD(m=12, life=life).temporary_annuity(45, t=20)
 A = UDD(m=0, life=life).whole_life_insurance(45)
 P = life.gross_premium(A=A, a=a, benefit=100000) / 12
 isclose(102, P, question="Q6.22")
 
-# + [markdown] id="O7cr0lF59vG0"
+# + [markdown] id="1f2bd9fa"
 # SOA Question 6.23:  (D) 44.7
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="dmOB0Lym9vG0" outputId="d212b3d4-83d8-476f-93b5-caccd46cf596" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="4721d51b" outputId="808fe871-3388-467d-871d-3a170a187d57"
 x = 0
 life = Recursion().set_a(15.3926, x=x)\
                   .set_a(10.1329, x=x, t=15)\
@@ -1139,11 +1156,11 @@ isclose(44.7, P, question="Q6.23")
 
 
 
-# + [markdown] id="EqkONBmS9vG1"
+# + [markdown] id="266bc6a3"
 # SOA Question 6.24:  (E) 0.30
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="0eRjXMcj9vG1" outputId="c38cb91b-3399-44e3-bfde-6dc4200fa7d2" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="092a752e" outputId="03dad73c-b481-4795-9c2c-f5dee0466679"
 life = PolicyValues().set_interest(delta=0.07)
 x, A1 = 0, 0.30   # Policy for first insurance
 P = life.premium_equivalence(A=A1, discrete=False)  # Need its premium
@@ -1156,11 +1173,11 @@ contract = Contract(premium=0.06, discrete=False) # Solve second insurance
 var = life.gross_variance_loss(A1=A1, A2=A2, contract=contract)
 isclose(0.304, var, question="Q6.24")
 
-# + [markdown] id="eaJoqsnZ9vG1"
+# + [markdown] id="28b083e2"
 # SOA Question 6.25:  (C) 12330
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="kMLAbBRx9vG2" outputId="07bc4248-da30-4dad-a6fe-f43bac64e7ee" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b27d7264" outputId="58b53abb-8300-46e9-e78b-d1e014225d5a"
 life = SULT()
 woolhouse = Woolhouse(m=12, life=life)
 benefits = woolhouse.deferred_annuity(55, u=10, b=1000 * 12)
@@ -1172,22 +1189,22 @@ def fun(P):
 P = life.solve(fun, target=-800, grid=[12110, 12550])
 isclose(12330, P, question="Q6.25")
 
-# + [markdown] id="zCwTCG3I9vG2"
+# + [markdown] id="71edd123"
 # SOA Question 6.26  (D) 180
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="h6vKorks9vG2" outputId="71d4cc05-97da-4a20-c6f4-b54fefa1aed5" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e0bc9ac7" outputId="de43a1b4-6ac6-4dd3-aaea-d0e1fa147a53"
 life = SULT().set_interest(i=0.05)
 def fun(P): 
     return P - life.net_premium(90, b=1000, initial_cost=P)
 P = life.solve(fun, target=0, grid=[150, 190])
 isclose(180, P, question="Q6.26")
 
-# + [markdown] id="oRIet2xy9vG2"
+# + [markdown] id="984c9535"
 # SOA Question 6.27:  (D) 10310
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="OQYGAYM09vG3" outputId="a3d84e61-5b31-4e60-98bd-34ad5058794e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f807f50d" outputId="c82c5ade-31c1-4534-ed78-41d6a22f8df2"
 life = ConstantForce(mu=0.03).set_interest(delta=0.06)
 x = 0
 payments = (3 * life.temporary_annuity(x, t=20, discrete=False) 
@@ -1197,11 +1214,11 @@ benefits = (1000000 * life.term_insurance(x, t=20, discrete=False)
 P = benefits / payments
 isclose(10310, P, question="Q6.27")
 
-# + [markdown] id="ZJfJJdaL9vG3"
+# + [markdown] id="a83ac2e9"
 # SOA Question 6.28  (B) 36
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="z8hMa1ai9vG3" outputId="8412fce8-9fcb-4c80-c403-db998365dbbb" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e4d655be" outputId="dfeb9940-d56a-474a-c5e4-697263b5479a"
 life = SULT().set_interest(i=0.05)
 a = life.temporary_annuity(40, t=5)
 A = life.whole_life_insurance(40)
@@ -1210,11 +1227,11 @@ P = life.gross_premium(a=a, A=A, benefit=1000,
                        renewal_policy=5, initial_premium=.2)
 isclose(36, P, question="Q6.28")
 
-# + [markdown] id="cncqT-ZL9vG3"
+# + [markdown] id="48cd4a00"
 # SOA Question 6.29  (B) 20.5
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="m43vanTb9vG4" outputId="396959f7-5749-4505-e376-e174c76ae59a" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="19f0454d" outputId="9c0b73e6-dbe5-434a-e572-4b748c860c34"
 life = Premiums().set_interest(i=0.035)
 def fun(a):
     return life.gross_premium(A=life.insurance_twin(a=a), a=a, 
@@ -1224,11 +1241,11 @@ def fun(a):
 a = life.solve(fun, target=1770, grid=[20, 22])
 isclose(20.5, a, question="Q6.29")
 
-# + [markdown] id="iZNST4689vG4"
+# + [markdown] id="65adf914"
 # SOA Question 6.30:  (A) 900
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="flPaelSq9vG4" outputId="42ada4ef-cf82-4788-8262-0e1296c5cce3" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a29edf61" outputId="0b9e70a0-ad3d-4762-80fe-ac125bf7cc79"
 life = PolicyValues().set_interest(i=0.04)
 contract = Contract(premium=2.338,
                     benefit=100,
@@ -1238,22 +1255,22 @@ var = life.gross_variance_loss(A1=life.insurance_twin(16.50),
                                A2=0.17, contract=contract)
 isclose(900, var, question="Q6.30")
 
-# + [markdown] id="c1jbfgLr9vG5"
+# + [markdown] id="13f8f705"
 # SOA Question 6.31:  (D) 1330
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="qkoIZjvw9vG5" outputId="10124aed-9f2c-4d99-f20b-872f03399d02" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="2dfd7470" outputId="ece90548-3b6f-410d-8bac-cbe280802406"
 life = ConstantForce(mu=0.01).set_interest(delta=0.05)
 A = (life.term_insurance(35, t=35, discrete=False) 
      + life.E_x(35, t=35)*0.51791)     # A_35
 P = life.premium_equivalence(A=A, b=100000, discrete=False)
 isclose(1330, P, question="Q6.31")
 
-# + [markdown] id="AioBGkV_9vG5"
+# + [markdown] id="9876aca3"
 # SOA Question 6.32:  (C) 550
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="cNRyDIDq9vG5" outputId="85c85dd5-80a6-44cf-dc7c-79ff56f60d63" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9775a2e0" outputId="44256da0-0cf7-4f79-cb7e-810502e59e2a"
 x = 0
 life = Recursion().set_interest(i=0.05).set_a(9.19, x=x)
 benefits = UDD(m=0, life=life).whole_life_insurance(x)
@@ -1261,22 +1278,22 @@ payments = UDD(m=12, life=life).whole_life_annuity(x)
 P = life.gross_premium(a=payments, A=benefits, benefit=100000)/12
 isclose(550, P, question="Q6.32")
 
-# + [markdown] id="ebOOmO3r9vG6"
+# + [markdown] id="3765e3c2"
 # SOA Question 6.33:  (B) 0.13
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="5XzvzCyY9vG6" outputId="abebd8c3-f299-4b24-b606-92190999176a" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="5410107c" outputId="1e3d44f7-e75a-4af4-c78f-fa8f24b1b2df"
 life = Insurance().set_survival(mu=lambda x,t: 0.02*t).set_interest(i=0.03)
 x = 0
 var = life.E_x(x, t=15, moment=life._VARIANCE, endowment=10000)
 p = 1- life.portfolio_cdf(mean=0, variance=var, value=50000, N=500)
 isclose(0.13, p, question="Q6.33", rel_tol=0.02)
 
-# + [markdown] id="gbAdkAYQ9vG6"
+# + [markdown] id="d47dfed4"
 # SOA Question 6.34:  (A) 23300
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="CPcYynHS9vG6" outputId="cee17f88-0a53-453c-9782-d165e218bcd1" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a5ef2c99" outputId="c39292a6-196f-4b8f-c46a-411bf091e8c4"
 life = SULT()
 def fun(benefit):
     A = life.whole_life_insurance(61)
@@ -1286,22 +1303,22 @@ def fun(benefit):
 b = life.solve(fun, target=500, grid=[23300, 23700])
 isclose(23300, b, question="Q6.34")
 
-# + [markdown] id="NBbvFO2x9vG6"
+# + [markdown] id="e1084dfc"
 # SOA Question 6.35:  (D) 530
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="NOghD5vh9vG6" outputId="5858517b-c68f-4501-8452-b52123613f94" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="2079db39" outputId="2b849509-9216-4e55-a946-059651a0445a"
 sult = SULT()
 A = sult.whole_life_insurance(35, b=100000)
 a = sult.whole_life_annuity(35)
 P = sult.gross_premium(a=a, A=A, initial_premium=.19, renewal_premium=.04)
 isclose(530, P, question="Q6.35")
 
-# + [markdown] id="bQfiVt4j9vG7"
+# + [markdown] id="c0b919c2"
 # SOA Question 6.36:  (B) 500
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="hy4bStS19vG7" outputId="a7977e5b-09e2-4059-f4a8-00afc76cc0a6" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f849ca70" outputId="acefc03f-7fe6-42c0-d88b-58b3bc2ea079"
 life = ConstantForce(mu=0.04).set_interest(delta=0.08)
 a = life.temporary_annuity(50, t=20, discrete=False)
 A = life.term_insurance(50, t=20, discrete=False)
@@ -1311,11 +1328,11 @@ def fun(R):
 R = life.solve(fun, target=4500, grid=[400, 800])
 isclose(500, R, question="Q6.36")
 
-# + [markdown] id="GrV4g-Bi9vG7"
+# + [markdown] id="cc4c7356"
 # SOA Question 6.37:  (D) 820
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="3i6sGOvF9vG7" outputId="07455b7c-6515-4bc8-a5cd-404bf7e4111c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="fa96592b" outputId="862aa876-8377-4152-df87-ecff6d6d7d48"
 sult = SULT()
 benefits = sult.whole_life_insurance(35, b=50000 + 100)
 expenses = sult.immediate_annuity(35, b=100)
@@ -1323,11 +1340,11 @@ a = sult.temporary_annuity(35, t=10)
 P = (benefits + expenses) / a
 isclose(820, P, question="Q6.37")
 
-# + [markdown] id="b6JJiBNb9vG7"
+# + [markdown] id="07e0a134"
 # SOA Question 6.38:  (B) 11.3
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="zmkkGWyj9vG7" outputId="306298ad-76e4-41df-fa89-831e92610d36" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="017b6427" outputId="3c1dd14b-4a99-4004-aaa5-da390f510296"
 x, n = 0, 10
 life = Recursion().set_interest(i=0.05)\
                   .set_A(0.192, x=x, t=n, endowment=1, discrete=False)\
@@ -1342,11 +1359,11 @@ a = life.solve(fun, target=a, grid=a)  # discrete annuity
 P = life.gross_premium(a=a, A=0.192, benefit=1000)
 isclose(11.3, P, question="Q6.38")
 
-# + [markdown] id="AKm7vNe59vG7"
+# + [markdown] id="801638b7"
 # SOA Question 6.39:  (A) 29
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="dggrBcE39vG8" outputId="2a83808e-d3f5-44ac-e05f-491090e33c1e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="4f13b0f0" outputId="30f40642-4f6f-4d81-d7d3-c6a001b62f90"
 sult = SULT()
 P40 = sult.premium_equivalence(sult.whole_life_insurance(40), b=1000)
 P80 = sult.premium_equivalence(sult.whole_life_insurance(80), b=1000)
@@ -1355,11 +1372,11 @@ p80 = sult.p_x(80, t=10)
 P = (P40 * p40 + P80 * p80) / (p80 + p40)
 isclose(29, P, question="Q6.39")
 
-# + [markdown] id="9LPFohDX9vG8"
+# + [markdown] id="2654e85e"
 # SOA Question 6.40: (C) 116 
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="mOMHVhhC9vG8" outputId="2afbe4ed-770d-42f8-d38f-1957de31fa30" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="464ce774" outputId="be812870-950e-4bea-ff21-8e65524581bf"
 # - standard formula discounts/accumulates by too much (i should be smaller)
 x = 0
 life = Recursion().set_interest(i=0.06).set_a(7, x=x+1).set_q(0.05, x=x)
@@ -1370,11 +1387,11 @@ A1 = life.whole_life_insurance(x+1)
 P = life.gross_premium(A=A1 / 1.03, a=7) * 1000
 isclose(116, P, question="Q6.40")
 
-# + [markdown] id="yHCVsRUL9vG8"
+# + [markdown] id="fc621da9"
 # SOA Question 6.41:  (B) 1417
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="BxOzHHAQ9vG8" outputId="0cea690a-d09a-4ea5-d02b-43c09855489e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a76e5f76" outputId="e8d0f896-709d-4b0d-f5e9-210247d3da2a"
 x = 0
 life = LifeTable().set_interest(i=0.05).set_table(q={x:.01, x+1:.02})
 a = 1 + life.E_x(x, t=1) * 1.01
@@ -1382,11 +1399,11 @@ A = life.deferred_insurance(x, u=0, t=1) + 1.01*life.deferred_insurance(x, u=1, 
 P = 100000 * A / a
 isclose(1417, P, question="Q6.41")
 
-# + [markdown] id="yuX0IRFd9vG8"
+# + [markdown] id="88c94cf0"
 # SOA Question 6.42:  (D) 0.113
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="K5COKbI89vG8" outputId="3fcd936e-3fc4-4651-f656-a66c1d7cbd11" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b7ba7db5" outputId="4408ec33-2dbd-48e2-e7b2-2c516f60913e"
 x = 0
 life = ConstantForce(mu=0.06).set_interest(delta=0.06)
 contract = Contract(discrete=True, premium=315.8, 
@@ -1397,11 +1414,11 @@ Q[-1] = 1 - sum(Q[:-1])   # follows SOA Solution: incorrectly treats endowment!
 p = sum([q for (q, l) in zip (Q, L) if l > 0])
 isclose(0.113, p, question="Q6.42")
 
-# + [markdown] id="nil8k4en9vG9"
+# + [markdown] id="61779531"
 # SOA Question 6.43:  (C) 170
 # - although 10-year term, premiums only paid first first years: separately calculate the EPV of per-policy maintenance expenses in years 6-10 and treat as additional initial expense
 
-# + colab={"base_uri": "https://localhost:8080/"} id="PVLeppAQ9vG9" outputId="d7fd2ab4-f099-445b-c7e0-5ade3948f8de" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="acfc0713" outputId="a5496b98-f5bd-4cc8-bb0a-617ec76172ed"
 sult = SULT()
 a = sult.temporary_annuity(30, t=5)
 A = sult.term_insurance(30, t=10)
@@ -1411,11 +1428,11 @@ P = sult.gross_premium(a=a, A=A, benefit=200000, initial_premium=0.35,
                        renewal_premium=0.15)
 isclose(170, P, question="Q6.43")
 
-# + [markdown] id="QpZvt3Oi9vG9"
+# + [markdown] id="9c97699e"
 # SOA Question 6.44:  (D) 2.18
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="WEVs1_u59vG9" outputId="dad29bb8-ee6a-4f7f-d6d0-6f6b376ad0ad" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="11930092" outputId="46a932d8-25dc-41fd-ec51-a8a0da03415e"
 life = Recursion().set_interest(i=0.05)\
                   .set_IA(0.15, x=50, t=10)\
                   .set_a(17, x=50)\
@@ -1427,11 +1444,11 @@ a = life.temporary_annuity(50, t=10)
 P = life.gross_premium(a=a, A=A, IA=IA, benefit=100)
 isclose(2.2, P, question="Q6.44")
 
-# + [markdown] id="SzfeMzZf9vG9"
+# + [markdown] id="96ebbff1"
 # SOA Question 6.45:  (E) 690
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="oY2QEtEq9vG9" outputId="faa5aaaf-729b-4a33-b7c1-c9d738be255c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/", "height": 522} id="e434ceb8" outputId="9aa96ca6-9440-403a-8767-15bbc6d4d7d3"
 life = SULT(udd=True)
 contract = Contract(benefit=100000, premium=560, discrete=False)
 L = life.L_from_prob(x=35, prob=0.75, contract=contract)
@@ -1439,11 +1456,11 @@ life.L_plot(x=35, contract=contract,
             T=life.L_to_t(L=L, contract=contract))
 isclose(690, L, question="Q6.45")
 
-# + [markdown] id="XNAOezVA9vG9"
+# + [markdown] id="96fbe650"
 # SOA Question 6.46:  (E) 208
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="nHX7OoYc9vG-" outputId="3ce41d25-18bd-4535-e366-03a4ca327e97" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="4467d9db" outputId="cd2c079c-d56c-4af2-bdae-731b704b1823"
 life = Recursion().set_interest(i=0.05)\
                   .set_IA(0.51213, x=55, t=10)\
                   .set_a(12.2758, x=55)\
@@ -1454,11 +1471,11 @@ a = life.temporary_annuity(55, t=10)
 P = life.gross_premium(a=a, A=A, IA=IA, benefit=300)
 isclose(208, P, question="Q6.46")
 
-# + [markdown] id="6T1ptC7F9vG-"
+# + [markdown] id="6eb80e22"
 # SOA Question 6.47:  (D) 66400
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="t4yWKlaN9vG-" outputId="fbc32f31-6fd3-42b2-b27a-686d12d0b64d" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="5f701e65" outputId="d1668bf6-9e2c-4df5-fd25-c335ccb38691"
 sult = SULT()
 a = sult.temporary_annuity(70, t=10)
 A = sult.deferred_annuity(70, u=10)
@@ -1466,11 +1483,11 @@ P = sult.gross_premium(a=a, A=A, benefit=100000, initial_premium=0.75,
                         renewal_premium=0.05)
 isclose(66400, P, question="Q6.47")
 
-# + [markdown] id="eGst1Fhk9vG-"
+# + [markdown] id="7ed3e46c"
 # SOA Question 6.48:  (A) 3195 -- example of deep insurance recursion
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="-tKN7-LZ9vG-" outputId="8d75d5dd-5ef1-4ac6-a8cd-5fe695303f55" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="022f6301" outputId="65b37ae4-3226-4fd2-86d7-f00c2da24741"
 x = 0
 life = Recursion().set_interest(i=0.06)\
                   .set_p(.95, x=x, t=5)\
@@ -1482,11 +1499,11 @@ A = life.deferred_insurance(x, u=5, t=3)
 P = life.gross_premium(A=A, a=a, benefit=100000)
 isclose(3195, P, question="Q6.48")
 
-# + [markdown] id="1RhvEUTP9vG-"
+# + [markdown] id="3d130096"
 # SOA Question 6.49:  (C) 86
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Qeoh1oRG9vG-" outputId="b4d0b0a4-2791-4fbe-d7af-606e11c01019" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="c0fe3957" outputId="65d1e3ee-4ea1-481b-dcda-0893062d0062"
 sult = SULT(udd=True)
 a = UDD(m=12, life=sult).temporary_annuity(40, t=20)
 A = sult.whole_life_insurance(40, discrete=False)
@@ -1494,11 +1511,11 @@ P = sult.gross_premium(a=a, A=A, benefit=100000, initial_policy=200,
                        renewal_premium=0.04, initial_premium=0.04) / 12
 isclose(86, P, question="Q6.49")
 
-# + [markdown] id="8DVvN3Id9vG_"
+# + [markdown] id="c442a990"
 # SOA Question 6.50:  (A) -47000
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="7KAGpNAy9vG_" outputId="00db8358-ba34-4d74-f569-ad611a722c98" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="f5713876" outputId="ffb15886-90be-4415-84b6-86d766501831"
 life = SULT()
 P = life.premium_equivalence(a=life.whole_life_annuity(35), b=1000) 
 a = life.deferred_annuity(35, u=1, t=1)
@@ -1506,11 +1523,11 @@ A = life.term_insurance(35, t=1, b=1000)
 cash = (A - a * P) * 10000 / life.interest.v
 isclose(-47000, cash, question="Q6.50")
 
-# + [markdown] id="E6bZCbjh9vG_"
+# + [markdown] id="8aa16e1d"
 # SOA Question 6.51:  (D) 34700
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Dm5CUxWk9vG_" outputId="e50ffe52-aa47-4add-da2a-597ce716a86e" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7def4285" outputId="5cf3947b-003e-4184-a91a-f04e07f4ffde"
 life = Recursion().set_DA(0.4891, x=62, t=10)\
                    .set_A(0.0910, x=62, t=10)\
                    .set_a(12.2758, x=62)\
@@ -1521,13 +1538,13 @@ a = life.temporary_annuity(62, t=10)
 P = life.gross_premium(a=a, A=A, IA=IA, benefit=50000)
 isclose(34700, P, question="Q6.51")
 
-# + [markdown] id="ynsTsjDv9vG_"
+# + [markdown] id="8e1e6a29"
 # SOA Question 6.52:  (D) 50.80
 #
 # - set face value benefits to 0
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="1kFZWjmX9vG_" outputId="cd014cf1-b0bb-46bd-9d33-51371ab79fa0" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="4529d7f9" outputId="56fa7d8f-1ea2-4846-bd57-3403881533cd"
 sult = SULT()
 a = sult.temporary_annuity(45, t=10)
 other_cost = 10 * sult.deferred_annuity(45, u=10)
@@ -1536,34 +1553,34 @@ P = sult.gross_premium(a=a, A=0, benefit=0,    # set face value H = 0
                        initial_policy=100 + other_cost, renewal_policy=20)
 isclose(50.8, P, question="Q6.52")
 
-# + [markdown] id="xdzRRvLM9vG_"
+# + [markdown] id="1d1fd427"
 # SOA Question 6.53:  (D) 720
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="6j4PzepV9vG_" outputId="0af60136-bc12-4d93-c4cb-2468a509bdd9" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a9d23ae6" outputId="922de4af-7566-466b-ec91-6198c6bb637e"
 x = 0
 life = LifeTable().set_interest(i=0.08).set_table(q={x:.1, x+1:.1, x+2:.1})
 A = life.term_insurance(x, t=3)
 P = life.gross_premium(a=1, A=A, benefit=2000, initial_premium=0.35)
 isclose(720, P, question="Q6.53")
 
-# + [markdown] id="_b71u50p9vG_"
+# + [markdown] id="41e939f0"
 # SOA Question 6.54:  (A) 25440
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="V1bKVxcB9vHA" outputId="2f2afa6b-9973-4557-eed0-572f1baa06b1" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="2ea3fc85" outputId="adda1b20-f8bd-47e7-b5d3-9ff7ecc9a822"
 life = SULT()
 std = math.sqrt(life.net_policy_variance(45, b=200000))
 isclose(25440, std, question="Q6.54")
 
-# + [markdown] id="FcLQHamA9vHA"
+# + [markdown] id="04a31b19"
 # ## 7 Policy Values
 
-# + [markdown] id="NUe-Xt7I9vHA"
+# + [markdown] id="b265fc75"
 # SOA Question 7.1:  (C) 11150
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="vMvwBXiR9vHA" outputId="9d92d13f-b1ef-4956-c31b-4489d3b23b15" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="628c0418" outputId="fae81c70-792e-4d22-e18f-5311ae6f253e"
 life = SULT()
 x, n, t = 40, 20, 10
 A = (life.whole_life_insurance(x+t, b=50000)
@@ -1572,11 +1589,11 @@ a = life.temporary_annuity(x+t, t=n-t, b=875)
 L = life.gross_future_loss(A=A, a=a)
 isclose(11150, L, question="Q7.1")
 
-# + [markdown] id="4e3PnDH69vHA"
+# + [markdown] id="40760dac"
 # SOA Question 7.2:  (C) 1152
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="qsjRTV-39vHA" outputId="26228983-0417-4827-e2e5-999fcf5e5e40" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="76adf1c8" outputId="e534f0d7-cd11-48e9-e281-bfbd7a62867c"
 x = 0
 life = Recursion(verbose=False).set_interest(i=.1)\
                                .set_q(0.15, x=x)\
@@ -1589,11 +1606,11 @@ def fun(P):  # solve P s.t. V is equal backwards and forwards
 P = life.solve(fun, target=0, grid=[1070, 1230])
 isclose(1152, P, question="Q7.2")
 
-# + [markdown] id="g1HwU2Tc9vHA"
+# + [markdown] id="9603ae62"
 # SOA Question 7.3:  (E) 730
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="MTRFj4rH9vHA" outputId="3ddc8993-8863-45ef-dd5a-5555ef67c050" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="985efb46" outputId="03907ef7-7024-4b6b-c230-74c0933a8b7f"
 x = 0  # x=0 is (90) and interpret every 3 months as t=1 year
 life = LifeTable().set_interest(i=0.08/4)\
                   .set_table(l={0:1000, 1:898, 2:800, 3:706})\
@@ -1603,11 +1620,11 @@ V = life.set_reserves(V={2: V})\
         .t_V_backward(x=0, t=1, premium=0, benefit=lambda t: 1000)
 isclose(730, V, question="Q7.3")
 
-# + [markdown] id="1P6MEnku9vHA"
+# + [markdown] id="070ec29c"
 # SOA Question 7.4:  (B) -74 -- split benefits into two policies
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="zSN7PaJQ9vHB" outputId="b67feec0-e542-4e06-e14e-d1168efe8bb7" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="c4940dc2" outputId="898f272d-07fd-4c6a-b8ea-ac967943af90"
 life = SULT()
 P = life.gross_premium(a=life.whole_life_annuity(40),
                        A=life.whole_life_insurance(40),
@@ -1624,11 +1641,11 @@ A = life.deferred_insurance(41, u=10)
 V += life.gross_future_loss(A=A, a=0, contract=contract)   # for deferred portion
 isclose(-74, V, question="Q7.4")
 
-# + [markdown] id="z7MDI1zR9vHB"
+# + [markdown] id="30a5ba21"
 # SOA Question 7.5:  (E) 1900
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="6J4ZHYSP9vHB" outputId="520ad047-bca1-4ae6-8b1f-a008130f5f1c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="0605610d" outputId="3a3c9157-ede3-44a9-a606-e0d87110cb6e"
 x = 0
 life = Recursion(udd=True).set_interest(i=0.03)\
                           .set_q(0.04561, x=x+4)\
@@ -1636,11 +1653,11 @@ life = Recursion(udd=True).set_interest(i=0.03)\
 V = life.r_V_forward(x, s=4, r=0.5, benefit=10000, premium=647.46)
 isclose(1900, V, question="Q7.5")
 
-# + [markdown] id="xbkufOv79vHB"
+# + [markdown] id="984679f6"
 # Answer 7.6:  (E) -25.4
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="cYj-b4fa9vHB" outputId="3e358891-4a08-4ba8-c531-9a04df50437b" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="bf5b013c" outputId="104fd3ad-cf7c-4dfc-d10f-2d1f3c839632"
 life = SULT()
 P = life.net_premium(45, b=2000)
 contract = Contract(benefit=2000, initial_premium=.25, renewal_premium=.05,
@@ -1651,11 +1668,11 @@ net = life.net_policy_value(45, t=10, b=2000)
 V = gross - net
 isclose(-25.4, V, question="Q7.6")    
 
-# + [markdown] id="Lzkdk8h_9vHB"
+# + [markdown] id="57e85e76"
 # SOA Question 7.7:  (D) 1110
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="8DWmpEO-9vHC" outputId="68910e36-ee4b-41dd-e3d0-58488fcdcb23" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="a5d4d205" outputId="a7e9ca46-c491-4c47-aeb8-59fd71beaca1"
 x = 0
 life = Recursion().set_interest(i=0.05).set_A(0.4, x=x+10)
 a = Woolhouse(m=12, life=life).whole_life_annuity(x+10)
@@ -1665,11 +1682,11 @@ contract = Contract(premium=30*12, renewal_premium=0.05)
 V += life.gross_future_loss(a=a, contract=contract.renewals())
 isclose(1110, V, question="Q7.7")
 
-# + [markdown] id="3p_yFwql9vHC"
+# + [markdown] id="78784280"
 # SOA Question 7.8:  (C) 29.85
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="XDyGtjjM9vHC" outputId="237da86b-1095-4454-d21d-865db12fbdaa" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9311988d" outputId="d45ec115-7020-496b-87d4-aa363023b6a3"
 sult = SULT()
 x = 70
 q = {x: [sult.q_x(x+k)*(.7 + .1*k) for k in range(3)] + [sult.q_x(x+3)]}
@@ -1679,11 +1696,11 @@ life = Recursion().set_interest(i=.05)\
 V = life.t_V(x=70, t=1, premium=35.168, benefit=lambda t: 1000)
 isclose(29.85, V, question="Q7.8")
 
-# + [markdown] id="lqQbeLzb9vHC"
+# + [markdown] id="13417b4b"
 # SOA Question 7.9:  (A) 38100
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="TGBvaPng9vHC" outputId="7cfeb3a9-90b6-45d7-a20e-b76671c65459" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="95ee4b66" outputId="dd837400-a4e3-41d5-bfdd-e635a3aa9741"
 sult = SULT(udd=True)
 x, n, t = 45, 20, 10
 a = UDD(m=12, life=sult).temporary_annuity(x+10, t=n-10)
@@ -1692,11 +1709,11 @@ contract = Contract(premium=253*12, endowment=100000, benefit=100000)
 V = sult.gross_future_loss(A=A, a=a, contract=contract)
 isclose(38100, V, question="Q7.9")
 
-# + [markdown] id="7Jsgepay9vHC"
+# + [markdown] id="4f341dc3"
 # SOA Question 7.10: (C) -970
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="F4vYPfeB9vHC" outputId="aa975cd0-6f50-4f07-b1f5-17f56337be4f" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="83268a47" outputId="087ff455-6a2a-4531-e9f4-5724907ccd11"
 life = SULT()
 G = 977.6
 P = life.net_premium(45, b=100000)
@@ -1704,11 +1721,11 @@ contract = Contract(benefit=0, premium=G-P, renewal_policy=.02*G + 50)
 V = life.gross_policy_value(45, t=5, contract=contract)
 isclose(-970, V, question="Q7.10")
 
-# + [markdown] id="bOqwHr8s9vHC"
+# + [markdown] id="55157c76"
 # SOA Question 7.11:  (B) 1460
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Z7uS5tEJ9vHD" outputId="392f97b8-d513-46d3-a619-fe9f6871202b" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="2e0c21b0" outputId="0ac7906f-f946-4206-e6c7-b7c4e0dd1de0"
 life = Recursion().set_interest(i=0.05).set_a(13.4205, x=55)
 contract = Contract(benefit=10000)
 def fun(P):
@@ -1717,11 +1734,11 @@ P = life.solve(fun, target=4450, grid=400)
 V = life.gross_policy_value(45, t=10, contract=contract.set_contract(premium=P))
 isclose(1460, V, question="Q7.11")
 
-# + [markdown] id="Np_rYr_f9vHD"
+# + [markdown] id="6c52d5c3"
 # SOA Question 7.12:  (E) 4.09
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="6HkiLWWl9vHD" outputId="35eefda9-da8f-4151-a77f-8d9d16e0334b" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7993f016" outputId="da0ed101-aefe-455b-f74a-faf47704096c"
 benefit = lambda k: 26 - k
 x = 44
 life = Recursion().set_interest(i=0.04)\
@@ -1734,20 +1751,20 @@ V = life.t_V(x, t=12, premium=P, benefit=benefit)  # recursion formula
 isclose(4.09, V, question="Q7.12")
 
 
-# + [markdown] id="CFY9zV8a9vHD"
+# + [markdown] id="4ea704b8"
 # Answer 7.13: (A) 180
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="jmjMCJiW9vHD" outputId="d5bb3025-d82c-49b6-d5ac-3e43387ddc28" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="0b8778cc" outputId="e35a1cda-135e-4090-fb42-8b9bccae70c3"
 life = SULT()
 V = life.FPT_policy_value(40, t=10, n=30, endowment=1000, b=1000)
 isclose(180, V, question="Q7.13")
 
-# + [markdown] id="XbZZpb2j9vHE"
+# + [markdown] id="58f053bd"
 # SOA Question 7.14:  (A) 2200
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="3iG68-Fj9vHE" outputId="bf211f10-dbcd-4351-f4ea-9686dd807fe5" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e0bf9ee2" outputId="be9495c6-4ae7-4bdc-f6f6-7c9a5ac46aca"
 x = 45
 life = Recursion(verbose=False).set_interest(i=0.05)\
                                .set_q(0.009, x=50)\
@@ -1757,11 +1774,11 @@ def fun(P):  # solve for net premium,
 P = life.solve(fun, target=7100, grid=[2200, 2400])
 isclose(2200, P, question="Q7.14")
 
-# + [markdown] id="bo9wPVQ69vHE"
+# + [markdown] id="caab2d47"
 # SOA Question 7.15:  (E) 50.91
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="d-yrZ69M9vHE" outputId="80a66cd1-339b-4e99-bf16-7d72d7695279" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="bbed6a97" outputId="c299c988-9c74-4131-a9e9-d867a391f133"
 x = 0
 V = Recursion(udd=True).set_interest(i=0.05)\
                        .set_q(0.1, x=x+15)\
@@ -1769,11 +1786,11 @@ V = Recursion(udd=True).set_interest(i=0.05)\
                        .r_V_backward(x, s=15, r=0.6, benefit=100)
 isclose(50.91, V, question="Q7.15")
 
-# + [markdown] id="SYc6EWHD9vHE"
+# + [markdown] id="cf793972"
 # SOA Question 7.16:  (D) 380
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="_VmNfOCZ9vHE" outputId="9c0abb7f-5319-4b43-88e4-14ab923567db" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="b3317669" outputId="4aa2dc04-6b96-454b-e0d1-d755f6ff255a"
 life = SelectLife().set_interest(v=.95)\
                    .set_table(A={86: [683/1000]},
                               q={80+k: [.01*(k+1)] for k in range(6)})
@@ -1783,11 +1800,11 @@ a = life.temporary_annuity(x+t, t=n-t)
 V = life.gross_future_loss(A=A, a=a, contract=Contract(benefit=1000, premium=130))
 isclose(380, V, question="Q7.16")
 
-# + [markdown] id="_gQKarnK9vHE"
+# + [markdown] id="d16fa0a1"
 # SOA Question 7.17:  (D) 1.018
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="g9TH_wKZ9vHE" outputId="08bfc646-273c-409e-af08-d0460426f596" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e26e27a3" outputId="b19942d7-97f0-4178-bf9f-8b066e5a34af"
 x = 0
 life = Recursion().set_interest(v=math.sqrt(0.90703))\
                   .set_q(0.02067, x=x+10)\
@@ -1799,11 +1816,11 @@ ratio = (life.insurance_variance(A2=A2, A1=A1)
          / life.insurance_variance(A2=0.30783, A1=0.52536))
 isclose(1.018, ratio, question="Q7.17")
 
-# + [markdown] id="K_HFgCFi9vHF"
+# + [markdown] id="1330efbd"
 # SOA Question 7.18:  (A) 17.1
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="e6E0EVQS9vHF" outputId="3bd66ac7-874c-4505-a7f9-a858ed87d57a" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="789aef65" outputId="e6478f8a-d6a1-4acd-e8b2-ebfbafa28707"
 x = 10
 life = Recursion(verbose=False).set_interest(i=0.04).set_q(0.009, x=x)
 def fun(a):
@@ -1811,11 +1828,11 @@ def fun(a):
 a = life.solve(fun, target=0.012, grid=[17.1, 19.1])
 isclose(17.1, a, question="Q7.18")
 
-# + [markdown] id="gpYYsKR-9vHF"
+# + [markdown] id="bcd7d9ae"
 # SOA Question 7.19:  (D) 720
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="lJqmu8K_9vHF" outputId="6202fe14-5cb5-41fa-9f9b-56fe939a7df6" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9372ed3c" outputId="42965479-7979-4447-dc29-bf03de51b6df"
 life = SULT()
 contract = Contract(benefit=100000,
                     initial_policy=300,
@@ -1829,11 +1846,11 @@ V = life.gross_future_loss(A=A,
                            contract=contract.set_contract(premium=P).renewals())
 isclose(720, V, question="Q7.19")
 
-# + [markdown] id="NAudCSbC9vHF"
+# + [markdown] id="9aa726ed"
 # SOA Question 7.20: (E) -277.23
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="6C_Fv2nY9vHF" outputId="255df0bf-a5c6-4a98-a01f-0f67fe9c0e17" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="ab37f0e4" outputId="5013d932-047e-487e-d4f1-631a5a88fd43"
 life = SULT()
 S = life.FPT_policy_value(35, t=1, b=1000)  # is 0 for FPT at t=0,1
 contract = Contract(benefit=1000,
@@ -1845,11 +1862,11 @@ G = life.gross_premium(A=life.whole_life_insurance(35), **contract.premium_terms
 R = life.gross_policy_value(35, t=1, contract=contract.set_contract(premium=G))
 isclose(-277.23, R - S, question="Q7.20")
 
-# + [markdown] id="w1-8wjt39vHF"
+# + [markdown] id="bc06c100"
 # SOA Question 7.21:  (D) 11866
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="9pd77ATV9vHG" outputId="fbe5a5e8-9f25-4777-8aff-4e69c7afdef1" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="25c496da" outputId="3e6a4fde-0c01-4271-c650-7fa403d12360"
 life = SULT()
 x, t, u = 55, 9, 10
 P = life.gross_premium(IA=0.14743,
@@ -1864,11 +1881,11 @@ A = life.deferred_annuity(x+t, u=u-t)
 V = life.gross_future_loss(A=A, a=a, contract=contract)
 isclose(11866, V, question="Q7.21")
 
-# + [markdown] id="Ryka7Xlg9vHG"
+# + [markdown] id="d2110715"
 # SOA Question 7.22:  (C) 46.24
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="ZRkFT6-y9vHG" outputId="fb097c5f-b686-4d47-b2c3-5de174c4b4c4" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="6a2abdfc" outputId="558ce4ab-0494-4213-c3bd-313376c4c084"
 life = PolicyValues().set_interest(i=0.06)
 contract = Contract(benefit=8, premium=1.250)
 def fun(A2): 
@@ -1878,11 +1895,11 @@ contract = Contract(benefit=12, premium=1.875)
 var = life.gross_variance_loss(A1=0, A2=A2, contract=contract)
 isclose(46.2, var, question="Q7.22")
 
-# + [markdown] id="UpC304SQ9vHG"
+# + [markdown] id="18e5b35a"
 # SOA Question 7.23:  (D) 233
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="E_CH-AUx9vHG" outputId="7c0a5615-d260-4f31-c324-58e816edbcd3" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="c4c42da2" outputId="9c4a3528-bc2e-4d78-faa6-bb969b329954"
 life = Recursion().set_interest(i=0.04).set_p(0.995, x=25)
 A = life.term_insurance(25, t=1, b=10000)
 def fun(beta):  # value of premiums in first 20 years must be equal
@@ -1890,20 +1907,20 @@ def fun(beta):  # value of premiums in first 20 years must be equal
 beta = life.solve(fun, target=216 * 11.087, grid=[140, 260])
 isclose(233, beta, question="Q7.23")
 
-# + [markdown] id="JRR1eV1T9vHG"
+# + [markdown] id="4b82caf4"
 # SOA Question 7.24:  (C) 680
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="0BoPW3Nc9vHG" outputId="253aa30e-06d5-43b6-ec99-33c278c9ec30" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="75d8d20b" outputId="0ef6af97-ec26-4bea-b3f1-292fe0111594"
 life = SULT()
 P = life.premium_equivalence(A=life.whole_life_insurance(50), b=1000000)
 isclose(680, 11800 - P, question="Q7.24")
 
-# + [markdown] id="XOY94lYn9vHH"
+# + [markdown] id="8410e40c"
 # SOA Question 7.25:  (B) 3947.37
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="YaigL6D19vHH" outputId="142c0a7c-93a0-43bd-ad6d-b023d6de4f21" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9928c491" outputId="47426ebe-a93d-4132-a0df-70e4d37123e0"
 life = SelectLife().set_interest(i=.04)\
                    .set_table(A={55: [.23, .24, .25],
                                  56: [.25, .26, .27],
@@ -1912,12 +1929,12 @@ life = SelectLife().set_interest(i=.04)\
 V = life.FPT_policy_value(55, t=3, b=100000)
 isclose(3950, V, question="Q7.25")
 
-# + [markdown] id="HNP0rbDR9vHH"
+# + [markdown] id="9e538fc9"
 # SOA Question 7.26:  (D) 28540 
 # - backward = forward reserve recursion
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="MhM3zoMi9vHH" outputId="5481db08-af2d-49d5-9ffd-577ab622c895" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="9fc808b8" outputId="80809054-f790-4a82-cb9c-da13bacf6b38"
 x = 0
 life = Recursion(verbose=False).set_interest(i=.05)\
                                .set_p(0.85, x=x)\
@@ -1930,11 +1947,11 @@ def fun(P):  # solve P s.t. V is equal backwards and forwards
 P = life.solve(fun, target=0, grid=[27650, 28730])
 isclose(28540, P, question="Q7.26")
 
-# + [markdown] id="PFl85-0a9vHH"
+# + [markdown] id="45908bc1"
 # SOA Question 7.27:  (B) 213
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="yCAwFPMj9vHH" outputId="816541ba-9d18-4bdd-cac2-2a67cf27f782" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="7ad342a1" outputId="b073d19a-6c5f-48c0-c28f-33c26bc1863f"
 x = 0
 life = Recursion(verbose=False).set_interest(i=0.03)\
                                .set_q(0.008, x=x)\
@@ -1945,21 +1962,21 @@ def fun(G):  # Solve gross premium from expense reserves equation
 G = life.solve(fun, target=-38.70, grid=[200, 252])
 isclose(213, G, question="Q7.27")
 
-# + [markdown] id="vDjDeAqK9vHH"
+# + [markdown] id="a691f65c"
 # SOA Question 7.28:  (D) 24.3
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="HCYiiACj9vHI" outputId="eca57324-5c6b-43ef-d80b-830bb2cd78b9" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="99412e64" outputId="b502f1c6-ab37-4091-ad2f-0049e9baa206"
 life = SULT()
 PW = life.net_premium(65, b=1000)   # 20_V=0 => P+W is net premium for A_65
 P = life.net_premium(45, t=20, b=1000)  # => P is net premium for A_45:20
 isclose(24.3, PW - P, question="Q7.28")
 
-# + [markdown] id="IAXcmheg9vHI"
+# + [markdown] id="04bd97d2"
 # SOA Question 7.29:  (E) 2270
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="OaeXFQiC9vHI" outputId="84e5db77-64aa-4a24-9a85-ded47bab1323" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="e301c605" outputId="5a4cb4e6-ee9c-4150-eee9-80cde3ee5c0f"
 x = 0
 life = Recursion(verbose=False).set_interest(i=0.04)\
                                .set_a(14.8, x=x)\
@@ -1972,21 +1989,21 @@ G = life.gross_premium(a=life.whole_life_annuity(x), **contract.premium_terms)
 V = life.gross_policy_value(x, t=10, contract=contract.set_contract(premium=G))
 isclose(2270, V, question="Q7.29")
 
-# + [markdown] id="-2DakbOB9vHI"
+# + [markdown] id="72f5987a"
 # SOA Question 7.30:  (E) 9035
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="KPWe4zrI9vHI" outputId="82a7247c-d72d-449d-988b-cb608ee0588c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="cdd25b58" outputId="58819880-ca58-435a-864d-d36cb36110f3"
 contract = Contract(premium=0, benefit=10000)  # premiums=0 after t=10
 L = SULT().gross_policy_value(35, contract=contract)
 V = SULT().set_interest(i=0).gross_policy_value(35, contract=contract) # 10000
 isclose(9035, V - L, question="Q7.30")
 
-# + [markdown] id="phC98jCG9vHI"
+# + [markdown] id="df03679b"
 # SOA Question 7.31:  (E) 0.310
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="qij4IpoX9vHJ" outputId="18ae88e2-f58d-4049-d6fd-d234ae7887e6" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="0d9cd985" outputId="931f37ce-1f0d-4708-985d-ce043a6bc674"
 x = 0
 life = Reserves().set_reserves(T=3)
 G = 368.05
@@ -1995,11 +2012,11 @@ def fun(P):  # solve net premium expense reserve equation
 P = life.solve(fun, target=-23.64, grid=[.29, .31]) / 1000
 isclose(0.310, P, question="Q7.31")
 
-# + [markdown] id="XCZRvoRC9vHJ"
+# + [markdown] id="164f3498"
 # SOA Question 7.32:  (B) 1.4
 #
 
-# + colab={"base_uri": "https://localhost:8080/"} id="Z5eq8PF89vHM" outputId="e3127bff-ab3f-4d48-f3be-5eebe7f4e07c" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="cf0604c6" outputId="cfcab2f1-3c3d-406b-fa14-93c8ea955c84"
 life = PolicyValues().set_interest(i=0.06)
 contract = Contract(benefit=1, premium=0.1)
 def fun(A2): 
@@ -2009,10 +2026,10 @@ contract = Contract(benefit=2, premium=0.16)
 var = life.gross_variance_loss(A1=0, A2=A2, contract=contract)
 isclose(1.39, var, question="Q7.32")
 
-# + [markdown] id="vYHwoQiOgjV6"
+# + [markdown] id="1ebd4d3a"
 # __Final Score__
 
-# + colab={"base_uri": "https://localhost:8080/", "height": 286} id="lWMtOVQd9vHM" outputId="48943e0e-0798-4fa7-da22-0b58e7aa0267" vscode={"languageId": "python"}
+# + colab={"base_uri": "https://localhost:8080/"} id="40395bce" outputId="0b51bc19-93aa-408e-cbe3-0361c6996c82"
 from datetime import datetime
 print(datetime.now())
 print(isclose)
