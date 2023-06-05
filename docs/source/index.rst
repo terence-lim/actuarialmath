@@ -79,7 +79,7 @@ Resources
 
 2. `Online tutorial <https://terence-lim.github.io/actuarialmath-tutorial/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf>`_
 
-3. `Code documentation <https://actuarialmath.readthedocs.io/en/latest/index.html>`_
+3. `Code documentation <https://terence-lim.github.io/actuarialmath-docs/>`_
 
 4. `Github repo <https://github.com/terence-lim/actuarialmath.git>`_ and `issues <https://github.com/terence-lim/actuarialmath/issues>`_
 
