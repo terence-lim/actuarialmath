@@ -3,23 +3,17 @@
 __actuarialmath -- Life Contingent Risks with Python__
 
 This package implements fundamental methods for modeling life contingent risks, and closely follows traditional topics covered in actuarial exams and standard texts such as the "Fundamentals of Actuarial Math - Long-term" exam syllabus by the Society of Actuaries, and "Actuarial Mathematics for Life Contingent Risks" by Dickson, Hardy and Waters.
+The resources listed below should be helpful for getting started. The code chunks in a complete [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing), or [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), demonstrate how to solve each of the sample FAM-L exam questions released by the SOA.
 
-The actuarial concepts are introduced hierarchically, and realized by corresponding derivations of Python classes. It is hoped that the use of this package can support a learner's journey through actuarial problem-solving and computing.
+The actuarial concepts, as shown in this graphic, are introduced and modeled hierarchically, and realized by corresponding derivations of Python classes. 
 
-The resources listed below should be helpful for getting started. In particular, you can run, and modify, the code chunks demonstrated in a [Jupyter Notebook](https://terence-lim.github.io/actuarialmath-tutorial/_sources/faml.ipynb), to solve each of the sample FAM-L exam questions released by the SOA.
-
-Enjoy!
-
-Terence Lim
-
-## Concepts and Classes
-![concepts and classes](FAM-L.png)
+![classes](FAM-L.png)
 
 ## Quick Start
 
 1. `pip install actuarialmath`
 2. Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectTable` or `Recursion`.
-3. Call tappropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
+3. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
 4. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 ## Examples
@@ -77,13 +71,13 @@ print(R-S)   # solution = -277.19
 
 ## Resources
 
-1. [Jupyter Notebook](https://terence-lim.github.io/actuarialmath-tutorial/_sources/faml.ipynb), or [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing), with code chunks to solve all sample SOA FAM-L exam questions.
+1. [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing) or [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), to solve all sample SOA FAM-L exam questions
 
-2. [Online tutorial](https://terence-lim.github.io/actuarialmath-tutorial/) or [pdf version](https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf).
+2. [Online tutorial](https://terence-lim.github.io/actuarialmath-tutorial/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf)
 
-3. [Github repo and issues](https://github.com/terence-lim/actuarialmath).
+3. [Code documentation](https://actuarialmath.readthedocs.io/en/latest/index.html)
 
-4. [Code documentation](https://actuarialmath.readthedocs.io/en/latest/index.html).
+4. [Github repo](https://github.com/terence-lim/actuarialmath.git) and [issues](https://github.com/terence-lim/actuarialmath/issues)
 
 
 
@@ -94,6 +88,7 @@ print(R-S)   # solution = -277.19
 - SOA FAM-L Sample Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
 
 - Actuarial Mathematics for Life Contingent Risks, by David Dickson, Mary Hardy and Howard Waters, published by Cambridge University Press.
+
 
 ## Contact
 
