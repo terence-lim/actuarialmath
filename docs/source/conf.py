@@ -37,4 +37,4 @@ html_static_path = ['_static']
 autodoc_member_order = 'bysource'  #'groupwise'
 
 import sys
-sys.path.insert(0, '/home/terence/Dropbox/github/actuarialmath/src')
+sys.path.insert(0, '../src')
