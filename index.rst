@@ -6,7 +6,7 @@ This Python package implements fundamental methods for modeling life contingent 
 Overview
 --------
 
-The Python package comprises three sets of classes, which:
+The package comprises three sets of classes, which:
 
 1. Implement general actuarial concepts
    
