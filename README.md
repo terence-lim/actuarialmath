@@ -15,7 +15,7 @@ The actuarial concepts, as shown in this graphic, are introduced and modeled hie
 
 2. Start Python (version >= 3.10) or Jupyter-notebook
 
-   a. Select and import a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectTable` or `Recursion`.
+   a. Select and import a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
 
    b. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
    
