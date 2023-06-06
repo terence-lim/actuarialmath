@@ -9,8 +9,7 @@ from typing import Callable
 from actuarialmath.actuarial import Actuarial
 
 class Interest(Actuarial):
-    """Convert between nominal, discount, continously-compounded and 1/m'thly rates,
-    and compute value of annuity certain
+    """Converts interest rates, and computes value of annuity certain
     
     Args:
       i : assumed annual interest rate

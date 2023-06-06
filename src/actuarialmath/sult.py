@@ -201,55 +201,6 @@ if __name__ == "__main__":
     print(sult.portfolio_percentile(N=4000, mean=mean, variance=var, prob=.1))
     print()
     
-    print("Other usage examples")
-    print(sult.temporary_annuity(80, t=10)*20000) # ~130770
-
-    E = sult.E_x(60, t=5)
-    print(E, E*sult.a_x(65, benefit=(lambda x,t: 1000 + .05*t)))
-
-    print(sult.whole_life_annuity(60))  # 14.9041
-    print(sult.whole_life_annuity(60, discrete=False))  # ~13.9041
-    print(sult.deferred_annuity(60, u=10))  #6.9485
-    print(sult.temporary_annuity(60, t=10))  # 7.9555
-    print(sult.temporary_annuity(60, t=15))  # 10.5282
-    print(sult.temporary_annuity(60, t=10))
-    print(sult.E_x(60, t=10))  #
-    print(sult.temporary_annuity(60, t=10, discrete=False))  # ~7.5341
-    print(sult.certain_life_annuity(60, u=10))  # 15.0563
-    print(sult.whole_life_annuity(60, variance=True, discrete=False)) # ~10.6182
-    print(sult.endowment_insurance(60, t=10)) # .62116
-    print(sult.whole_life_insurance(60, moment=2)) # .10834
-    print(sult.whole_life_insurance(70, moment=2)) # .21467
-    print(sult.endowment_insurance(60, t=10, moment=2)) # .38732
-    print(sult.temporary_annuity(60, t=10, variance=True)) #.6513
-
-
-    print(sult.p_x(70)) # 0.989587
-    print(math.log(sult.p_x(70, t=2)) / -2)  # 0.011103
-
-    A1 = sult.whole_life_insurance(20, discrete=False)
-    #print(A1, sult.whole_life(20))
-    A2 = sult.whole_life_insurance(50, discrete=False)
-    #print(A2, sult.whole_life(50))
-    A3 = sult.whole_life_insurance(70, discrete=False)
-    E2 = sult.E_x(20, t=30)
-    E3 = sult.E_x(20, t=50)
-    print(A1, E2, A2, E3, A3, 125*A1 + E2*175*A2 - E3*250*A3)  # 5,335
-
-    print(sult.whole_life_insurance(50)) # .18931
-    print(sult.term_insurance(50, t=20)) # .0402
-    print(sult.endowment_insurance(50, t=20))  # ~.31471
-    print(sult.E_x(50, t=20), 
-          sult.whole_life_insurance(70),
-          sult.deferred_insurance(50, u=20)) # .14911
-
-    print(sult.whole_life_insurance(50, discrete=False)) # .19400
-    print(sult.term_insurance(50, t=20, discrete=False)) # .0412
-    print(sult.endowment_insurance(50, t=20, discrete=False))  #.38944
-    print(sult.E_x(50, t=20), 
-          sult.whole_life_insurance(70, discrete=False),
-          sult.deferred_insurance(50, u=20, discrete=False)) # .15281
-  
     print("Standard Ultimate Life Table at i=0.05")
     print(sult.frame())
     print()

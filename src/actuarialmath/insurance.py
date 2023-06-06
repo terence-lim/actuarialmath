@@ -211,7 +211,7 @@ class Insurance(Fractional):
           discrete : benefit paid year-end (True) or moment of death (False)
         """
         assert prob < 1.0
-        t = Insurance.solve(lambda t: self.S(x, 0, t), target=prob, grid=50)
+        t = self.solve(lambda t: self.S(x, 0, t), target=prob, grid=50)
         return math.floor(t) if discrete else t    # opposite of annuity
 
     def Z_from_t(self, t: float, discrete: bool = True) -> float:

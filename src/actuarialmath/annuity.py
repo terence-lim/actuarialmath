@@ -210,7 +210,7 @@ class Annuity(Insurance):
           discrete : annuity due (True) or continuous (False)
         """
         assert prob < 1.0
-        t = Insurance.solve(lambda t: self.S(x, 0, t), target=1-prob, grid=25)
+        t = self.solve(lambda t: self.S(x, 0, t), target=1-prob, grid=25)
         return math.floor(t) if discrete else t   # opposite of insurance
 
     def Y_from_t(self, t: float, discrete: bool = True) -> float:
@@ -333,21 +333,24 @@ class Annuity(Insurance):
 if __name__ == "__main__":
     from actuarialmath.sult import SULT
     life = SULT()
-    life.Y_plot(x=65, T=life.Y_t(x=65, prob=0.5))
+    x = 20
+    life.Y_plot(x=x, T=life.Y_t(x=x, prob=0.5))
 
+if False:
     
     life = Annuity().set_interest(delta=0.06)\
                     .set_survival(mu=lambda *x: 0.04)
-    prob = 0.8
+    prob = 0.5
     x = 0
     discrete = False
     t = life.Y_t(0, prob, discrete=discrete)
+    life.Y_plot(x=20, T=t, discrete=discrete)
     Y = life.Y_from_prob(x, prob=prob, discrete=discrete)
     print(t, life.Y_to_t(Y))
     print(Y, life.Y_from_t(t, discrete=discrete))
     print(prob, life.Y_to_prob(x, Y=Y))
-    life.Y_plot(x=0, T=t, discrete=discrete)
-
+    
+if False:
     print("SOA Question 5.6:  (D) 1200")
     life = Annuity().set_interest(i=0.05)
     var = life.annuity_variance(A2=0.22, A1=0.45)
@@ -355,29 +358,3 @@ if __name__ == "__main__":
     print(life.portfolio_percentile(mean=mean, variance=var, prob=.95, N=100))
     print()
     
-    print("Other usage")
-    mu = 0.04
-    delta = 0.06
-    life = Annuity().set_interest(delta=delta)\
-                    .set_survival(mu=lambda *x: mu)
-    print(life.temporary_annuity(50, t=20, b=10000, discrete=False))
-    print(life.endowment_insurance(50, t=20, b=10000, discrete=False))
-    print(life.E_x(50, t=20))
-    print(life.whole_life_annuity(50, b=10000, discrete=False))
-    print(life.whole_life_annuity(70, b=10000, discrete=False))
-
-    mu = 0.07
-    delta = 0.02
-    life = Annuity().set_interest(delta=delta)\
-                    .set_survival(mu=lambda *x: mu)
-    print(life.whole_life_annuity(0, discrete=False) * 30)   # 333.33
-    print(life.temporary_annuity(0, t=10, discrete=False) * 30)  # 197.81
-    print(life.interest.annuity(5, m=0))  # 4.7581
-    print(life.deferred_annuity(0, u=5, discrete=False)) # 7.0848
-    print(life.certain_life_annuity(0, u=5, discrete=False))  # 11.842
-
-    mu = 0.02
-    delta = 0.05
-    life = Annuity().set_interest(delta=delta)\
-                    .set_survival(mu=lambda *x: mu)
-    print(life.decreasing_annuity(0, t=5, discrete=False))  # 6.94
