@@ -42,9 +42,9 @@ Examples
   from actuarialmath.recursion import Recursion
   from actuarialmath.woolhouse import Woolhouse
   # initialize Recursion class with actuarial inputs
-  life = Recursion().set_interest(i=0.04)\\
-                    .set_A(0.188, x=35)\\
-                    .set_A(0.498, x=65)\\
+  life = Recursion().set_interest(i=0.04)\
+                    .set_A(0.188, x=35)\
+                    .set_A(0.498, x=65)\
                     .set_p(0.883, x=35, t=30)
   # modfy the standard results with Woolhouse mthly approximation
   mthly = Woolhouse(m=2, life=life, three_term=False)

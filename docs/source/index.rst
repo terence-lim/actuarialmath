@@ -11,7 +11,7 @@ The package comprises three sets of classes, which:
 1. Implement general actuarial concepts
    
    a. Basic interest theory and probability laws
-   b. Survival functions, future lifetime and fractional ages
+   b. Survival functions, future lifetimes and fractional ages
    c. Insurance, annuity, premiums, policy values, and reserves calculations
       
 2. Adjust results for
@@ -28,7 +28,7 @@ The package comprises three sets of classes, which:
 Quick Start
 -----------
 
-1. `pip install actuarialmath`
+1. ``pip install actuarialmath``
 2. Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectTable` or `Recursion`.
 3. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
 4. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
@@ -43,9 +43,9 @@ Examples
   from actuarialmath.recursion import Recursion
   from actuarialmath.woolhouse import Woolhouse
   # initialize Recursion class with actuarial inputs
-  life = Recursion().set_interest(i=0.04)\\
-                    .set_A(0.188, x=35)\\
-                    .set_A(0.498, x=65)\\
+  life = Recursion().set_interest(i=0.04)\
+                    .set_A(0.188, x=35)\
+                    .set_A(0.498, x=65)\
                     .set_p(0.883, x=35, t=30)
   # modfy the standard results with Woolhouse mthly approximation
   mthly = Woolhouse(m=2, life=life, three_term=False)
