@@ -6,7 +6,7 @@ This package implements fundamental methods for modeling life contingent risks, 
 Overview
 --------
 
-The package comprises three sets of classes, which:
+The Python package comprises three sets of classes, which:
 
 1. Implement general actuarial concepts
    
@@ -29,9 +29,13 @@ Quick Start
 -----------
 
 1. ``pip install actuarialmath``
-2. Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectTable` or `Recursion`.
-3. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
-4. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
+2. Start Python (version >= 3.10) or Jupyter-notebook
+
+   a. Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
+      
+   b. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
+
+   c. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 Examples
 --------
