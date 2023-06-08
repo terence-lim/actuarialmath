@@ -71,7 +71,7 @@ class Insurance(Fractional):
           A1 : first moment of insurance r.v.
           b : benefit amount
         """
-        return b**2 * (A2 - A1**2)
+        return b**2 * max(0, A2 - A1**2)
 
     def whole_life_insurance(self, x: int, s: int = 0, moment: int = 1, 
                              b: int = 1, discrete: bool = True) -> float:

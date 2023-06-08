@@ -1,5 +1,5 @@
-actuarialmath.sult module
-=========================
+sult
+====
 
 .. automodule:: actuarialmath.sult
    :members:

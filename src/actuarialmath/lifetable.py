@@ -224,18 +224,27 @@ class LifeTable(Reserves):
         else:
             return 1     # the only certainty in life
 
-    def e_x(self, x: int, s: int = 0, n: int = Reserves.WHOLE) -> float:
+    def e_x(self, x: int, s: int = 0, n: int = Reserves.WHOLE,
+            curtate: bool = True, moment: int = 1) -> float:
         """Expected curtate lifetime from sum of lives in table
 
         Args:
           x : age of selection
           s : years after selection
           n : future lifetime limited at n years
+          curtate : whether curtate (True) or complete (False) expectations
+          moment : whether to compute first (1) or second (2) moment
+
         """
-        # E[K_x] = sum([self.p(x, k+1) for k in range(n)])
-        n = min(self._MAXAGE - x, n)
-        e = sum([self.l(x+1+s) for s in range(n)]) # since s_p_x = l_x+s / l_x
-        return e
+        if moment == 1:
+            # E[K_x] = sum([self.p(x, k+1) for k in range(n)])
+            n = min(self._MAXAGE - x, n) if n > 0 else self._MAXAGE
+            # approximate complete by UDD between integer age recursion
+            e = sum([(1 - curtate)*(self.l(x, s=s+t) - self.l(x, s=s+t+1))*0.5
+                     + self.l(x, s=s+t+1) for t in range(n)])  # s_p_x = l_x+s/l_x
+            return e / self.l(x, s=0)
+        else:
+            return super().e_x(x=x, s=s, n=n, curtate=curtate, moment=moment)
 
     def E_x(self, x: int, s: int = 0, t: int = 1, moment: int = 1) -> float:
         """Pure Endowment from life table and interest rate

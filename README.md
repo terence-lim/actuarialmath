@@ -13,13 +13,17 @@ The actuarial concepts, as shown in this graphic, are introduced and modeled hie
 
 1. `pip install actuarialmath`
 
+   - also requires `numpy`, `scipy`, `matplotlib` and `pandas`.
+
+
 2. Start Python (version >= 3.10) or Jupyter-notebook
 
-   a. Select and import a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
 
-   b. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
+   - Select and import a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
 
-   c. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
+   - Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
+
+   - If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 ## Examples
 

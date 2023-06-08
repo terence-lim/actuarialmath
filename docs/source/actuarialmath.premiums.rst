@@ -1,5 +1,5 @@
-actuarialmath.premiums module
-=============================
+premiums
+========
 
 .. automodule:: actuarialmath.premiums
    :members:

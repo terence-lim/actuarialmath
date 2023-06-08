@@ -85,7 +85,8 @@ class ConstantForce(MortalityLaws):
             return (b**2 * (A2 - A1**2) /
                     (self.interest.d if discrete else self.interest.delta)**2)
         if not discrete:
-            return (1. / (self.mu_ + self.interest.delta)) * b
+            den = self.mu_ + self.interest.delta
+            return (1. / den) * b if den > 0 else math.inf
         return super().whole_life_annuity(x, s=s, b=b, discrete=discrete)
 
     def temporary_annuity(self, x: int, s: int = 0, t: int = MortalityLaws.WHOLE,
@@ -129,7 +130,7 @@ class ConstantForce(MortalityLaws):
         """
         if moment > 0 and not discrete:
             delta = moment * self.interest.delta   # multiply force of interest
-            return (self.mu_ / (self.mu_ + delta))
+            return self.mu_ / (self.mu_ + delta) if self.mu_ > 0 else 0.
         return super().whole_life_insurance(x, s=s, moment=moment, b=b,
                                             discrete=discrete)
 

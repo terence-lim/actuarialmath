@@ -8,10 +8,10 @@ import pandas as pd
 from typing import Dict, Callable
 from actuarialmath.lifetable import LifeTable
 
-def faml_survival(x, t, A = 0.00022, B = 0.0000027, c = 1.124):
-    """SULT default survival function from SOA's `Excel Workbook for FAM-L Tables`"""
-    A, B, c = 0.00022, 0.0000027, 1.124
-    return math.exp(-A*t - (B*c**x*(c**t - 1))/math.log(c))
+# Makeham's Law parameters from SOA’s Excel Workbook for FAM-L Tables
+_A, _B, _c = 0.00022, 0.0000027, 1.124
+def _faml_sult(x, t: float) -> float:
+    return math.exp(-_A*t - (_B*_c**x*(_c**t - 1)) / math.log(_c))
 
 class SULT(LifeTable):
     """Generates and uses a standard ultimate life table
@@ -23,9 +23,10 @@ class SULT(LifeTable):
       maxage : maximum age
       S : survival function, default is Makeham with SOA FAM-L parameters
     """
-    
+
+
     def __init__(self, i: float = 0.05, radix: int = 100000, 
-                 S: Callable[[float, float], float] = faml_survival,
+                 S: Callable[[float, float], float] = _faml_sult,
                  minage: int = 20, maxage: int = 130, **kwargs):
         """Construct SULT"""
         super().__init__(**kwargs)

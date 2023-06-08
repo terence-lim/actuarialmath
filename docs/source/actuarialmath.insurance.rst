@@ -1,5 +1,5 @@
-actuarialmath.insurance module
-==============================
+insurance
+=========
 
 .. automodule:: actuarialmath.insurance
    :members:

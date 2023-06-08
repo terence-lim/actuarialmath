@@ -1,4 +1,4 @@
-"""Base class for actuarial math, with common utility functions and constants
+"""Define base class for actuarial math, with utility helpers and constants
 
 MIT License. Copyright (c) 2022-2023 Terence Lim
 """
@@ -77,13 +77,13 @@ class Actuarial(object):
     @staticmethod
     def solve(fun: Callable[[float], float], target: float, 
               grid: float | Tuple | List, mad: bool = False) -> float:
-        """Solve for the root of, or parameter value that minimizes, an equation
+        """Solve for the root of, or parameter value that minimizes, a function
 
         Args:
           fun : function to compute output given input values
           target : target value of function output
-          grid : initial guesses or bounds
-          root : whether solve root, or minimize absolute difference (False)
+          grid : initial range of guesses
+          root : whether solve root (True), or minimize absolute deviation (False)
 
         Returns:
           value s.t. output of function fun(value) ~ target
@@ -97,7 +97,7 @@ class Actuarial(object):
                 grid = min([(abs(f(x)), x)    # guess can be list of guesses
                             for x in np.linspace(min(grid), max(grid), 5)])[1]
             output = scipy.optimize.fsolve(f, [grid], full_output=True)
-            fun(output[0][0])  # execute with final answer in case want side effects
+            fun(output[0][0])   # call again with final in case want side effect
             return output[0][0]
 
     def add_term(self, t: int, n: int) -> int:
@@ -112,7 +112,7 @@ class Actuarial(object):
         return t + n
 
     def max_term(self, x: int, t: int, u: int = 0) -> int:
-        """Adjust term if adding term and deferral periods to (x) exceeds maxage
+        """Decrease term t if deferral period u to (x) exceeds maxage
 
         Args:
           x : age
@@ -120,7 +120,7 @@ class Actuarial(object):
           u : term deferred
 
         Returns:
-          value of term t adjusted by deferral and maxage s.t. does not exceed maxage
+          value of term t adjusted by deferral and maxage s.t. maxage not exceeded
         """
         if t < 0 or x + t + u > self._MAXAGE:
             return self._MAXAGE - (x + u)

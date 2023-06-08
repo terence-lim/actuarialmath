@@ -1996,9 +1996,9 @@ isclose(2270, V, question="Q7.29")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="cdd25b58" outputId="27b419e7-2e45-4c15-b867-a7c22fbb8c08"
-contract = Contract(premium=0, benefit=10000)  # premiums=0 after t=10
-L = SULT().gross_policy_value(35, contract=contract)
-V = SULT().set_interest(i=0).gross_policy_value(35, contract=contract) # 10000
+b = 10000  # premiums=0 after t=10
+L = SULT().set_interest(i=0.05).whole_life_insurance(x=35, b=b)
+V = SULT().set_interest(i=0).whole_life_insurance(x=35, b=b)
 isclose(9035, V - L, question="Q7.30")
 
 # + [markdown] id="df03679b"

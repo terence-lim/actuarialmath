@@ -1,5 +1,5 @@
-actuarialmath.lifetime module
-=============================
+lifetime
+========
 
 .. automodule:: actuarialmath.lifetime
    :members:

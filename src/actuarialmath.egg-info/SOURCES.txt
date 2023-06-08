@@ -1,5 +1,6 @@
 LICENSE
 README.md
+index.rst
 pyproject.toml
 src/actuarialmath/__init__.py
 src/actuarialmath/actuarial.py
@@ -26,4 +27,5 @@ src/actuarialmath/woolhouse.py
 src/actuarialmath.egg-info/PKG-INFO
 src/actuarialmath.egg-info/SOURCES.txt
 src/actuarialmath.egg-info/dependency_links.txt
+src/actuarialmath.egg-info/requires.txt
 src/actuarialmath.egg-info/top_level.txt

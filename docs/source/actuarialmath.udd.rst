@@ -1,5 +1,5 @@
-actuarialmath.udd module
-========================
+udd
+===
 
 .. automodule:: actuarialmath.udd
    :members:

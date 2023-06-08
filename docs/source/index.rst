@@ -8,38 +8,46 @@ Overview
 
 The package comprises three sets of classes, which:
 
-1. Implement general actuarial concepts
-   
-   a. Basic interest theory and probability laws
-   b. Survival functions, future lifetimes and fractional ages
-   c. Insurance, annuity, premiums, policy values, and reserves calculations
-      
-2. Adjust results for
-   
-   a. Extra risks
-   b. 1/mthly payments using UDD or Woolhouse approaches
-      
-3. Specify and load a particular form of assumptions
-   
-   a. Life table, select life table, or standard ultimate life table
-   b. Mortality laws, such as constant force of maturity, beta and uniform distributions, or Makeham's and Gompertz's laws
-   c. Recursion inputs
+1. Implement general actuarial methods
+
+   - Basic interest theory and probability laws
+
+   - Survival functions, expected future lifetimes and fractional ages
+
+   - Insurance, annuity, premiums, policy values, and reserves calculations
+
+
+2. Specify and load a particular form of assumptions
+
+   - Life table, select life table, or standard ultimate life table
+
+   - Mortality laws, such as constant force of maturity, beta and uniform distributions, or Makeham's and Gompertz's laws
+
+   - Recursion inputs
+
+3. Adjust results for
+
+   - Extra mortality risks
+
+   - 1/mthly payment frequency using UDD or Woolhouse approaches
 
 Quick Start
 -----------
 
 1. ``pip install actuarialmath``
+   
+   - also requires `numpy`, `scipy`, `matplotlib` and `pandas`.
+     
 2. Start Python (version >= 3.10) or Jupyter-notebook
 
-   a. Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
+   - Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
       
-   b. Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
+   - Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
 
-   c. If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
+   - If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 Examples
 --------
-
 
 ::
 
@@ -88,10 +96,31 @@ Resources
 4. `Github repo <https://github.com/terence-lim/actuarialmath.git>`_ and `issues <https://github.com/terence-lim/actuarialmath/issues>`_
 
 .. toctree::
-   :maxdepth: 4
-   :caption: Contents:
+   :maxdepth: 2
+   :caption: Submodules:
 
-   modules
+   actuarialmath.actuarial
+   actuarialmath.interest
+   actuarialmath.life
+   actuarialmath.survival
+   actuarialmath.lifetime
+   actuarialmath.fractional
+   actuarialmath.insurance
+   actuarialmath.annuity
+   actuarialmath.premiums
+   actuarialmath.policyvalues
+   actuarialmath.reserves
+   actuarialmath.lifetable
+   actuarialmath.sult
+   actuarialmath.selectlife
+   actuarialmath.recursion
+   actuarialmath.mortalitylaws
+   actuarialmath.constantforce
+   actuarialmath.extrarisk
+   actuarialmath.mthly
+   actuarialmath.udd
+   actuarialmath.woolhouse
+
 
 Indices and tables
 ------------------

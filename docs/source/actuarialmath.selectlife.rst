@@ -1,5 +1,5 @@
-actuarialmath.selectlife module
-===============================
+selectlife
+==========
 
 .. automodule:: actuarialmath.selectlife
    :members:

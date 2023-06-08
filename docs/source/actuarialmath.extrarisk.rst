@@ -1,5 +1,5 @@
-actuarialmath.extrarisk module
-==============================
+extrarisk
+=========
 
 .. automodule:: actuarialmath.extrarisk
    :members:

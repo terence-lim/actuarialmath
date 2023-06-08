@@ -1,5 +1,5 @@
-actuarialmath.annuity module
-============================
+annuity
+=======
 
 .. automodule:: actuarialmath.annuity
    :members:

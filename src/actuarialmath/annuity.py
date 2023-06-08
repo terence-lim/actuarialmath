@@ -27,7 +27,7 @@ class Annuity(Insurance):
         if discrete:
             a = sum([benefit(x+s, k) * self.interest.v_t(k) 
                      * self.p_x(x, s=s, t=k) for k in range(u, t+u)])
-        else:   # use continous first principles
+        else:   # use continuous first principles
             Y = lambda t: (benefit(x+s, t+u) * self.interest.v_t(t+u) 
                            * self.S(x, 0, t=t+u))
             a = self.integral(Y, 0, t)
@@ -56,10 +56,10 @@ class Annuity(Insurance):
 
         Args:
           A : cost of insurance
-          discrete : discrete/annuity due (True) or continous (False)
+          discrete : discrete/annuity due (True) or continuous (False)
         """
         interest = (self.interest.d if discrete else self.interest.delta)
-        return ((1-A) / interest) if interest else 0 # undefined for 0 interest
+        return ((1 - A) / interest) if interest else 1 - A
 
     def insurance_twin(self, a: float, moment: int = 1, 
                        discrete: bool = True) -> float:
@@ -67,10 +67,11 @@ class Annuity(Insurance):
 
         Args:
           a : cost of annuity
-          discrete : discrete/annuity due (True) or continous (False)
+          discrete : discrete/annuity due (True) or continuous (False)
         """
         assert moment in [1]
-        return 1 - a*(self.interest.d if discrete else self.interest.delta)
+        interest = (self.interest.d if discrete else self.interest.delta)
+        return 1 - a*interest
   
     def annuity_variance(self, A2: float, A1: float, b: float = 1.,
                          discrete: bool = True) -> float:
@@ -80,11 +81,14 @@ class Annuity(Insurance):
           A2 : second moment of insurance factor
           A1 : first moment of insurance factor
           b : annuity benefit amount
-          discrete : discrete/annuity due (True) or continous (False)
+          discrete : discrete/annuity due (True) or continuous (False)
         """
-        return (b**2 * self.insurance_variance(A2=A2, A1=A1)
-                / (self.interest.d if discrete else self.interest.delta)**2)
-        
+        interest = (self.interest.d if discrete else self.interest.delta)
+        if interest == 0:
+            return b**2 * self.insurance_variance(A2=A2, A1=A1)
+        else:
+            return (b**2 * self.insurance_variance(A2=A2, A1=A1) / interest**2)
+
     def whole_life_annuity(self, x: int, s: int = 0, b: int = 1, 
                            variance: bool = False, 
                            discrete: bool = True) -> float:
@@ -102,8 +106,12 @@ class Annuity(Insurance):
             A1 = self.whole_life_insurance(x, s=s, moment=1, discrete=discrete)
             A2 = self.whole_life_insurance(x, s=s, moment=2, discrete=discrete)
             return self.annuity_variance(A2=A2, A1=A1, discrete=discrete, b=b)
-        A = self.whole_life_insurance(x, s=s, discrete=discrete)
-        return b * (1 - A) / interest
+        if interest > 0:
+            A = self.whole_life_insurance(x, s=s, discrete=discrete)
+            return b * (1 - A) / interest if interest > 0 else b * (1 - A)
+        else:  # when interest=1, annuity is expected life time (+1 if discrete)
+            return discrete + self.e_x(x=x, s=s, curtate=discrete)
+
             
     def temporary_annuity(self, x: int, s: int = 0, t: int = Insurance.WHOLE, 
                           b: int = 1, variance: bool = False, 
@@ -220,6 +228,8 @@ class Annuity(Insurance):
           t : year of death
           discrete : annuity due (True) or continuous (False)
         """
+        if self.interest.delta == 0.:  # return number of payments if interest=0
+            return math.floor(t) + 1 if discrete else t
         if discrete:
             return (1 - self.interest.v_t(math.floor(t) + 1)) / self.interest.d
         else:
@@ -231,8 +241,11 @@ class Annuity(Insurance):
         Args:
           Y : Present value of benefits paid
         """
-        t = math.log(1 - self.interest.delta * Y) / math.log(self.interest.v)
-        return t
+        if self.interest.v == 0.:
+            return Y
+        else:
+            return math.log(1 - self.interest.delta*Y) / math.log(self.interest.v)
+
 
     def Y_from_prob(self, x: int, prob: float, discrete: bool = True) -> float:
         """Percentile of annuity PV r.v. Y, given probability
@@ -331,13 +344,19 @@ class Annuity(Insurance):
         return Y
 
 if __name__ == "__main__":
+    from actuarialmath.policyvalues import Contract
+    from actuarialmath.sult import SULT
+    contract = Contract(premium=0, benefit=10000)  # premiums=0 after t=10
+    L = SULT().gross_policy_value(35, contract=contract)
+    V = SULT().set_interest(i=0).gross_policy_value(35, contract=contract) # 10000
+
+if False:
+    
     from actuarialmath.sult import SULT
     life = SULT()
     x = 20
     life.Y_plot(x=x, T=life.Y_t(x=x, prob=0.5))
 
-if False:
-    
     life = Annuity().set_interest(delta=0.06)\
                     .set_survival(mu=lambda *x: 0.04)
     prob = 0.5

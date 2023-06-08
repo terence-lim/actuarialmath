@@ -1,5 +1,5 @@
-actuarialmath.fractional module
-===============================
+fractional
+==========
 
 .. automodule:: actuarialmath.fractional
    :members:

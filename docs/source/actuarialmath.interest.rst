@@ -1,5 +1,5 @@
-actuarialmath.interest module
-=============================
+interest
+========
 
 .. automodule:: actuarialmath.interest
    :members:
