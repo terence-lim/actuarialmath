@@ -6,7 +6,7 @@ import math
 import numpy as np
 import pandas as pd
 from typing import Callable
-from actuarialmath.actuarial import Actuarial
+from actuarialmath import Actuarial
 
 class Interest(Actuarial):
     """Converts interest rates, and computes value of annuity certain

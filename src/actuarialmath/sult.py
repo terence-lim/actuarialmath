@@ -6,7 +6,7 @@ import math
 import numpy as np
 import pandas as pd
 from typing import Dict, Callable
-from actuarialmath.lifetable import LifeTable
+from actuarialmath import LifeTable
 
 # Makeham's Law parameters from SOA’s Excel Workbook for FAM-L Tables
 _A, _B, _c = 0.00022, 0.0000027, 1.124

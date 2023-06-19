@@ -5,7 +5,10 @@ MIT License. Copyright (c) 2022-2023 Terence Lim
 import math
 import numpy as np
 import scipy
+import matplotlib.pyplot as plt
 from typing import Callable, Any, Tuple, List
+
+plt.style.use('ggplot')
 
 class Actuarial(object):
     """Define constants and common utility functions
@@ -24,28 +27,6 @@ class Actuarial(object):
     _verbose = 0
     _MAXAGE = 130    # default oldest age
     _MINAGE = 0      # default youngest age
-
-    @classmethod
-    def methods(cls, echo: bool = True):
-        """Helper to partially display docstrings from classes and methods
-
-        Args:
-          echo : print if True, else return as text string
-        """
-        s = "\nclass " + cls.__name__ + " - "
-        s += "\n".join([l for l in cls.__doc__.strip().split('\n')]) + "\n"
-        if hasattr(cls, '_methods') and cls._methods:
-            s += '\n    Methods:\n    --------\n\n'
-            for method in cls._methods:
-                meth = getattr(cls, method)
-                desc = meth.__doc__.strip().split('\n')[0]
-                if callable(meth):
-                    args = [str(arg) for arg in signature(meth).parameters.keys()
-                            if str(arg) not in ['cls', 'self']]
-                else:
-                    args = []
-                s += f"    {method}(" + ", ".join(args) + f"):\n{' '*6}{desc}\n\n"
-        return print(s) if echo else s
 
     #
     # Helpers for numerical computations
@@ -112,7 +93,7 @@ class Actuarial(object):
         return t + n
 
     def max_term(self, x: int, t: int, u: int = 0) -> int:
-        """Decrease term t if deferral period u to (x) exceeds maxage
+        """Decrease term t if adding deferral period u to (x) exceeds maxage
 
         Args:
           x : age

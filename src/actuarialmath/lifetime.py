@@ -3,7 +3,7 @@
 MIT License. Copyright (c) 2022-2023 Terence Lim
 """
 import math
-from actuarialmath.survival import Survival
+from actuarialmath import Survival
 
 class Lifetime(Survival):
     """Computes expected moments of future lifetime"""

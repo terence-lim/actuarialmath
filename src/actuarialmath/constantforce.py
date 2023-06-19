@@ -4,7 +4,7 @@ MIT License. Copyright 2022-2023 Terence Lim
 """
 import math
 from scipy.stats import norm
-from actuarialmath.mortalitylaws import MortalityLaws
+from actuarialmath import MortalityLaws
 
 class ConstantForce(MortalityLaws):
     """Constant force of mortality - memoryless exponential distribution of lifetime

@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from typing import Callable, Dict, Any
-from actuarialmath.policyvalues import PolicyValues, Contract
+from actuarialmath import PolicyValues, Contract
 
 class Reserves(PolicyValues):
     """Compute recursive, interim and modified reserves"""
@@ -237,7 +237,7 @@ class Reserves(PolicyValues):
     #
     # Full Preliminary Term (FPT) modified reserves
     #
-    def FPT_premium(self, x: int, s: int = 0, n: int = PolicyValues._WHOLE, 
+    def FPT_premium(self, x: int, s: int = 0, n: int = PolicyValues.WHOLE, 
                     b: int = 1, first: bool = False) -> float:
         """Initial or renewal Full Preliminary Term premiums
 
@@ -254,7 +254,7 @@ class Reserves(PolicyValues):
             return self.net_premium(x, s=s+1, b=b, t=self.add_term(n, -1))
 
     def FPT_policy_value(self, x: int, s: int = 0, t: int = 0, b: int = 1,
-                         n: int = PolicyValues._WHOLE,
+                         n: int = PolicyValues.WHOLE,
                          endowment: int = 0, discrete: bool = True) -> float:
         """Compute Full Preliminary Term policy value at time t
 

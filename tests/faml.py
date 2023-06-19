@@ -25,7 +25,7 @@
 #
 # - SOA FAM-L Sample Questions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf)
 #
-# - [Online tutorial](https://terence-lim.github.io/actuarialmath-tutorial/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf)
+# - [User Guide](https://terence-lim.github.io/actuarialmath-guide/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
 #
 # - [Code documentation](https://terence-lim.github.io/actuarialmath-docs)
 #
@@ -44,26 +44,26 @@ import math
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from actuarialmath.interest import Interest
-from actuarialmath.life import Life
-from actuarialmath.survival import Survival
-from actuarialmath.lifetime import Lifetime
-from actuarialmath.fractional import Fractional
-from actuarialmath.insurance import Insurance
-from actuarialmath.annuity import Annuity
-from actuarialmath.premiums import Premiums
-from actuarialmath.policyvalues import PolicyValues, Contract
-from actuarialmath.reserves import Reserves
-from actuarialmath.recursion import Recursion
-from actuarialmath.lifetable import LifeTable
-from actuarialmath.sult import SULT
-from actuarialmath.selectlife import SelectLife
-from actuarialmath.mortalitylaws import MortalityLaws, Beta, Uniform, Makeham, Gompertz
-from actuarialmath.constantforce import ConstantForce
-from actuarialmath.extrarisk import ExtraRisk
-from actuarialmath.mthly import Mthly
-from actuarialmath.udd import UDD
-from actuarialmath.woolhouse import Woolhouse
+from actuarialmath import Interest
+from actuarialmath import Life
+from actuarialmath import Survival
+from actuarialmath import Lifetime
+from actuarialmath import Fractional
+from actuarialmath import Insurance
+from actuarialmath import Annuity
+from actuarialmath import Premiums
+from actuarialmath import PolicyValues, Contract
+from actuarialmath import Reserves
+from actuarialmath import Recursion
+from actuarialmath import LifeTable
+from actuarialmath import SULT
+from actuarialmath import SelectLife
+from actuarialmath import MortalityLaws, Beta, Uniform, Makeham, Gompertz
+from actuarialmath import ConstantForce
+from actuarialmath import ExtraRisk
+from actuarialmath import Mthly
+from actuarialmath import UDD
+from actuarialmath import Woolhouse
 
 # + [markdown] id="c2b4cbf3"
 # __Helper to compare computed answers to expected solutions__
@@ -522,7 +522,7 @@ isclose(29.85, A, question="Q4.6")
 def fun(i):
     life = Recursion(verbose=False).set_interest(i=i)\
                                    .set_p(0.57, x=0, t=25)
-    return 0.1*life.E_x(0, t=25) - life.E_x(0, t=25, moment=life._VARIANCE)
+    return 0.1*life.E_x(0, t=25) - life.E_x(0, t=25, moment=life.VARIANCE)
 i = Recursion.solve(fun, target=0, grid=[0.058, 0.066])
 isclose(0.06, i, question="Q4.7")
 
@@ -965,14 +965,11 @@ isclose(647, P, question="Q6.9")
 
 # + colab={"base_uri": "https://localhost:8080/"} id="a6ea62e1" outputId="eeae8f35-92a8-48f3-c9e8-c2db9782fd03"
 x = 0
-life = Recursion(verbose=False).set_interest(i=0.06).set_p(0.975, x=x)
-a = 152.85/56.05
-life.set_a(a, x=x, t=3)
-p1 = life.p_x(x=x+1)                                                  
-life.set_p(p1, x=x+1)
-def fun(p): 
-    return life.set_p(p, x=x+2).term_insurance(x=x, t=3, b=1000)
-p = life.solve(fun, target=152.85, grid=0.975)  # finally solve p_x+3, given A_x:3
+life = Recursion(verbose=True).set_interest(i=0.06)\
+                              .set_p(0.975, x=x)\
+                              .set_a(152.85/56.05, x=x, t=3)\
+                              .set_A(152.85, x=x, t=3, b=1000)
+p = life.p_x(x=x+2)
 isclose(0.91, p, question="Q6.10")
 
 # + [markdown] id="1a93e76e"
@@ -1287,7 +1284,7 @@ isclose(550, P, question="Q6.32")
 # + colab={"base_uri": "https://localhost:8080/"} id="5410107c" outputId="a40a6c88-d79e-4ea5-f08e-6b236286457d"
 life = Insurance().set_survival(mu=lambda x,t: 0.02*t).set_interest(i=0.03)
 x = 0
-var = life.E_x(x, t=15, moment=life._VARIANCE, endowment=10000)
+var = life.E_x(x, t=15, moment=life.VARIANCE, endowment=10000)
 p = 1- life.portfolio_cdf(mean=0, variance=var, value=50000, N=500)
 isclose(0.13, p, question="Q6.33", rel_tol=0.02)
 

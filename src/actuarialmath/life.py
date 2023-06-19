@@ -8,8 +8,7 @@ import pandas as pd
 from scipy.special import ndtri
 from scipy.stats import norm
 from typing import Callable, Dict, Any, Tuple, List
-from actuarialmath.interest import Interest
-from actuarialmath.actuarial import Actuarial
+from actuarialmath import Actuarial, Interest
 
 class Life(Actuarial):
     """Compute moments and probabilities"""

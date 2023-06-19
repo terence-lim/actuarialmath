@@ -6,7 +6,7 @@ from typing import Callable, Any
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from actuarialmath.insurance import Insurance
+from actuarialmath import Insurance
 
 class Annuity(Insurance):
     """Compute present values and relationships of life annuities"""

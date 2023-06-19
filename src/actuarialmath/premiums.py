@@ -2,7 +2,7 @@
 
 MIT License. Copyright (c) 2022-2023 Terence Lim
 """
-from actuarialmath.annuity import Annuity
+from actuarialmath import Annuity
 
 class Premiums(Annuity):
     """Compute et and gross premiums under equivalence principle"""
@@ -10,7 +10,7 @@ class Premiums(Annuity):
     #
     # Net level premiums for special insurances
     #
-    def net_premium(self, x: int, s: int = 0, t: int = Annuity._WHOLE, 
+    def net_premium(self, x: int, s: int = 0, t: int = Annuity.WHOLE, 
                     u: int = 0, n: int = 0, b: int = 1,
                     endowment: int = 0, discrete: bool | None = True, 
                     return_premium: bool = False, annuity: bool = False,

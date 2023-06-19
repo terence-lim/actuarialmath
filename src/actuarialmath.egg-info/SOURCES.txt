@@ -29,3 +29,4 @@ src/actuarialmath.egg-info/SOURCES.txt
 src/actuarialmath.egg-info/dependency_links.txt
 src/actuarialmath.egg-info/requires.txt
 src/actuarialmath.egg-info/top_level.txt
+tests/test_changes.py

@@ -5,7 +5,7 @@ MIT License. Copyright (c) 2022-2023 Terence Lim
 from typing import Callable, Tuple, Any, List
 import math
 import numpy as np
-from actuarialmath.life import Life
+from actuarialmath import Life
 
 class Survival(Life):
     """Set and derive basic survival and mortality functions"""

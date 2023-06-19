@@ -7,7 +7,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from actuarialmath.lifetable import LifeTable
+from actuarialmath import LifeTable
 
 class SelectLife(LifeTable):
     """Calculate select life table, and iteratively fill in missing values
@@ -323,7 +323,7 @@ class SelectLife(LifeTable):
         """
         return (1. - self.p_x(x, s=s + u, t=t)) * self.p_x(x, s=s, t=u)
 
-    def e_x(self, x: int, s: int = 0, t: int = LifeTable._WHOLE,
+    def e_x(self, x: int, s: int = 0, t: int = LifeTable.WHOLE,
             curtate: int = True) -> float:
         """Returns expected life time computed from select table
 

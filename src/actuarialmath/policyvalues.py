@@ -7,8 +7,7 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 from typing import Dict, Any
-from actuarialmath.premiums import Premiums
-from actuarialmath.life import Actuarial
+from actuarialmath import Premiums, Actuarial
 
 class Contract(Actuarial):
     """Set and retrieve policy contract terms

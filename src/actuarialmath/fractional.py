@@ -4,7 +4,7 @@ MIT License. Copyright (c) 2022-2023 Terence Lim
 """
 
 import math
-from actuarialmath.lifetime import Lifetime
+from actuarialmath import Lifetime
 
 class Fractional(Lifetime):
     """Compute survival functions at fractional ages and durations

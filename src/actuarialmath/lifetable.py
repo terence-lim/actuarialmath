@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from typing import Dict
-from actuarialmath.reserves import Reserves
+from actuarialmath import Reserves
 
 class LifeTable(Reserves):
     """Calculate life table, and iteratively fill in missing values

@@ -3,7 +3,7 @@
 MIT License. Copyright 2022-2023 Terence Lim
 """
 import math
-from actuarialmath.reserves import Reserves
+from actuarialmath import Reserves
 
 class MortalityLaws(Reserves):
     """Apply shortcut formulas for special mortality laws"""
@@ -67,7 +67,7 @@ class MortalityLaws(Reserves):
         return self.f(x, s+r, t)
 
     def e_r(self, x: int, s: int = 0, r: float = 0.,
-            t: float = Reserves._WHOLE) -> float:
+            t: float = Reserves.WHOLE) -> float:
         """Fractional age future lifetime given special mortality law
 
         Args:
@@ -111,7 +111,7 @@ class Beta(MortalityLaws):
         self.omega_ = omega  # store omega parameter
         self.alpha_ = alpha  # store alpha parameter
 
-    def e_r(self, x: int, s: int = 0, t: float = Reserves._WHOLE) -> float:
+    def e_r(self, x: int, s: int = 0, t: float = Reserves.WHOLE) -> float:
         """Expectation of future lifetime through fractional age: e_[x]+s:t
 
         Args:
@@ -124,7 +124,7 @@ class Beta(MortalityLaws):
             return e - self.p_r(x, s=s, t=t) * self.e_r(x, s=s+t)
         return e   # complete expectation
 
-    def e_x(self, x: int, s: int = 0, n: int = MortalityLaws._WHOLE, 
+    def e_x(self, x: int, s: int = 0, n: int = MortalityLaws.WHOLE, 
           curtate: bool = False, moment: int = 1) -> float:
         """Shortcut formula for complete expectation
 
@@ -141,7 +141,7 @@ class Beta(MortalityLaws):
         if not curtate:
             if moment == 1:
                 return self.e_r(x, s=s, t=n)
-            if moment == self._VARIANCE and n < 0: # shortcut for complete variance
+            if moment == self.VARIANCE and n < 0: # shortcut for complete variance
                 return ((self.omega_ - (x + s))
                         / ((self.alpha_ + 1)**2 * (self.alpha_ + 1)))
         return super().__init__(x=x, s=s, n=n, curtate=curtate, moment=moment)
@@ -158,7 +158,7 @@ class Uniform(Beta):
         """One parameter: omega = maxage, with mu(x) = 1/(omega - x)"""
         super().__init__(omega=omega, alpha=1, udd=udd, **kwargs)
 
-    def e_x(self, x: int, s: int = 0, t: int = Beta._WHOLE, 
+    def e_x(self, x: int, s: int = 0, t: int = Beta.WHOLE, 
           curtate: bool = False, moment: int = 1) -> float:
         """Shortcut for expected future lifetime
 
@@ -169,9 +169,9 @@ class Uniform(Beta):
           curtate : whether curtate (True) or complete (False) lifetime
           moment : whether to compute first (1) or second (2) moment
         """
-        if moment in [1, self._VARIANCE] and not curtate:
+        if moment in [1, self.VARIANCE] and not curtate:
             if t < 0:
-                if moment == self._VARIANCE:
+                if moment == self.VARIANCE:
                     return (self.omega_ - x)**2 / 12  # complete shortcut
                 else:
                     return (self.omega_ - x) / 2
@@ -183,7 +183,7 @@ class Uniform(Beta):
         return super().__init__(x=x, s=s, t=t, curtate=curtate, moment=moment)
 
     
-    def E_x(self, x: int, s: int = 0, t: int = Beta._WHOLE, 
+    def E_x(self, x: int, s: int = 0, t: int = Beta.WHOLE, 
             moment: int = 1) -> float:
         """Shortcut for Pure Endowment
 
@@ -201,7 +201,7 @@ class Uniform(Beta):
             return 0.
         t = self.max_term(x+s, t)
         t_p_x = (self.omega_ - x - t) / (self.omega_ - x)
-        if moment == self._VARIANCE:  # Bernoulli shortcut for variance
+        if moment == self.VARIANCE:  # Bernoulli shortcut for variance
             return self.interest.v_t(t)**2 * t_p_x * (1 - t_p_x)
         return (self.interest.v_t(t)**moment * (self.omega_ - x - t) 
                 / (self.omega_ - x))
@@ -219,7 +219,7 @@ class Uniform(Beta):
         """
 
         if not discrete:
-            if moment == Beta._VARIANCE:
+            if moment == Beta.VARIANCE:
                 return (self.whole_life_insurance(x, s=s, b=b, moment=2, 
                                                   discrete=False) -
                         self.whole_life_insurance(x, s=s, b=b, moment=1, 
@@ -241,8 +241,8 @@ class Uniform(Beta):
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
         """
-        if not discrete and moment in [1, Beta._VARIANCE]:
-            if moment == Beta._VARIANCE:
+        if not discrete and moment in [1, Beta.VARIANCE]:
+            if moment == Beta.VARIANCE:
                 return (self.term_insurance(x, s=s, b=b, t=t, moment=2, 
                                             discrete=False) -
                         self.term_insurance(x, s=s, b=b, t=t, 

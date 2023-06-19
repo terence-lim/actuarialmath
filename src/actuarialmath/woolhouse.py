@@ -4,8 +4,8 @@ MIT License. Copyright 2022-2023 Terence Lim
 """
 import math
 from typing import Callable
-from actuarialmath.mthly import Mthly
-from actuarialmath.annuity import Annuity
+from actuarialmath import Mthly
+from actuarialmath import Annuity
 
 class Woolhouse(Mthly):
     """1/m'thly shortcuts with Woolhouse approximation

@@ -3,9 +3,9 @@
 MIT License. Copyright 2022-2023 Terence Lim
 """
 import pandas as pd
-from actuarialmath.life import Interest
-from actuarialmath.annuity import Annuity
-from actuarialmath.mthly import Mthly
+from actuarialmath import Interest
+from actuarialmath import Annuity
+from actuarialmath import Mthly
 
 class UDD(Mthly):
     """1/mthly shortcuts with UDD assumption

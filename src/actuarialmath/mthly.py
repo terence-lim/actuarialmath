@@ -5,8 +5,8 @@ MIT License. Copyright 2022-2023 Terence Lim
 from typing import Callable
 import math
 import pandas as pd
-from actuarialmath.annuity import Annuity
-from actuarialmath.life import Actuarial
+from actuarialmath import Annuity
+from actuarialmath import Actuarial
 
 class Mthly(Actuarial):
     """Compute 1/M'thly insurance and annuities
@@ -161,7 +161,7 @@ class Mthly(Actuarial):
         return A
 
     def deferred_insurance(self, x: int, s: int = 0, n: int = 0, b: int = 1, 
-                           t: int = Annuity._WHOLE, moment: int = 1) -> float:
+                           t: int = Annuity.WHOLE, moment: int = 1) -> float:
         """Deferred insurance n|_A_x:t^1 = discounted whole life
 
         Args:
@@ -252,7 +252,7 @@ class Mthly(Actuarial):
             return self.annuity_variance(A2=A2, A1=A1, b=b)
         return b * (1 - self.whole_life_insurance(x, s=s)) / self.d
             
-    def temporary_annuity(self, x: int, s: int = 0, t: int = Annuity._WHOLE, 
+    def temporary_annuity(self, x: int, s: int = 0, t: int = Annuity.WHOLE, 
                           b: int = 1, variance: bool = False) -> float:
         """Temporary m'thly life annuity: a_x:t
 
@@ -276,7 +276,7 @@ class Mthly(Actuarial):
         return a - (a_t * self.E_x(x, s=s, t=t))
 
     def deferred_annuity(self, x: int, s: int = 0, u: int = 0, 
-                         t: int = Annuity._WHOLE, b: int = 1) -> float:
+                         t: int = Annuity.WHOLE, b: int = 1) -> float:
         """Deferred m'thly life annuity due n|t_a_x =  n+t_a_x - n_a_x
 
         Args:
@@ -290,7 +290,7 @@ class Mthly(Actuarial):
             return 0.
         return self.E_x(x, s=s, t=u)*self.temporary_annuity(x, s=s+u, t=t, b=b)
 
-    def immediate_annuity(self, x: int, s: int = 0, t: int = Annuity._WHOLE, 
+    def immediate_annuity(self, x: int, s: int = 0, t: int = Annuity.WHOLE, 
                           b: int = 1) -> float:
         """Immediate m'thly annuity
 

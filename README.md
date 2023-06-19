@@ -23,7 +23,7 @@ The actuarial concepts, as shown in this graphic, are introduced and modeled hie
 
    - Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
 
-   - If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
+   - Adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 ## Examples
 
@@ -32,8 +32,7 @@ __SOA FAM-L sample question 5.7__:
 Given $A_{35} = 0.188$, $A_{65} = 0.498$, $S_{35}(30) = 0.883$, calculate the EPV of a temporary annuity $\ddot{a}^{(2)}_{35:\overline{30|}}$ paid half-yearly using the Woolhouse approximation.
 
 ```
-from actuarialmath.recursion import Recursion
-from actuarialmath.woolhouse import Woolhouse
+from actuarialmath.recursion import Recursion, Woolhouse
 # initialize Recursion class with actuarial inputs
 life = Recursion().set_interest(i=0.04)\
                   .set_A(0.188, x=35)\
@@ -59,8 +58,7 @@ For a fully discrete whole life insurance of 1000 on (35), you are given
 
 Calculate R − S
 ```
-from actuarialmath.sult import SULT   # use Standard Ultimate Life Table
-from actuarialmath.policyvalues import Contract
+from actuarialmath.sult import SULT, Contract
 life = SULT()
 # compute the required FPT policy value
 S = life.FPT_policy_value(35, t=1, b=1000)  # is always 0 in year 1!
@@ -82,7 +80,7 @@ print(R-S)   # solution = -277.19
 
 1. [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing) or [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), to solve all sample SOA FAM-L exam questions
 
-2. [Online tutorial](https://terence-lim.github.io/actuarialmath-tutorial/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf)
+2. [User Guide](https://terence-lim.github.io/actuarialmath-guide/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
 
 3. [Code documentation](https://actuarialmath.readthedocs.io/en/latest/)
 

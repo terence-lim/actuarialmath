@@ -17,20 +17,21 @@ The package comprises three sets of classes, which:
    - Insurance, annuity, premiums, policy values, and reserves calculations
 
 
-2. Specify and load a particular form of assumptions
+2. Adjust results for
+
+   - Extra mortality risks
+
+   - 1/mthly payment frequency using UDD or Woolhouse approaches
+
+3. Specify and load a particular form of assumptions
 
    - Life table, select life table, or standard ultimate life table
 
    - Mortality laws, such as constant force of maturity, beta and uniform distributions, or Makeham's and Gompertz's laws
 
    - Recursion inputs
-
-3. Adjust results for
-
-   - Extra mortality risks
-
-   - 1/mthly payment frequency using UDD or Woolhouse approaches
-
+    
+     
 Quick Start
 -----------
 
@@ -44,7 +45,7 @@ Quick Start
       
    - Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
 
-   - If needed, adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
+   - Adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes.
 
 Examples
 --------
@@ -52,8 +53,7 @@ Examples
 ::
 
   # SOA FAM-L sample question 5.7
-  from actuarialmath.recursion import Recursion
-  from actuarialmath.woolhouse import Woolhouse
+  from actuarialmath.recursion import Recursion, Woolhouse
   # initialize Recursion class with actuarial inputs
   life = Recursion().set_interest(i=0.04)\
                     .set_A(0.188, x=35)\
@@ -67,8 +67,7 @@ Examples
 ::
 
   # SOA FAM-L sample question 7.20
-  from actuarialmath.sult import SULT   # use Standard Ultimate Life Table
-  from actuarialmath.policyvalues import Contract
+  from actuarialmath.sult import SULT, Contract
   life = SULT()
   # compute the required FPT policy value
   S = life.FPT_policy_value(35, t=1, b=1000)  # is always 0 in year 1!
@@ -89,7 +88,7 @@ Resources
 
 1. `Colab <https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing>`_ or `Jupyter notebook <https://terence-lim.github.io/notes/faml.ipynb>`_, to solve all sample SOA FAM-L exam questions
 
-2. `Online tutorial <https://terence-lim.github.io/actuarialmath-tutorial/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-tutorial.pdf>`_
+2. `User Guide <https://terence-lim.github.io/actuarialmath-guide/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-guide.pdf>`_
 
 3. `Code documentation <https://actuarialmath.readthedocs.io/en/latest/>`_
 

@@ -2,10 +2,10 @@
 
 MIT License. Copyright 2022-2023 Terence Lim
 """
-from actuarialmath.survival import Survival
-from actuarialmath.actuarial import Actuarial
 from typing import Dict
 import math
+from actuarialmath import Survival
+from actuarialmath import Actuarial
 
 class ExtraRisk(Actuarial):
     """Adjust mortality by extra risk

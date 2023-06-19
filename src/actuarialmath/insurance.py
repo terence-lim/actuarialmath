@@ -6,7 +6,7 @@ from typing import Callable, Any, Tuple, List
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from actuarialmath.fractional import Fractional
+from actuarialmath import Fractional
 
 class Insurance(Fractional):
     """Compute expected present values of life insurance"""
