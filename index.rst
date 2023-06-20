@@ -53,7 +53,7 @@ Examples
 ::
 
   # SOA FAM-L sample question 5.7
-  from actuarialmath.recursion import Recursion, Woolhouse
+  from actuarialmath import Recursion, Woolhouse
   # initialize Recursion class with actuarial inputs
   life = Recursion().set_interest(i=0.04)\
                     .set_A(0.188, x=35)\
@@ -67,7 +67,7 @@ Examples
 ::
 
   # SOA FAM-L sample question 7.20
-  from actuarialmath.sult import SULT, Contract
+  from actuarialmath import SULT, Contract
   life = SULT()
   # compute the required FPT policy value
   S = life.FPT_policy_value(35, t=1, b=1000)  # is always 0 in year 1!
@@ -88,9 +88,9 @@ Resources
 
 1. `Colab <https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing>`_ or `Jupyter notebook <https://terence-lim.github.io/notes/faml.ipynb>`_, to solve all sample SOA FAM-L exam questions
 
-2. `User Guide <https://terence-lim.github.io/actuarialmath-guide/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-guide.pdf>`_
+2. `Online User Guide <https://terence-lim.github.io/actuarialmath-guide/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-guide.pdf>`_
 
-3. `Code documentation <https://actuarialmath.readthedocs.io/en/latest/>`_
+3. `API reference <https://actuarialmath.readthedocs.io/en/latest/>`_
 
 4. `Github repo <https://github.com/terence-lim/actuarialmath.git>`_ and `issues <https://github.com/terence-lim/actuarialmath/issues>`_
 
