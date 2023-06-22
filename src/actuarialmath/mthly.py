@@ -14,6 +14,13 @@ class Mthly(Actuarial):
     Args:
       m : number of payments per year
       life : original survival and life contingent functions
+
+    Examples:
+      >>> mthly = Mthly(m=12, life=Annuity().set_interest(i=0.06))
+      >>> A1, A2 = 0.4075, 0.2105
+      >>> mean = mthly.annuity_twin(A1)*15*12
+      >>> var = mthly.annuity_variance(A1=A1, A2=A2, b=15 * 12)
+      >>> S = Annuity.portfolio_percentile(mean=mean, variance=var, prob=.9, N=200)
     """
     _methods = ['v_m', 'p_m', 'q_m', 'Z_m', 'E_x', 'A_x',
                  'whole_life_insurance', 'term_insurance', 'deferred_insurance',
@@ -88,6 +95,11 @@ class Mthly(Actuarial):
         
         Returns:
           DataFrame, indexed by mthly period, with column names ['Z', 'p']
+
+        Examples:
+          >>> life = LifeTable(udd=False).set_table(q={0:.16,1:.23}).set_interest(i_m=.18,m=2)
+          >>> mthly = Mthly(m=2, life=life)
+          >>> Z = mthly.Z_m(0, t=2, benefit=lambda x,t: 300000 + t*30000*2)
         """
         Z = [(benefit(x+s, k/self.m) * self.v_m(k+1))**moment 
              for k in range(t * self.m)]

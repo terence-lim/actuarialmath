@@ -17,6 +17,16 @@ class Actuarial(object):
       VARIANCE : select variance as the statistical moment to calculate
 
       WHOLE : indicates that term of insurance or annuity is Whole Life
+
+    Examples:
+      >>> actuarial = Actuarial()
+      >>> def as_term(t): return "WHOLE_LIFE" if t == Actuarial.WHOLE else t    
+      >>> for a,b in [(3, Actuarial.WHOLE), (3, 2), (3, -1)]:
+      >>>     print(f"({as_term(a)}) + ({as_term(b)}) =",
+      >>>           as_term(actuarial.add_term(a, b)))        
+      >>> print(Actuarial.solve(fun=lambda omega: 1/omega, 
+      >>>                       target=0.05, grid=[1, 100]))
+      >>> print(Actuarial.derivative(fun=lambda x: x/50, x=25))
     """
     # constants
     VARIANCE = -2

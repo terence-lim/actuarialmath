@@ -11,6 +11,15 @@ class Fractional(Lifetime):
 
     Args:
       udd : select UDD (True, default) or CFM (False) between integer ages
+
+    Examples:
+      >>> print(Fractional.e_approximate(e_complete=15))  # output e_curtate
+      >>> print(Fractional.e_approximate(e_curtate=15))   # output e_complete
+      >>> x = 45
+      >>> life = Fractional(udd=False).set_survival(l=lambda x,t: 50-x-t)
+      >>> print(life.q_r(x, r=0.), life.q_r(x, r=0.5), life.q_r(x, r=1.))
+      >>> life = Fractional(udd=True).set_survival(l=lambda x,t: 50-x-t)
+      >>> print(life.q_r(x, r=0.), life.q_r(x, r=0.5), life.q_r(x, r=1.))
     """
 
     def __init__(self, udd: bool = True, **kwargs):

@@ -21,12 +21,15 @@ class Interest(Actuarial):
       d_m : or assumed monthly discount rate
       m : m'thly frequency, if i_m or d_m are given
 
-    Attributes:
-      i (float) : interest rate
-      d (float) : discount rate
-      delta (float) :  continuously compounded interest rate
-      v (float) : discount factor
-      v_t (Callable) : discount factor as a function of time
+    Examples:
+      >>> interest = Interest(v=0.75)
+      >>> L = 35 * interest.annuity(t=4, due=False) + 75 * interest.v_t(t=5)
+      >>> interest = Interest(v=0.5)
+      >>> R = 15 * interest.annuity(t=4, due=False) + 25 * interest.v_t(t=5)
+      >>> i2 = Interest.double_force(i=0.05)  # Double the force of interest
+      >>> d2 = Interest(i=i2).d               # Convert interest to discount rate
+      >>> i = Interest.mthly(i_m=0.05, m=12)  # Convert mthly to annual-pay
+      >>> i_m = Interest.mthly(i=i, m=12)     # Convert annual-pay to mthly
     """
 
     def __init__(self, i: float = -1., delta: float = -1., d: float = -1., 
@@ -38,25 +41,51 @@ class Interest(Actuarial):
             d = self.mthly(m=m, d_m=d_m)
         if v_t is None:
             if delta >= 0:     # given continously-compounded rate
-                self.i = math.exp(delta) - 1
+                self._i = math.exp(delta) - 1
             elif d >= 0:       # given annual discount rate
-                self.i = d / (1 - d)
+                self._i = d / (1 - d)
             elif v >= 0 :      # given annual discount factor
-                self.i = (1 / v) - 1
+                self._i = (1 / v) - 1
             elif i >= 0:
-                self.i = i
+                self._i = i
             else:              # given annual interest rate
                 raise Exception("non-negative interest rate not given")
-            self.v_t = lambda t: self.v**t 
-            self.v = 1 / (1 + self.i)         # store discount factor
-            self.d = self.i / (1 + self.i)    # store discount rate
-            self.delta = math.log(1 + self.i) # store continuous rate
+            self._v_t = lambda t: self._v**t 
+            self._v = 1 / (1 + self._i)         # store discount factor
+            self._d = self._i / (1 + self._i)    # store discount rate
+            self._delta = math.log(1 + self._i) # store continuous rate
         else:   # given discount function
             assert callable(v_t), "v_t must be a callable discount function"
             assert v_t(0) == 1, "v_t(t=0) must equal 1"
-            self.v_t = v_t
-            #self.i = (1 / v_t(1)) - 1
-            self.v = self.d = self.i = self.delta = None
+            self._v_t = v_t
+            #self._i = (1 / v_t(1)) - 1
+            self._v = self._d = self._i = self._delta = None
+
+    @property
+    def i(self) -> float:
+       """effective annual interest rate"""
+       return self._i
+   
+    @property
+    def d(self) -> float:
+       """discount rate"""
+       return self._d
+   
+    @property
+    def delta(self) -> float:
+       """continuously compounded interest rate"""
+       return self._delta
+   
+    @property
+    def v(self) -> float:
+       """discount factor"""
+       return self._v
+   
+    @property
+    def v_t(self) -> Callable:
+       """discount factor as a function of time"""
+       return self._v_t
+    
 
     def annuity(self, t: int = -1, m: int = 1, due: bool = True) -> float:
         """Compute value of the annuity certain factor
@@ -65,6 +94,9 @@ class Interest(Actuarial):
           t : number of years of payments
           m : m'thly frequency of payments (0 for continuous payments)
           due : whether annuity due (True) or immediate (False)
+
+        Examples:
+          >>> print(interest.annuity(t=10, due=False), 2.831059)
         """
         v_t = 0 if t < 0 else self.v**t   # is t finite
         assert m >= 0, "mthly frequency must be non-negative"

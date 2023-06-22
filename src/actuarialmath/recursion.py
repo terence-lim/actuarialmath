@@ -3,6 +3,7 @@
 MIT License. Copyright 2022-2023 Terence Lim
 """
 from typing import Tuple
+import matplotlib.pyplot as plt
 from actuarialmath import Reserves
 
 class Recursion(Reserves):
@@ -22,6 +23,16 @@ class Recursion(Reserves):
       - 'IA' : decreasing life insurance of t years
       - 'DA' : increasing life insurance of t years
       - 'a' : deferred, temporary or whole life annuity of t years, and moments
+
+    Examples:
+      >>> x = 0
+      >>> life = Recursion().set_interest(i=0.06).set_a(7, x=x+1).set_q(0.05, x=x)
+      >>> a = life.whole_life_annuity(x)
+      >>> A = 110 * a / 1000
+      >>> print(a, A)
+      >>> life = Recursion().set_interest(i=0.06).set_A(A, x=x).set_q(0.05, x=x)
+      >>> A1 = life.whole_life_insurance(x+1)
+      >>> P = life.gross_premium(A=A1 / 1.03, a=7) * 1000
     """
 
     def __init__(self, depth: int = 5, verbose: bool = True, **kwargs):
@@ -33,12 +44,12 @@ class Recursion(Reserves):
     #
     # helpers to store given input values
     #
-    def db_key(self, *args, **kwargs) -> Tuple:
+    def _db_key(self, *args, **kwargs) -> Tuple:
         """Generate a unique key representing values of given arguments"""
         assert args and kwargs
         return tuple(list(args) + sorted(kwargs.items()))
 
-    def db_put(self, key: Tuple, value: float | None) -> "Recursion":
+    def _db_put(self, key: Tuple, value: float | None) -> "Recursion":
         """Store the item's key and value; or remove if value is None
         Args:
           key : key of the item
@@ -50,7 +61,7 @@ class Recursion(Reserves):
             self.db[key] = value
         return self
 
-    def db_print(self):
+    def _db_print(self):
         """Display the stored keys and values"""
         for k in sorted(self.db.keys()):
             print(k, self.db[k])
@@ -58,8 +69,8 @@ class Recursion(Reserves):
     #
     # Formulas for Mortality: u|t_q_x
     #
-    def get_q(self, x: int, s: int = 0, t: int = 1,
-              u: int = 0) -> float | None:
+    def _get_q(self, x: int, s: int = 0, t: int = 1,
+               u: int = 0) -> float | None:
         """Get mortality rate from key-value store
 
         Args:
@@ -68,12 +79,12 @@ class Recursion(Reserves):
           u : survive u years, then...
           t : death within next t years        
         """
-        key = self.db_key('q', x=x+s, u=u, t=t)
+        key = self._db_key('q', x=x+s, u=u, t=t)
         return self.db.get(key, None)
 
     def set_q(self, val: float, x: int, s: int = 0, t: int = 1, 
               u: int = 0) -> "Recursion":
-        """Set mortality rate u|t_q_[x]+s to given value
+        """Set mortality rate u|t_q_[x+s] to given value
 
         Args:
           val : value to set
@@ -82,12 +93,12 @@ class Recursion(Reserves):
           u : survive u years, then...
           t : death within next t years        
         """
-        return self.db_put(self.db_key('q', x=x+s, u=u, t=t), val)
+        return self._db_put(self._db_key('q', x=x+s, u=u, t=t), val)
 
     def _q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0, 
              depth: int = 1) -> float:
         """Helper to compute mortality from recursive and alternate formulas"""
-        found = self.get_q(x, s=s, t=t, u=u)
+        found = self._get_q(x, s=s, t=t, u=u)
         if found is not None:
             return found
         if t == 0:
@@ -96,14 +107,14 @@ class Recursion(Reserves):
             return 1
         if u > 0:
             pu = self._p_x(x, s=s, t=u, depth=depth-1) #depth-1)
-            qt = self.get_q(x, s=s+u, t=t)
+            qt = self._get_q(x, s=s+u, t=t)
             if pu is not None and qt is not None:
                 self.blog(_Blog.q(x=x, s=s, t=t, u=u), '=',
                           _Blog.p(x=x, s=s, t=u), '*', _Blog.q(x=x, s=s+u, t=t),
                           depth=depth, rule="defer mortality")
                 return pu * qt        # (1) u_p_x * t_q_x+u
-            qu = self.get_q(x, s=s, t=u)
-            qt = self.get_q(x, s=s, t=u+t)
+            qu = self._get_q(x, s=s, t=u)
+            qt = self._get_q(x, s=s, t=u+t)
             if qu is not None and qt is not None:
                 self.blog(_Blog.q(x=x, s=s, t=t, u=u), '=',
                           _Blog.q(x=x, s=s, t=t+u), '-', _Blog.q(x=x, s=s, t=u),
@@ -127,13 +138,13 @@ class Recursion(Reserves):
         """Compute mortality rate by calling recursion helper"""
         q = self._q_x(x, s=s, t=t, u=u, depth=self.maxdepth)
         if q is not None:
-            print(self.blog, end='')
+            self.blog.write()
         return q
 
     #
     # Formulas for Survival: t_p_x
     #
-    def get_p(self, x: int, s: int = 0, t: int = 1) -> float | None:
+    def _get_p(self, x: int, s: int = 0, t: int = 1) -> float | None:
         """Get survival probability from key-value store
 
         Args:
@@ -145,11 +156,11 @@ class Recursion(Reserves):
             return 1
         if t < 0:
             return 0
-        key = self.db_key('p', x=x+s, t=t)
+        key = self._db_key('p', x=x+s, t=t)
         return self.db.get(key, None)
 
     def set_p(self, val: float, x: int, s: int = 0, t: int = 1) -> "Recursion":
-        """Set survival probability t_p_[x]+s to given value
+        """Set survival probability t_p_[x+s] to given value
 
         Args:
           val : value to set
@@ -157,14 +168,14 @@ class Recursion(Reserves):
           s : years after selection
           t : survives next t years
         """
-        return self.db_put(self.db_key('p', x=x+s, t=t), val)
+        return self._db_put(self._db_key('p', x=x+s, t=t), val)
 
     def _p_x(self, x: int, s: int = 0, t: int = 1, depth: int = 1) -> float:
         """Helper to compute survival from recursive and alternate formulas"""
-        found = self.get_p(x, s=s, t=t)
+        found = self._get_p(x, s=s, t=t)
         if found is not None:
             return found
-        found = self.get_q(x, s=s, t=t)  
+        found = self._get_q(x, s=s, t=t)  
         if found is not None:
             self.blog(_Blog.p(x=x, s=s, t=t), '= 1 -', _Blog.q(x=x, s=s, t=t),
                       depth=depth, rule='complement of mortality')
@@ -252,14 +263,14 @@ class Recursion(Reserves):
                          levels=self.maxdepth)
         p = self._p_x(x, s=s, t=t, depth=self.maxdepth)
         if p is not None:
-            print(self.blog, end='')
+            self.blog.write()
         return p
 
     #
     # Formulas for Expected Future Lifetime: e_x
     #
-    def get_e(self, x: int, s: int = 0, t: int = Reserves.WHOLE, 
-              curtate: bool = False, moment: int = 1) -> float | None:
+    def _get_e(self, x: int, s: int = 0, t: int = Reserves.WHOLE, 
+               curtate: bool = False, moment: int = 1) -> float | None:
         """Get expected future lifetime from key-value store
 
         Args:
@@ -269,12 +280,12 @@ class Recursion(Reserves):
           curtate : curtate (True) or complete expectation (False)
           moment : first or second moment of expected future lifetime
         """
-        key = self.db_key('e', x=x+s, t=t, curtate=curtate, moment=moment)
+        key = self._db_key('e', x=x+s, t=t, curtate=curtate, moment=moment)
         return self.db.get(key, None)
 
     def set_e(self, val: float, x: int, s: int = 0, t: int = Reserves.WHOLE, 
               curtate: bool = False, moment: int = 1) -> "Recursion":
-        """Set expected future lifetime e_[x]+s:t to given value
+        """Set expected future lifetime e_[x+s]:t to given value
 
         Args:
           val : value to set
@@ -284,14 +295,14 @@ class Recursion(Reserves):
           curtate : curtate (True) or complete expectation (False)
           moment : first or second moment of expected future lifetime
         """
-        return self.db_put(self.db_key('e', x=x+s, t=t, moment=moment,
-                                       curtate=curtate), val)
+        return self._db_put(self._db_key('e', x=x+s, t=t, moment=moment,
+                                         curtate=curtate), val)
 
     def _e_x(self, x: int, s: int = 0, t: int = Reserves.WHOLE, 
             curtate: bool = False, moment: int = 1, 
             depth: int = 1) -> float | None:
         """Helper to compute from recursive and alternate formulas"""
-        found = self.get_e(x, s=s, t=t, curtate=curtate, moment=moment)
+        found = self._get_e(x, s=s, t=t, curtate=curtate, moment=moment)
         if found is not None:
             return found
         if depth <= 0:
@@ -358,14 +369,14 @@ class Recursion(Reserves):
         e = self._e_x(x, s=s, t=t, curtate=curtate, moment=moment,
                       depth=self.maxdepth)
         if e is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return e
 
     #
     # Formulas for Pure Endowment: t_E_x
     #
-    def get_E(self, x: int, s: int = 0, t: int = 1, 
-              endowment: int = 1, moment: int = 1) -> float | None:
+    def _get_E(self, x: int, s: int = 0, t: int = 1, 
+               endowment: int = 1, moment: int = 1) -> float | None:
         """Get pure endowment from key-value store
 
         Args:
@@ -375,14 +386,14 @@ class Recursion(Reserves):
           endowment : endowment value
           moment : first or second moment of pure endowment
         """
-        key = self.db_key('E', x=x+s, t=t, moment=moment)
+        key = self._db_key('E', x=x+s, t=t, moment=moment)
         val = self.db.get(key, None)
         if val is not None:
             return val * endowment   # stored with benefit=1
 
     def set_E(self, val: float, x: int, s: int = 0, t: int = 1, 
               endowment: int = 1, moment: int = 1) -> "Recursion":
-        """Set pure endowment t_E_[x]+s to given value
+        """Set pure endowment t_E_[x+s] to given value
 
         Args:
           val : value to set
@@ -393,12 +404,12 @@ class Recursion(Reserves):
           moment : first or second moment of pure endowment
         """
         val /= endowment   # store with benefit=1
-        return self.db_put(self.db_key('E', x=x+s, t=t, moment=moment), val)
+        return self._db_put(self._db_key('E', x=x+s, t=t, moment=moment), val)
 
     def _E_x(self, x: int, s: int = 0, t: int = 1, endowment: int = 1, 
              moment: int = 1, depth: int = 1) -> float:
         """Helper to compute from recursive and alternate formulas"""
-        E = self.get_E(x, s=s, t=t, endowment=endowment, moment=moment)
+        E = self._get_E(x, s=s, t=t, endowment=endowment, moment=moment)
         if E is not None:
             return E
         if t < 0:     # t infinite => EPV(t) = 0
@@ -460,7 +471,7 @@ class Recursion(Reserves):
                          _Blog.E(x=x, s=s, t=t, moment=moment, endowment=endowment),
                          levels=self.maxdepth)
         if moment == self.VARIANCE:  # Bernoulli shortcut for variance
-            found = self.get_E(x, s=s, t=t, endowment=endowment, moment=moment)
+            found = self._get_E(x, s=s, t=t, endowment=endowment, moment=moment)
             if found is not None:
                 return found
             t_p_x = self.p_x(x, s=s, t=t)
@@ -468,14 +479,14 @@ class Recursion(Reserves):
         found = self._E_x(x, s=s, t=t, endowment=endowment, moment=moment,
                           depth=self.maxdepth)
         if found is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return found
 
     #
     # Formulas for Increasing Insurance: IA_x:t
     #
-    def get_IA(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
-               b: int = 1, discrete: bool = True) -> float | None:
+    def _get_IA(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
+                b: int = 1, discrete: bool = True) -> float | None:
         """Get increasing insurance from key-value store
 
         Args:
@@ -485,14 +496,14 @@ class Recursion(Reserves):
           b : benefit after year 1
           discrete : discrete or continuous increasing insurance
         """
-        key = self.db_key('IA', x=x+s, t=t, discrete=discrete)
+        key = self._db_key('IA', x=x+s, t=t, discrete=discrete)
         val = self.db.get(key, None)
         if val is not None:
             return val * b   # stored with benefit=1
 
     def set_IA(self, val: float, x: int, s: int = 0, t: int = Reserves.WHOLE,
                b: int = 1, discrete: bool = True) -> "Recursion":
-        """Set increasing insurance IA_[x]+s:t to given value
+        """Set increasing insurance IA_[x+s]:t to given value
 
         Args:
           val : value to set
@@ -503,15 +514,15 @@ class Recursion(Reserves):
           discrete : discrete or continuous increasing insurance
         """
         val /= b   # store with benefit=1
-        return self.db_put(self.db_key('IA', x=x+s, t=t, 
-                                       discrete=discrete), val)
+        return self._db_put(self._db_key('IA', x=x+s, t=t, 
+                                         discrete=discrete), val)
 
     def _IA_x(self, x: int, s: int = 0, t: int = Reserves.WHOLE, b: int = 1,
               discrete: bool = True, depth: int = 1) -> float | None:
         """Helper to compute from recursive and alternate formulas"""
         if t == 0:
             return 0
-        found = self.get_IA(x=x, s=s, t=t, b=b, discrete=discrete)
+        found = self._get_IA(x=x, s=s, t=t, b=b, discrete=discrete)
         if found is not None:
             return found
         if depth <= 0:
@@ -554,18 +565,18 @@ class Recursion(Reserves):
                          levels=self.maxdepth)
         IA = self._IA_x(x, s=s, b=b, t=t, discrete=discrete, depth=self.maxdepth)
         if IA is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return IA
         IA = super().increasing_insurance(x, s=s, b=b, t=t, discrete=discrete)
         if IA is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return IA
 
     #
     # Formulas for Decreasing insurance: DA_x:t
     #
-    def get_DA(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
-               b: int = 1, discrete: bool = True) -> float | None:
+    def _get_DA(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
+                b: int = 1, discrete: bool = True) -> float | None:
         """Get decreasing insurance from key-value store
 
         Args:
@@ -575,14 +586,14 @@ class Recursion(Reserves):
           b : benefit after year 1
           discrete : discrete or continuous decreasing insurance
         """
-        key = self.db_key('DA', x=x+s, t=t, discrete=discrete)
+        key = self._db_key('DA', x=x+s, t=t, discrete=discrete)
         val = self.db.get(key, None)
         if val is not None:
             return val * b   # stored with benefit=1
 
     def set_DA(self, val: float, x: int, s: int = 0, t: int = Reserves.WHOLE,
                b: int = 1, discrete: bool = True) -> "Recursion":
-        """Set decreasing insurance DA_[x]+s:t to given value
+        """Set decreasing insurance DA_[x+s]:t to given value
 
         Args:
           val : value to set
@@ -593,13 +604,13 @@ class Recursion(Reserves):
           discrete : discrete or continuous decreasing insurance
         """
         val /= b     # store with benefit=1
-        return self.db_put(self.db_key('DA', x=x+s, t=t, 
-                                       discrete=discrete), val)
+        return self._db_put(self._db_key('DA', x=x+s, t=t, 
+                                         discrete=discrete), val)
 
     def _DA_x(self, x: int, s: int = 0, t: int = Reserves.WHOLE, b: int = 1,
               discrete: bool = True, depth: int = 1) -> float | None:
         """Helper to compute from recursive and alternate formulas"""
-        found = self.get_DA(x=x, s=s, t=t, discrete=discrete)
+        found = self._get_DA(x=x, s=s, t=t, discrete=discrete)
         if found is not None:
             return found
         if t == 0:
@@ -645,19 +656,19 @@ class Recursion(Reserves):
             return 0
         A = self._DA_x(x=x, s=s, t=t, b=b, discrete=discrete, depth=self.maxdepth)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
         A = super().decreasing_insurance(x, s=s, b=b, t=t, discrete=discrete)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
 
     #
     # Formulas for Insurance: A_x:t
     #
-    def get_A(self, x: int, s: int = 0, u: int = 0, t: int = Reserves.WHOLE,
-              b: int = 1, moment: int = 1, endowment: int = 0, 
-              discrete: bool = True) -> float | None:
+    def _get_A(self, x: int, s: int = 0, u: int = 0, t: int = Reserves.WHOLE,
+               b: int = 1, moment: int = 1, endowment: int = 0, 
+               discrete: bool = True) -> float | None:
         """Get insurance from key-value store
 
         Args:
@@ -679,8 +690,8 @@ class Recursion(Reserves):
         else:
             scale = b
             endowment = 1 if b == endowment else endowment / b
-        key = self.db_key('A', x=x+s, u=u, t=t, moment=moment, 
-                          endowment=endowment, discrete=discrete)
+        key = self._db_key('A', x=x+s, u=u, t=t, moment=moment, 
+                           endowment=endowment, discrete=discrete)
         val = self.db.get(key, None)
         if val is not None:
             return val * scale   # stored with benefit=1
@@ -689,7 +700,7 @@ class Recursion(Reserves):
     def set_A(self, val: float, x: int, s: int = 0, t: int = Reserves.WHOLE,
               u: int = 0, b: int = 1, moment: int = 1, endowment: int = 0, 
               discrete: bool = True) -> "Recursion":
-        """Set insurance u|_A_[x]+s:t to given value
+        """Set insurance u|_A_[x+s]:t to given value
 
         Args:
           val : value to set
@@ -711,9 +722,9 @@ class Recursion(Reserves):
             if b != 1:
                 val /= b
                 endowment /= b
-        return self.db_put(self.db_key('A', x=x+s, t=t, u=u,
-                                       moment=moment, endowment=endowment, 
-                                       discrete=discrete), val)
+        return self._db_put(self._db_key('A', x=x+s, t=t, u=u,
+                                         moment=moment, endowment=endowment, 
+                                         discrete=discrete), val)
 
     def _A_x(self, x: int, s: int = 0, t: int = Reserves.WHOLE, u: int = 0,
              b: int = 1, discrete: bool = True, endowment: int = 0,
@@ -722,8 +733,8 @@ class Recursion(Reserves):
         
         if endowment == b and t == 1 and discrete: # 1-year endow ins
             return (self.interest.v_t(1) * endowment)**moment
-        found = self.get_A(x=x, s=s, t=t, b=b, u=u, discrete=discrete, 
-                           moment=moment, endowment=endowment)
+        found = self._get_A(x=x, s=s, t=t, b=b, u=u, discrete=discrete, 
+                            moment=moment, endowment=endowment)
         if found is not None:
             return found
         if depth <= 0:
@@ -844,19 +855,19 @@ class Recursion(Reserves):
         found = self._A_x(x, s=s, b=b, moment=moment, discrete=discrete,
                           depth=self.maxdepth)
         if found is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return found
         if moment == 1 and self.interest.i > 0:  # (1) twin annuity
             a = self._a_x(x, s=s, b=b, discrete=discrete, depth=self.maxdepth)
             if a is not None:
                 self.blog("A_x = 1 - d * a_x",
                           depth=self.maxdepth, rule='annuity twin')
-                print(self.blog, end='')
+                self.blog.write()
                 return self.insurance_twin(a=a, discrete=discrete)
         A = super().whole_life_insurance(x, s=s, b=b, discrete=discrete,
                                          moment=moment)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
 
     def term_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1, 
@@ -878,12 +889,12 @@ class Recursion(Reserves):
         found = self._A_x(x, s=s, b=b, t=t, moment=moment, discrete=discrete,
                           depth=self.maxdepth)
         if found is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return found
         A = super().term_insurance(x, s=s, b=b, t=t, discrete=discrete,
                                    moment=moment)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
 
     def deferred_insurance(self, x: int, s: int = 0, b: int = 1, u: int = 0, 
@@ -894,15 +905,15 @@ class Recursion(Reserves):
                          _Blog.A(x=x, s=s, t=t, b=b, u=u, discrete=discrete,
                                 endowment=0, moment=moment),
                          levels=self.maxdepth)
-        A = self.get_A(x=x, s=s, t=t, b=b, u=u, discrete=discrete, 
-                       moment=moment)
+        A = self._get_A(x=x, s=s, t=t, b=b, u=u, discrete=discrete, 
+                        moment=moment)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
         A = super().deferred_insurance(x, s=s, b=b, t=t, u=u, 
                                        discrete=discrete, moment=moment)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
     
     def endowment_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1,
@@ -919,26 +930,26 @@ class Recursion(Reserves):
         found = self._A_x(x, s=s, b=b, t=t, moment=moment, discrete=discrete,
                           endowment=endowment, depth=self.maxdepth)
         if found is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return found
         if moment == 1 and endowment == b and self.interest.i > 0:
             a = self._a_x(x, s=s, b=b, t=t, moment=moment, discrete=discrete,
                           depth=self.maxdepth)
             if a is not None:   # twin insurance
-                print(self.blog, end='')
+                self.blog.write()
                 return self.insurance_twin(a=a, discrete=discrete)
         A = super().endowment_insurance(x, s=s, b=b, t=t, discrete=discrete,
                                         moment=moment, endowment=endowment)
         if A is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return A
 
     #
     # Formulas for Annuties: a_x:t
     #
-    def get_a(self, x: int, s: int = 0, u: int = 0, t: int = Reserves.WHOLE,
-              b: int = 1, variance: bool = False, 
-              discrete: bool = True) -> float | None:
+    def _get_a(self, x: int, s: int = 0, u: int = 0, t: int = Reserves.WHOLE,
+               b: int = 1, variance: bool = False, 
+               discrete: bool = True) -> float | None:
         """Get annuity from key-value store
 
         Args:
@@ -950,8 +961,8 @@ class Recursion(Reserves):
           discrete : whether annuity due (True) or continuous (False)
           variance : whether first moment (False) or variance (True)
         """
-        key = self.db_key('a', x=x+s, u=u, t=t, 
-                          variance=variance, discrete=discrete)
+        key = self._db_key('a', x=x+s, u=u, t=t, 
+                           variance=variance, discrete=discrete)
         val = self.db.get(key, None)
         if val is not None:
             return val * b    # stored with benefit=1
@@ -959,7 +970,7 @@ class Recursion(Reserves):
     def set_a(self, val: float, x: int, s: int = 0, t: int = Reserves.WHOLE,
               u: int = 0, b: int = 1, variance: bool = False, 
               discrete: bool = True) -> "Recursion":
-        """Set annuity u|_a_[x]+s:t to given value
+        """Set annuity u|_a_[x+s]:t to given value
 
         Args:
           val : value to set
@@ -972,8 +983,8 @@ class Recursion(Reserves):
           variance : whether first moment (False) or variance (True)
         """
         val /= b    # store with benefit=1
-        return self.db_put(self.db_key('a', x=x+s, t=t, u=u, 
-                           variance=variance, discrete=discrete), val)
+        return self._db_put(self._db_key('a', x=x+s, t=t, u=u, 
+                                         variance=variance, discrete=discrete), val)
 
     def _a_x(self, x: int, s: int = 0, t: int = Reserves.WHOLE, 
              u: int = 0, b: int = 1, discrete: bool = True, 
@@ -985,8 +996,8 @@ class Recursion(Reserves):
             return b 
         if t == 0:
             return 0
-        found = self.get_a(x=x, s=s, t=t, b=b, u=u, discrete=discrete,
-                           variance=variance)
+        found = self._get_a(x=x, s=s, t=t, b=b, u=u, discrete=discrete,
+                            variance=variance)
         if found is not None:
             return found
         if depth <= 0:
@@ -1060,19 +1071,19 @@ class Recursion(Reserves):
         found = self._a_x(x, s=s, b=b, variance=variance, 
                           discrete=discrete, depth=self.maxdepth)
         if found is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return found
         if not variance and self.interest.i > 0:  # (1) twin insurance shortcut
             A = self._A_x(x, s=s, b=b, discrete=discrete, depth=self.maxdepth)
             if A is not None:
                 self.blog("a_x = (1-A_x) / d",
                           depth=self.maxdepth, rule='insurance twin')
-                print(self.blog, end='')
+                self.blog.write()
                 return self.annuity_twin(A=A, discrete=discrete)
         a = super().whole_life_annuity(x, s=s, b=b, discrete=discrete,
                                        variance=variance)
         if a is not None:
-            print(self.blog, end='') 
+            self.blog.write() 
             return a
 
     def temporary_annuity(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
@@ -1095,7 +1106,7 @@ class Recursion(Reserves):
         found = self._a_x(x, s=s, b=b, t=t, variance=variance, 
                           discrete=discrete, depth=self.maxdepth)
         if found is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return found
         if not variance and self.interest.i > 0: # (1) twin insurance shortcut
             A = self._A_x(x, s=s, b=b, t=t, endowment=b, discrete=discrete, 
@@ -1105,12 +1116,12 @@ class Recursion(Reserves):
                           _Blog.A(x=x, s=s, t=t), f"] / d(t={t})",
                           #"Annuity twin: a = (1 - A) / d",
                           depth=self.maxdepth, rule='annuity twin')
-                print(self.blog, end='')
+                self.blog.write()
                 return self.annuity_twin(A=A, discrete=discrete)
         a = super().temporary_annuity(x, s=s, b=b, t=t, discrete=discrete,
                                       variance=variance)
         if a is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return a
 
     def deferred_annuity(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
@@ -1132,14 +1143,14 @@ class Recursion(Reserves):
         a = self._a_x(x, s=s, b=b, t=t, u=u, 
                           discrete=discrete, depth=self.maxdepth)
         if a is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return a
         a = self._a_x(x, s=s, b=b, t=self.add_term(u, t),  
                       discrete=discrete, depth=self.maxdepth)
         a_t = self._a_x(x, s=s, b=b, t=u,  
                         discrete=discrete, depth=self.maxdepth)
         if a is not None and a_t is not None:
-            print(self.blog, end='')
+            self.blog.write()
             return a - a_t
         return super().deferred_annuity(x, s=s, b=b, t=t, discrete=discrete)
 
@@ -1147,6 +1158,7 @@ class Recursion(Reserves):
 class _Blog:
     """Helper to track and display recursion progress"""
     _verbose : bool = True
+    
     def __init__(self, *args, levels: int = 3, width: int = 80):
         self.title = ' *' + " ".join(args) + " <--"  # to identify this stack
         self.levels = levels                         # maximum levels to indent
@@ -1177,6 +1189,9 @@ class _Blog:
             right = ' '*max(5, self.width - len(msg) - len(left) - len(rule))
             _str += left + msg + right + '~' + rule + '\n'
         return _str
+
+    def write(self, end=''):
+        print(self, end=end)
 
     @staticmethod
     def q(x: int, s: int = 0, t: int = 1, u: int = 0) -> str:
@@ -1279,8 +1294,49 @@ class _Blog:
             return out
         args = [k for k,v in kwargs.items() if v]
         return ("(" + "*".join(args) + ")")+out if args else "0"
-    
 
+
+class _Blogtex(_Blog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fig = plt.figure()
+        ax = fig.add_subplot(frame_on=False)
+        fig.subplots_adjust(top=0.85)
+        ax.xaxis.set_visible(False)  # hide the x axis
+        ax.yaxis.set_visible(False)  # hide the y axis
+
+        # Set titles for the figure and the subplot respectively
+        fig.suptitle(title, fontsize=fontsize+4, fontweight='bold')
+
+        # Set both x- and y-axis limits to [0, 10] instead of default [0, 1]
+        ax.axis([0, xmax, 0, ymax])
+
+        
+    def write(self,
+              text = [],
+              title='',
+              skip=1,
+              ymax=90,
+              xmax=10,
+              fontsize=16,
+              fontname=None):
+        """Draws lines of text in a blank images, so that can be savefig'd to jpg
+        Args:
+          text (list of str): to draw line by line
+          title (str): title to draw in bold at top
+          skip (int): number of blank lines after title
+          ymax (int): number of vertical lines in image
+          xmax (int): width of x-axis
+          fontsize (int): fontsize of normal text
+          fontname (str): e.g. 'monospace' or 'serif'
+        """
+        #ax.text(3, 8, 'boxed italics text in data coords', style='italic',
+        #        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+
+        for num, line in enumerate(text):
+            ax.text(x=1, y=ymax - (skip + num), s=line, fontsize=fontsize,
+                    fontname=fontname)
+        
 if __name__ == "__main__":
     from actuarialmath.constantforce import ConstantForce
     from actuarialmath.policyvalues import Contract

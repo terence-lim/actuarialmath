@@ -9,11 +9,37 @@ import numpy as np
 from actuarialmath import Insurance
 
 class Annuity(Insurance):
-    """Compute present values and relationships of life annuities"""
+    """Compute present values and relationships of life annuities
+
+    Examples:
+      >>> life = Annuity().set_interest(delta=0.06).set_survival(mu=lambda *x: 0.04)
+      >>> life.a_x(x=20)
+      >>> life.immediate_annuity(x=20, t=30)
+      >>> life.annuity_twin(A=0.05879)
+      >>> life.insurance_twin(a=19.7655)
+      >>> life.annuity_variance(A2=0.22, A1=0.45)
+      >>> life.whole_life_annuity(x=24, variance=True, due=False)
+      >>> life.temporary_annuity(x=24, t=10)
+      >>> life.deferred_annuity(x=24, u=5, t=10, discrete=False)
+      >>> life.certain_life_annuity(x=24, u=5, t=10)
+      >>> life.increasing_annuity(x=24, t=10)
+      >>> life.decreasing_annuity(x=24, t=10)
+      >>> prob, x, discrete = 0.5, 0, False
+      >>> t = life.Y_t(0, prob, discrete=discrete)
+      >>> life.Y_plot(x=20, T=t, discrete=discrete)
+      >>> Y = life.Y_from_prob(x, prob=prob, discrete=discrete)
+      >>> print(t, life.Y_to_t(Y))
+      >>> print(Y, life.Y_from_t(t, discrete=discrete))
+      >>> print(prob, life.Y_to_prob(x, Y=Y))
+      >>> life = Annuity().set_interest(i=0.05)
+      >>> var = life.annuity_variance(A2=0.22, A1=0.45)
+      >>> mean = life.annuity_twin(A=0.45)
+      >>> print(life.portfolio_percentile(mean=mean, variance=var, prob=.95, N=100))
+    """
 
     def a_x(self, x: int, s: int = 0, t: int = Insurance.WHOLE, u: int = 0,
             benefit: Callable = lambda x,t: 1, discrete: bool = True) -> float:
-        """Numerically compute EPV of annuities from survival functions
+        """Compute EPV of life annuity from survival function
 
         Args:
           x : age of selection
@@ -22,6 +48,9 @@ class Annuity(Insurance):
           t : term of insurance
           benefit : benefit as a function of age and year
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.a_x(x=20)
         """
         t = self.max_term(x+s+u, t=t)
         if discrete:
@@ -44,6 +73,9 @@ class Annuity(Insurance):
           t : term of insurance
           b : benefit amount
           variance : return EPV (False) or variance (True)
+
+        Examples:
+          >>> life.immediate_annuity(x=20, t=30)
         """
         if variance:
             return self.temporary_annuity(x, s=s, t=self.add_term(t, 1), b=b,
@@ -57,6 +89,9 @@ class Annuity(Insurance):
         Args:
           A : cost of insurance
           discrete : discrete/annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.annuity_twin(A=0.05879)
         """
         interest = (self.interest.d if discrete else self.interest.delta)
         return ((1 - A) / interest) if interest else 1 - A
@@ -68,6 +103,9 @@ class Annuity(Insurance):
         Args:
           a : cost of annuity
           discrete : discrete/annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.insurance_twin(a=19.7655)
         """
         assert moment in [1]
         interest = (self.interest.d if discrete else self.interest.delta)
@@ -82,6 +120,9 @@ class Annuity(Insurance):
           A1 : first moment of insurance factor
           b : annuity benefit amount
           discrete : discrete/annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.annuity_variance(A2=0.22, A1=0.45)
         """
         interest = (self.interest.d if discrete else self.interest.delta)
         if interest == 0:
@@ -100,6 +141,9 @@ class Annuity(Insurance):
           b : annuity benefit amount
           variance : return EPV (True) or variance (False)
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.whole_life_annuity(x=24, variance=True, due=False)
         """
         interest = self.interest.d if discrete else self.interest.delta
         if variance:  # short cut for variance of whole life
@@ -125,6 +169,9 @@ class Annuity(Insurance):
           b (int) : annuity benefit amount
           variance : return EPV (True) or variance (False)
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.temporary_annuity(x=24, t=10)
         """
         if variance:  # short cut for variance of temporary life annuity
             A1 = self.endowment_insurance(x, s=s, t=t, discrete=discrete)
@@ -151,6 +198,9 @@ class Annuity(Insurance):
           t : term of annuity in years
           b : annuity benefit amount
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.deferred_annuity(x=24, u=5, t=10, discrete=False)
         """
         a = self.temporary_annuity(x, s=s+u, t=t, b=b, discrete=discrete)
         return self.E_x(x, s=s, t=u) * a
@@ -167,6 +217,9 @@ class Annuity(Insurance):
           t : term of life annuity in years
           b : annuity benefit amount
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.certain_life_annuity(x=24, u=5, t=10)
         """
         u = self.max_term(x+s, u)
         if u < 0:
@@ -184,6 +237,9 @@ class Annuity(Insurance):
           t : term of life annuity in years
           b : benefit amount at end of first year
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.increasing_annuity(x=24, t=10)
         """
         t = self.max_term(x+s, t=t)
         benefit = lambda x, s: b * (s + 1) # increasing benefit
@@ -199,6 +255,9 @@ class Annuity(Insurance):
           t : term of life annuity in years
           b : benefit amount at end of first year
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life.decreasing_annuity(x=24, t=10)
         """
         assert t >= 0   # decreasing must be till term
         t = self.max_term(x+s, t=t)

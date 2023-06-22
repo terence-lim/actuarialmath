@@ -12,6 +12,13 @@ class ConstantForce(MortalityLaws):
     Args:
       mu : constant value of force of mortality
       udd : assume UDD (True) or CFM (False, default) between integer ages
+
+    Examples:
+      >>> life = ConstantForce(mu=0.01).set_interest(delta=0.05)
+      >>> A = life.term_insurance(35, t=35) + life.E_x(35, t=35) * 0.51791 # A_35
+      >>> A = (life.term_insurance(35, t=35, discrete=False) 
+      >>>      + life.E_x(35, t=35) * 0.51791)    # A_35
+      >>> P = life.premium_equivalence(A=A, b=100000, discrete=False)
     """
 
     def __init__(self, mu: float, udd: bool = False, **kwargs):
@@ -195,7 +202,7 @@ if __name__ == "__main__":
     life = ConstantForce(mu=0.01).set_interest(delta=0.05)
     A = life.term_insurance(35, t=35) + life.E_x(35, t=35) * 0.51791 # A_35
     A = (life.term_insurance(35, t=35, discrete=False) 
-            + life.E_x(35, t=35) * 0.51791)    # A_35
+         + life.E_x(35, t=35) * 0.51791)    # A_35
     P = life.premium_equivalence(A=A, b=100000, discrete=False)
     print(P)
     print()

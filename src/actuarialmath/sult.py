@@ -22,6 +22,13 @@ class SULT(LifeTable):
       minage : minimum age
       maxage : maximum age
       S : survival function, default is Makeham with SOA FAM-L parameters
+
+    Examples:
+      >>> sult = SULT()
+      >>> a = sult.temporary_annuity(70, t=10)
+      >>> A = sult.deferred_annuity(70, u=10)
+      >>> P = sult.gross_premium(a=a, A=A, benefit=100000, initial_premium=0.75,
+      >>>                        renewal_premium=0.05)
     """
 
 

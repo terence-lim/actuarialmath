@@ -14,6 +14,11 @@ class ExtraRisk(Actuarial):
       life : original survival and mortality rates
       extra : amount of extra risk to adjust
       risk : adjust by {"ADD_FORCE" "MULTIPLY_FORCE" "ADD_AGE" "MULTIPLY_RATE"}
+
+    Examples:
+      >>> life = SULT()
+      >>> extra = ExtraRisk(life=life, extra=2, risk="MULTIPLY_FORCE")
+      >>> print(life.p_x(45), extra.p_x(45))
     """
     risks = ["ADD_FORCE", "MULTIPLY_FORCE", "ADD_AGE", "MULTIPLY_RATE"]
 
@@ -34,6 +39,11 @@ class ExtraRisk(Actuarial):
 
         Returns:
           dict of age and survival function values adjusted by extract risk
+
+        Examples:
+          >>> life = SULT()
+          >>> extra = ExtraRisk(life=life, extra=0.05, risk="ADD_FORCE")
+          >>> select = SelectLife(periods=1).set_select(s=0, age_selected=True, q=extra['q'])
         """
         f = {'q': self.q_x, 'p': self.p_x}[col[0]]
         return {x: f(x) for x in range(self.life._MINAGE, self.life._MAXAGE+1)}

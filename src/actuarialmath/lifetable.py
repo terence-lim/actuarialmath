@@ -17,12 +17,20 @@ class LifeTable(Reserves):
       verbose : whether to echo update steps
 
     Notes:
-      4 types of information can be loaded and calculated in the life table:
+      4 types of columns can be loaded and calculated in the life table:
 
       - 'q' : probability (x) dies in one year
       - 'l' : number of lives aged x
       - 'd' : number of deaths of age x
       - 'p' : probability (x) survives at least one year
+
+    Examples:
+      >>> life = LifeTable(udd=True).set_table(l={90: 1000, 93: 825},
+      >>>                                      d={97: 72},
+      >>>                                      p={96: .2},
+      >>>                                      q={95: .4, 97: 1})
+      >>> print(life.q_r(90, u=93-90, t=95.5-93))
+      >>> print(life.frame())
     """
 
     def __init__(self, udd: bool = True, verbose: bool = False, **kwargs):

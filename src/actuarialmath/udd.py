@@ -13,6 +13,18 @@ class UDD(Mthly):
     Args:
       m : number of payments per year
       life : original fractional survival and mortality functions
+
+    Examples:
+      >>> x = 0
+      >>> life = Recursion().set_interest(i=0.05).set_a(9.19, x=x)
+      >>> benefits = UDD(m=0, life=life).whole_life_insurance(x)
+      >>> payments = UDD(m=12, life=life).whole_life_annuity(x)
+      >>> print(benefits, payments)
+      >>> print(life.gross_premium(a=payments, A=benefits, benefit=100000)/12)
+      >>> life = SULT(udd=True)
+      >>> a = UDD(m=12, life=life).temporary_annuity(45, t=20)
+      >>> A = UDD(m=0, life=life).whole_life_insurance(45)
+      >>> print(life.gross_premium(A=A, a=a, benefit=100000)/12)
     """
 
     def __init__(self, m: int, life: Annuity, **kwargs):

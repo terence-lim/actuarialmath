@@ -8,7 +8,21 @@ import numpy as np
 from actuarialmath import Life
 
 class Survival(Life):
-    """Set and derive basic survival and mortality functions"""
+    """Set and derive basic survival and mortality functions
+
+    Examples:
+      >>> B, c = 0.00027, 1.1
+      >>> def S(x,s,t): return (math.exp(-B * c**(x+s) * (c**t - 1)/math.log(c)))
+      >>> f = Survival().set_survival(S=S).f_x(x=50, t=10)
+      >>> def ell(x,s): return (1 - (x+s) / 60)**(1 / 3)
+      >>> mu = Survival().set_survival(l=ell).mu_x(35) * 1000
+      >>> def ell(x,s): return (1 - ((x+s)/250)) if x+s < 40 else (1 - ((x+s)/100)**2)
+      >>> q = Survival().set_survival(l=ell).q_x(30, t=20)
+      >>> def fun(k):
+      >>>     return Survival().set_survival(l=lambda x,s: 100*(k - (x+s)/2)**(2/3))\
+      >>>                      .mu_x(50)
+      >>> k = int(Survival.solve(fun, target=1/48, grid=50))
+    """
     _RADIX = 100000   # default initial number of lives in life table
 
     def set_survival(self,
@@ -206,18 +220,18 @@ if __name__ == "__main__":
     print(f)
     
     print("SOA Question 2.6: (C) 13.3")
-    def S(x, s): return (1 - (x+s) / 60)**(1 / 3)
-    mu = Survival().set_survival(l=S).mu_x(35) * 1000
+    def ell(x,s): return (1 - (x+s) / 60)**(1 / 3)
+    mu = Survival().set_survival(l=ell).mu_x(35) * 1000
     print(mu)
 
     print("SOA Question 2.7: (B) 0.1477")
-    def S(x, s): return (1 - ((x+s)/250)) if x+s < 40 else (1 - ((x+s)/100)**2)
-    q = Survival().set_survival(l=S).q_x(30, t=20)
+    def ell(x,s): return (1 - ((x+s)/250)) if x+s < 40 else (1 - ((x+s)/100)**2)
+    q = Survival().set_survival(l=ell).q_x(30, t=20)
     print(q)
 
     print("CAS41-F99:12: k = 41")
-    def mu_from_l(k):
-        def S(x, s): return 100*(k - 0.5*(x+s))**(2/3)
-        return Survival().set_survival(l=S).mu_x(50)
-    k = int(Survival.solve(mu_from_l, target=1/48, grid=50))
-    print(k)
+    def fun(k):
+        return Survival().set_survival(l=lambda x,s: 100*(k - (x+s)/2)**(2/3))\
+                         .mu_x(50)
+    print(Survival.solve(fun, target=1/48, grid=50))
+

@@ -17,7 +17,7 @@ class SelectLife(LifeTable):
       verbose : whether to echo update steps
 
     Notes:
-      6 types of information can be loaded and calculated in the select table:
+      6 types of columns can be loaded and calculated in the select table:
 
       - 'q' : probability [x]+s dies in one year
       - 'l' : number of lives aged [x]+s
@@ -25,6 +25,14 @@ class SelectLife(LifeTable):
       - 'A' : whole life insurance
       - 'a' : whole life annuity
       - 'e' : expected future curtate lifetime of [x]+s
+
+    Examples:
+      >>> life = SelectLife().set_interest(i=0.04).set_table(q={65: [.08, .10, .12, .14],
+      >>>                                                       66: [.09, .11, .13, .15],
+      >>>                                                       67: [.10, .12, .14, .16],
+      >>>                                                       68: [.11, .13, .15, .17],
+      >>>                                                       69: [.12, .14, .16, .18]})
+      >>> print(life.deferred_insurance(65, t=2, u=2, b=2000))
     """
 
     def __init__(self, periods: int = 0, udd: bool = True,
@@ -58,6 +66,14 @@ class SelectLife(LifeTable):
           A : whole life insurance, or
           a : whole life annuity, or 
           e : expected future lifetime of [x]+s
+        
+        Examples:
+          >>> life = SelectLife().set_table(l={55: [10000, 9493, 8533, 7664],
+          >>>                                  56: [8547, 8028, 6889, 5630],
+          >>>                                  57: [7011, 6443, 5395, 3904],
+          >>>                                  58: [5853, 4846, 3548, 2210]},
+          >>>                               e={57: [None, None, None, 1]})
+          >>> print(life.e_r(58, s=2))
         """
         periods = self.periods_    # infer number of select years, and age range
         minage = self._MINAGE 
@@ -128,7 +144,7 @@ class SelectLife(LifeTable):
             self.fill_table()
         return self
 
-    def get_sel(self, x: int, s: int, table: str) -> float | None:
+    def _get_sel(self, x: int, s: int, table: str) -> float | None:
         """Helper to read right across, and down if neccesary (when s > n)"""
         if s > self.periods_:
             x += (s - self.periods_)
@@ -137,9 +153,9 @@ class SelectLife(LifeTable):
             and self._select[table][x][s] is not None):
             return self._select[table][x][s]  # in select
 
-    def isin_sel(self, x: int, s: int, table: str) -> bool:
+    def _isin_sel(self, x: int, s: int, table: str) -> bool:
         """Helper to check if value not missing"""
-        return self.get_sel(x, s, table) is not None
+        return self._get_sel(x, s, table) is not None
 
     def fill_table(self, radix: int = LifeTable._RADIX) -> "SelectLife":
         """Fills in missing table values (does not check for consistency)
@@ -150,95 +166,95 @@ class SelectLife(LifeTable):
         
         def A_x(x: int, s: int) -> float | None:
             """Helper to apply backward and forward recursion for insurance A_x"""
-            if self.isin_sel(x, s, 'A'):
-                return self.get_sel(x, s, 'A')
+            if self._isin_sel(x, s, 'A'):
+                return self._get_sel(x, s, 'A')
 
             _x, _s = (x, s+1) if s < self.periods_ else (x+1, s)  # right or down
-            if self.isin_sel(x, s, 'q') and self.isin_sel(_x, _s, 'A'):
-                q = self.get_sel(x, s, 'q')  # A_x = (v q) + (v p A_x+1)
-                return self.interest.v * (q + (1-q)*self.get_sel(_x, _s, 'A'))
+            if self._isin_sel(x, s, 'q') and self._isin_sel(_x, _s, 'A'):
+                q = self._get_sel(x, s, 'q')  # A_x = (v q) + (v p A_x+1)
+                return self.interest.v * (q + (1-q)*self._get_sel(_x, _s, 'A'))
 
             backwards = [(x, s-1)]   # to move backwards along row
             if s >= self.periods_:      # if in ultimate, can also move up column
                 backwards += [(x-1, s)]
             for _x, _s in backwards:   # A_x+1 = (A_x - qv) / (p v)
-                if self.isin_sel(_x, _s, 'q') and self.isin_sel(_x, _s, 'A'):
-                    q = self.get_sel(_x, _s, 'q')
-                    return ((self.get_sel(_x, _s, 'A') - q * self.interest.v)
+                if self._isin_sel(_x, _s, 'q') and self._isin_sel(_x, _s, 'A'):
+                    q = self._get_sel(_x, _s, 'q')
+                    return ((self._get_sel(_x, _s, 'A') - q * self.interest.v)
                             / (self.interest.v * (1 - q)))
 
         def a_x(x: int, s: int) -> float | None:
             """Helper to apply backward and forward recursion for annuity a_x"""
-            if self.isin_sel(x, s, 'a'):
-                return self.get_sel(x, s, 'a')
+            if self._isin_sel(x, s, 'a'):
+                return self._get_sel(x, s, 'a')
 
             _x, _s = (x, s+1) if s < self.periods_ else (x+1, s)  # right or down
-            if self.isin_sel(x, s, 'q') and self.isin_sel(_x, _s, 'a'):
-                p = 1 - self.get_sel(x, s, 'q')  # a_x = 1 +  (v p a_x+1)
-                return 1 + self.interest.v * p * self.get_sel(_x, _s, 'a')
+            if self._isin_sel(x, s, 'q') and self._isin_sel(_x, _s, 'a'):
+                p = 1 - self._get_sel(x, s, 'q')  # a_x = 1 +  (v p a_x+1)
+                return 1 + self.interest.v * p * self._get_sel(_x, _s, 'a')
 
             backwards = [(x, s-1)]  # to move backwards along row
             if s >= self.periods_:      # if in ultimate, can also move up column
                 backwards += [(x-1, s)]
             for _x, _s in backwards:   # a_x+1 = (a_x - 1) / (p v)
-                if self.isin_sel(_x, _s, 'q') and self.isin_sel(_x, _s, 'a'):
-                    p = 1 - self.get_sel(_x, _s, 'q')
-                    return (self.get_sel(_x, _s, 'a') - 1)/(p*self.interest.v)
+                if self._isin_sel(_x, _s, 'q') and self._isin_sel(_x, _s, 'a'):
+                    p = 1 - self._get_sel(_x, _s, 'q')
+                    return (self._get_sel(_x, _s, 'a') - 1)/(p*self.interest.v)
 
 
         def l_x(x: int, s: int) -> float | None:
             """Helper to solve for number of lives aged [x]+s: l_[x]+s"""
-            if self.isin_sel(x, s, 'l'):
-                return self.get_sel(x, s, 'l')
-            if self.isin_sel(x, s-1, 'l') and self.isin_sel(x, s-1, 'q'):
-                return self.get_sel(x, s-1, 'l')*(1 - self.get_sel(x, s-1, 'q'))
-            if self.isin_sel(x, s+1, 'l') and self.isin_sel(x, s, 'q'):
-                return self.get_sel(x, s+1, 'l') / (1 - self.get_sel(x, s, 'q'))
-            if self.isin_sel(x, s, 'd') and self.isin_sel(x, s, 'q'):
-                return self.get_sel(x, s, 'd') / self.get_sel(x, s, 'q')
+            if self._isin_sel(x, s, 'l'):
+                return self._get_sel(x, s, 'l')
+            if self._isin_sel(x, s-1, 'l') and self._isin_sel(x, s-1, 'q'):
+                return self._get_sel(x, s-1, 'l')*(1 - self._get_sel(x, s-1, 'q'))
+            if self._isin_sel(x, s+1, 'l') and self._isin_sel(x, s, 'q'):
+                return self._get_sel(x, s+1, 'l') / (1 - self._get_sel(x, s, 'q'))
+            if self._isin_sel(x, s, 'd') and self._isin_sel(x, s, 'q'):
+                return self._get_sel(x, s, 'd') / self._get_sel(x, s, 'q')
 
             backwards = [(x, s-1)]  # to move backwards along row
             if s >= self.periods_:     # if in ultimate, can also move up column
                 backwards += [(x-1, s)]
             for _x, _s in backwards:   # l_x+1 = l_x * p_x
-                if self.isin_sel(_x, _s, 'l') and self.isin_sel(_x, _s, 'q'):
-                    p = 1 - self.get_sel(_x, _s, 'q')
-                    return self.get_sel(_x, _s, 'l') * p
+                if self._isin_sel(_x, _s, 'l') and self._isin_sel(_x, _s, 'q'):
+                    p = 1 - self._get_sel(_x, _s, 'q')
+                    return self._get_sel(_x, _s, 'l') * p
 
         def d_x(x: int, s: int) -> float | None:
             """Helper to solve for deaths at [x]+s: l_[x]+s - l_[x]+s+1"""
-            if self.isin_sel(x, s, 'd'):
-                return self.get_sel(x, s, 'd')
-            if self.isin_sel(x, s+1, 'l') and self.isin_sel(x, s, 'l'):
-                return self.get_sel(x, s, 'l') - self.get_sel(x, s+1, 'l')
+            if self._isin_sel(x, s, 'd'):
+                return self._get_sel(x, s, 'd')
+            if self._isin_sel(x, s+1, 'l') and self._isin_sel(x, s, 'l'):
+                return self._get_sel(x, s, 'l') - self._get_sel(x, s+1, 'l')
 
         def q_x(x: int, s: int) -> float | None:
             """Helper to solve for one-year mortality [x]+s: q_[x]+s"""
-            if self.isin_sel(x, s, 'q'):
-                return self.get_sel(x, s, 'q')
-            if self.isin_sel(x, s, 'd') and self.isin_sel(x, s, 'l'):
-                return self.get_sel(x, s, 'd') / self.get_sel(x, s, 'l')
-            if self.isin_sel(x, s, 'e') and self.isin_sel(x, s+1, 'e'):
-                return 1 - (self.get_sel(x, s, 'e') 
-                            / (1 + self.get_sel(x, s+1, 'e')))
+            if self._isin_sel(x, s, 'q'):
+                return self._get_sel(x, s, 'q')
+            if self._isin_sel(x, s, 'd') and self._isin_sel(x, s, 'l'):
+                return self._get_sel(x, s, 'd') / self._get_sel(x, s, 'l')
+            if self._isin_sel(x, s, 'e') and self._isin_sel(x, s+1, 'e'):
+                return 1 - (self._get_sel(x, s, 'e') 
+                            / (1 + self._get_sel(x, s+1, 'e')))
 
         def e_x(x: int, s: int) -> float | None:
             """Helper to solve for expected kurtate lifetime: e_[x]+s"""
-            if self.isin_sel(x, s, 'e'):
-                return self.get_sel(x, s, 'e')
+            if self._isin_sel(x, s, 'e'):
+                return self._get_sel(x, s, 'e')
 
             _x, _s = (x, s+1) if s < self.periods_ else (x+1, s) # right or down
-            if self.isin_sel(x, s, 'q') and self.isin_sel(_x, _s, 'e'):
-                return ((1 - self.get_sel(x, s, 'q'))
-                        * (1 + self.get_sel(_x, _s, 'e')))  # e_x = p(1 + e_x+1)
+            if self._isin_sel(x, s, 'q') and self._isin_sel(_x, _s, 'e'):
+                return ((1 - self._get_sel(x, s, 'q'))
+                        * (1 + self._get_sel(_x, _s, 'e')))  # e_x = p(1 + e_x+1)
 
             backwards = [(x, s-1)]  # to move backwards along row
             if s >= self.periods_:     # if in ultimate, can also move up column
                 backwards += [(x-1, s)]
             for _x, _s in backwards:   # e_x+1 = e_x/p_x - 1
-                if self.isin_sel(_x, _s, 'e') and self.isin_sel(_x, _s, 'q'):
-                    return (self.get_sel(_x, _s, 'e') 
-                            / (1 - self.get_sel(_x, _s, 'q'))) - 1
+                if self._isin_sel(_x, _s, 'e') and self._isin_sel(_x, _s, 'q'):
+                    return (self._get_sel(_x, _s, 'e') 
+                            / (1 - self._get_sel(_x, _s, 'q'))) - 1
 
         # Iterate a few times to impute select table values
         funs = {'l': l_x, 'A': A_x, 'a': a_x, 'q': q_x, 'd': d_x, 'e': e_x}
@@ -254,7 +270,7 @@ class SelectLife(LifeTable):
                         if x not in self._select[tab]:
                             self._select[tab][x] = {}
                         for s in range(self.periods_+1): # each year after select
-                            if not self.isin_sel(x, s, tab):
+                            if not self._isin_sel(x, s, tab):
                                 val = fun(x, s)
                                 if val is not None:
                                     self._select[tab][x][s] = val
@@ -274,8 +290,8 @@ class SelectLife(LifeTable):
           s : years after selection
         """
         assert moment == 1 and discrete, "Must be discrete insurance"
-        if self.isin_sel(x, s, 'A'):
-            return self.get_sel(x, s, 'A')
+        if self._isin_sel(x, s, 'A'):
+            return self._get_sel(x, s, 'A')
         else:
             return super().A_x(x=x, s=s, moment=1, discrete=True, **kwargs)
 
@@ -288,8 +304,8 @@ class SelectLife(LifeTable):
           s : years after selection
         """
         assert moment == 1 and discrete, "Must be discrete annuity"
-        if self.isin_sel(x, s, 'a'):
-            return self.get_sel(x, s, 'a')
+        if self._isin_sel(x, s, 'a'):
+            return self._get_sel(x, s, 'a')
         else:
             return super().A_x(x=x, s=s, moment=1, discrete=True, **kwargs)
 
@@ -300,7 +316,7 @@ class SelectLife(LifeTable):
           x : age of selection
           s : years after selection
         """
-        return self.get_sel(x, s, 'l')
+        return self._get_sel(x, s, 'l')
 
     def p_x(self, x: int, s: int = 0, t: int = 1) -> float:
         """t_p_[x]+s by chain rule: prod(1_p_[x]+s+y) for y in range(t)
@@ -310,7 +326,7 @@ class SelectLife(LifeTable):
           s : years after selection
           t : survives t years
         """
-        return np.prod([1 - self.get_sel(x, s+y, 'q') for y in range(t)])
+        return np.prod([1 - self._get_sel(x, s+y, 'q') for y in range(t)])
 
     def q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0) -> float:
         """t|u_q_[x]+s = [x]+s survives u years, does not survive next t
@@ -333,8 +349,8 @@ class SelectLife(LifeTable):
           t : limit of expected future lifetime
         """
         assert curtate, "Must be curtate lifetimes"
-        if (self.isin_sel(x, s, 'e')):
-            return self.get_sel(x, s, 'e')
+        if (self._isin_sel(x, s, 'e')):
+            return self._get_sel(x, s, 'e')
         e = sum([self.p_x(x, s=s, t=k+1) for k in range(max(1, t))])
         return e
 
@@ -343,6 +359,14 @@ class SelectLife(LifeTable):
 
         Args:
           table : table to return, one of ['A', 'a', 'q', 'd', 'e', 'l']
+
+        Examples:
+          >>> table={21: [.00120, .00150, .00170, .00180],
+          >>>        22: [.00125, .00155, .00175, .00185],
+          >>>        23: [.00130, .00160, .00180, .00195]}
+          >>> life = SelectLife(verbose=True).set_table(q=table)
+          >>> print(life.frame('l').round(1))
+          >>> print(life.frame('q').round(6))
         """
         return pd.DataFrame.from_dict(self._select[table[0]], orient='index')\
                            .sort_index(axis=0)\

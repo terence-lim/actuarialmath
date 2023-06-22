@@ -87,6 +87,12 @@ class Beta(MortalityLaws):
       omega : maximum age
       alpha : alpha paramter of beta distribution
       lives : assumed starting number of lives for survival function
+
+    Examples:
+      >>> life = Beta(omega=100, alpha=0.5)
+      >>> print(life.q_x(25, t=1, u=10))     # 0.0072
+      >>> print(life.e_x(25))                # 50
+      >>> print(Beta(omega=60, alpha=1/3).mu_x(35) * 1000)
     """
     
     def __init__(self, omega: int, alpha: float,
@@ -152,6 +158,13 @@ class Uniform(Beta):
     Args:
       omega : maximum age
       udd : assume UDD (True, default) or CFM (False) between integer ages
+
+    Examples:
+      >>> uniform = Uniform(80).set_interest(delta=0.04)
+      >>> print(uniform.whole_life_annuity(20, discrete=False))        # 15.53
+      >>> print(uniform.temporary_annuity(20, t=5, discrete=False))   # 4.35
+      >>> print(Uniform(161).p_x(70, t=1)) # 0.98901
+      >>> print(Uniform(95).e_x(30, t=40, curtate=False)) # 27.692
     """
 
     def __init__(self, omega: int, udd: bool = True, **kwargs):
@@ -258,6 +271,10 @@ class Makeham(MortalityLaws):
 
     Args:
       A, B, c : parameters of Makeham distribution
+
+    Examples:
+      >>> life = Makeham(A=0.00022, B=2.7e-6, c=1.124)
+      >>> print(life.mu_x(60) * 0.9803)  # 0.00316
     """
     
     def __init__(self, A: float, B: float, c: float, **kwargs):
@@ -282,6 +299,12 @@ class Gompertz(Makeham):
 
     Args:
       B, c : parameters of Gompertz distribution
+
+    Examples:
+      >>> life = Gompertz(B=0.000005, c=1.10)
+      >>> p = life.p_x(80, t=10)  # 869.4
+      >>> print(life.portfolio_percentile(N=1000, mean=p, variance=p*(1-p), prob=0.99)) 
+      >>> print(Gompertz(B=0.00027, c=1.1).f_x(50, t=10)) # 0.04839
     """
 
     def __init__(self, B: float, c: float):
@@ -316,7 +339,7 @@ if __name__ == "__main__":
     life = Gompertz(B=0.000005, c=1.10)
     p = life.p_x(80, t=10)  # 869.4
     print(life.portfolio_percentile(N=1000, mean=p, variance=p*(1-p), prob=0.99)) 
-
     print(Gompertz(B=0.00027, c=1.1).f_x(50, t=10)) # 0.04839
+    
     life = Makeham(A=0.00022, B=2.7e-6, c=1.124)
     print(life.mu_x(60) * 0.9803)  # 0.00316

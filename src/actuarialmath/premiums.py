@@ -5,7 +5,19 @@ MIT License. Copyright (c) 2022-2023 Terence Lim
 from actuarialmath import Annuity
 
 class Premiums(Annuity):
-    """Compute et and gross premiums under equivalence principle"""
+    """Compute et and gross premiums under equivalence principle
+
+    Examples:
+      >>> life = Premiums().set_interest(delta=0.06).set_survival(mu=lambda x,s: 0.04)
+      >>> print(life.net_premium(x=0))
+      >>> life = Premiums().set_interest(i=0.05)
+      >>> var = life.annuity_variance(A2=0.22, A1=0.45)
+      >>> mean = life.annuity_twin(A=0.45)
+      >>> fund = life.portfolio_percentile(mean, var, prob=.95, N=100)
+      >>> life = Premiums().set_interest(d=0.05)
+      >>> A = life.insurance_equivalence(premium=2143, b=100000)
+      >>> a = life.annuity_equivalence(premium=2143, b=100000)
+    """
 
     #
     # Net level premiums for special insurances
@@ -29,6 +41,11 @@ class Premiums(Annuity):
           return_premium : if premiums without interest refunded at death 
           annuity : whether benefit is insurance (False) or deferred annuity
           discrete : whether annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life = Premiums().set_interest(delta=0.06).set_survival(mu=lambda x,s: 0.04)
+          >>> print(life.net_premium(x=0))
+
         """
         if annuity:
             A = self.deferred_annuity(x, s=s, b=b, t=t, u=u, 
@@ -60,6 +77,10 @@ class Premiums(Annuity):
 
         Returns:
           Insurance factor value, given net premium under equivalence principle
+
+        Examples:
+          >>> life = Premiums().set_interest(d=0.05)
+          >>> A = life.insurance_equivalence(premium=2143, b=100000)
         """
         d = self.interest.d if discrete else self.interest.delta
         return premium / (d*b + premium)  # from P = b[dA/(1-A)]
@@ -75,11 +96,16 @@ class Premiums(Annuity):
 
         Returns:
           Annuity factor value, given net premium under equivalence principle
+
+        Examples:
+          >>> life = Premiums().set_interest(d=0.05)
+          >>> a = life.annuity_equivalence(premium=2143, b=100000)
         """
         d = self.interest.d if discrete else self.interest.delta
         return b / (d*b + premium)  # from P = b * (1/a - d)
 
-    def premium_equivalence(self, A: float | None = None,
+    def premium_equivalence(self,
+                            A: float | None = None,
                             a: float | None = None,
                             b: int = 1, discrete: bool = True) -> float:
         """Compute premium from whole life or endowment insurance and annuity factors
@@ -104,7 +130,8 @@ class Premiums(Annuity):
     #
     # Gross premiums for special insurances
     #
-    def gross_premium(self, a: float | None = None, 
+    def gross_premium(self,
+                      a: float | None = None, 
                       A: float | None = None, IA: float = 0, 
                       discrete: bool = True, benefit: float = 1,
                       E: float = 0, endowment: int = 0, 
@@ -128,6 +155,18 @@ class Premiums(Annuity):
           initial_premium : initial premium per $ of gross premium
           renewal_premium : renewal premium per $ of gross premium
           discrete : annuity due (True) or continuous (False)
+
+        Examples:
+          >>> life = Premiums()
+          >>> A, IA, a = 0.17094, 0.96728, 6.8865
+          >>> print(life.gross_premium(a=a,
+          >>>                        A=A,
+          >>>                        IA=IA,
+          >>>                        benefit=100000,
+          >>>                        initial_premium=0.5,
+          >>>                        renewal_premium=.05,
+          >>>                        renewal_policy=200,
+          >>>                        initial_policy=200))
         """
         if a is None:    # assume WL or Endowment Insurance for twin
             a = self.annuity_twin(A, discrete=discrete)
@@ -179,9 +218,9 @@ if __name__ == "__main__":
                            benefit=100000,
                            settlement_policy=0,
                            initial_policy=250,
-                           initial_premium=.04+.35,
+                           initial_premium=0.04 + 0.35,
                            renewal_policy=50,
-                           renewal_premium=.04+.02) 
+                           renewal_premium=0.04 + 0.02) 
     print(A, a, p)
     print()
 

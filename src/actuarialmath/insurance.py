@@ -9,7 +9,25 @@ import numpy as np
 from actuarialmath import Fractional
 
 class Insurance(Fractional):
-    """Compute expected present values of life insurance"""
+    """Compute expected present values of life insurance
+
+
+    Examples:
+      >>> life = Insurance().set_interest(delta=0.06).set_survival(mu=lambda *x: 0.04)
+      >>> life.whole_life_insurance(x=0)
+      >>> life.term_insurance(x=0, t=30)
+      >>> life.deferred_insurance(x=0, u=10, t=20)
+      >>> life.endowment_insurance(x=0, t=10)
+      >>> life.increasing_insurance(x=0, t=10)
+      >>> life.decreasing_insurance(x=0, t=10)
+      >>> prob, x, discrete = 0.8, 20, True
+      >>> t = life.Z_t(x, prob, discrete=discrete)
+      >>> Z = life.Z_from_prob(x, prob=prob, discrete=discrete)
+      >>> print(t, life.Z_to_t(Z))
+      >>> print(Z, life.Z_from_t(t, discrete=discrete))
+      >>> print(prob, life.Z_to_prob(x, Z=Z))
+      >>> life.Z_plot(x, T=t, discrete=discrete)
+    """
 
     def E_x(self, x: int, s: int = 0, t: int = 1, endowment: int = 1,
             moment: int = 1) -> float:
@@ -21,6 +39,10 @@ class Insurance(Fractional):
           t : term of pure endowment
           endowment : amount of pure endowment
           moment : compute first or second moment
+
+        Examples:
+          >>> life = Insurance().set_survival(mu=lambda x,t: 0.02*t).set_interest(i=0.03)
+          >>> var = life.E_x(0, t=15, moment=life.VARIANCE, endowment=10000)
         """
         if t < 0:  # t infinite => EPV(t) = 0
             return 0   
@@ -46,6 +68,14 @@ class Insurance(Fractional):
           endowment : amount of endowment for endowment insurance
           moment : compute first or second moment
           discrete : benefit paid yearend (True) or moment of death (False)
+
+        Examples:
+          >>> life = Insurance().set_interest(delta=0.05).set_survival(mu=lambda x,s: 0.03)
+          >>> benefit = lambda x,t: math.exp(0.04 * t)
+          >>> A = life.A_x(0, benefit=benefit)
+          >>> print(A)   # 0.75
+          >>> A2 = life.A_x(0, moment=2, benefit=benefit)
+          >>> print(A2)  #0.60
         """
         assert moment >= 1
         if t >=0 and endowment > 0:
@@ -83,6 +113,9 @@ class Insurance(Fractional):
           b : amount of benefit
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
+
+        Examples:
+          >>> life.whole_life_insurance(x=0)
         """
         if moment == self.VARIANCE:
             A2 = self.whole_life_insurance(x, s=s, moment=2, discrete=discrete)
@@ -102,6 +135,9 @@ class Insurance(Fractional):
           b : amount of benefit
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
+
+        Examples:
+          >>> life.term_insurance(x=0, t=30)
         """
         if moment == self.VARIANCE:
             A2 = self.term_insurance(x, s=s, t=t, moment=2, discrete=discrete)
@@ -129,6 +165,9 @@ class Insurance(Fractional):
           b : amount of benefit
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
+
+        Examples:
+          >>> life.deferred_insurance(x=0, u=10, t=20)
         """
         if self.max_term(x+s, u) < u:
             return 0.        
@@ -155,6 +194,9 @@ class Insurance(Fractional):
           endowment : amount of endowment paid at end of term if survive
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
+
+        Examples:
+          >>> life.endowment_insurance(x=0, t=10)
         """
         if moment == self.VARIANCE:
             A2 = self.endowment_insurance(x, s=s, t=t, endowment=endowment, 
@@ -178,6 +220,9 @@ class Insurance(Fractional):
           t : term of insurance
           b : amount of benefit in first year
           discrete : benefit paid year-end (True) or moment of death (False)
+
+        Examples:
+          >>> life.increasing_insurance(x=0, t=10)
         """
         return self.A_x(x, s=s, t=t, benefit=lambda x,t: t * b, 
                         discrete=discrete)
@@ -192,6 +237,9 @@ class Insurance(Fractional):
           t : term of insurance
           b : amount of benefit in first year
           discrete : benefit paid year-end (True) or moment of death (False)
+
+        Examples:
+          >>> life.decreasing_insurance(x=0, t=10)
         """
         assert t > 0  # decreasing must be term insurance
         A = self.term_insurance(x, t=t, b=b, discrete=discrete)

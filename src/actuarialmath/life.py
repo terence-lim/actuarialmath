@@ -11,7 +11,14 @@ from typing import Callable, Dict, Any, Tuple, List
 from actuarialmath import Actuarial, Interest
 
 class Life(Actuarial):
-    """Compute moments and probabilities"""
+    """Compute moments and probabilities
+
+    Examples:
+      >>> p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
+      >>> p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
+      >>> conditional = math.sqrt(Life.conditional_variance(p=.2, p1=p1, p2=p2, N=100000))
+      >>> mixture = math.sqrt(Life.mixture(p=.2, p1=p1, p2=p2, N=100000, variance=True))
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

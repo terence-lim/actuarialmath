@@ -10,7 +10,22 @@ from typing import Callable, Dict, Any
 from actuarialmath import PolicyValues, Contract
 
 class Reserves(PolicyValues):
-    """Compute recursive, interim and modified reserves"""
+    """Compute recursive, interim and modified reserves
+
+    Examples:
+      >>> x = 0
+      >>> life = Reserves().set_reserves(T=3)
+      >>> G = 368.05
+      >>> def fun(P):  # solve net premium from expense reserve equation
+      >>>     return life.t_V(x=x, t=2, premium=G-P, benefit=lambda t: 0,
+      >>>                     per_policy=5+.08*G)
+      >>> P = life.solve(fun, target=-23.64, grid=[.29, .31]) / 1000
+      >>> life = SULT()
+      >>> x, T, b = 50, 20, 500000    # $500K 20-year term insurance for (50)
+      >>> P = life.net_premium(x=x, t=T, b=b)
+      >>> life.set_reserves(T=T).fill_reserves(x=x, contract=Contract(premium=P, benefit=b))
+      >>> life.V_plot(title=f"Reserves for ${b} {T}-year term insurance issued to ({x})")
+    """
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
