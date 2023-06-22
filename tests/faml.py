@@ -140,7 +140,7 @@ SULT().frame()
 #
 # You are given:
 #
-# 1. $S0(t) = \left(1 - \frac{t}{\omega} \right)^{\frac{1}{4}}, \quad 0 \le t \le \omega$
+# 1. $S_0(t) = \left(1 - \frac{t}{\omega} \right)^{\frac{1}{4}}, \quad 0 \le t \le \omega$
 #
 # 2. $\mu_{65} = \frac{1}{180} $
 #
@@ -774,7 +774,8 @@ isclose(0.345, q, question="Q3.14")
 #
 # 4. *i* = 0.03
 #
-# 5. 
+# 5.
+#
 # | x | $A_x$ | $_{20}E_x$ |
 # |---|---|---|
 # | 40 | 0.36987 | 0.51276 |
@@ -864,9 +865,9 @@ A = life.set_interest(i=0.045).endowment_insurance(60, t=3)
 isclose(0.878, A, question="Q4.3")
 
 # + [markdown] id="de2d0427"
-# __SOA Question 4.4  (A) 0.036
+# __SOA Question 4.4__ : (A) 0.036
 #
-# For a special increasing whole life insurance on (40), payable at the moment of death, you are given__ :
+# For a special increasing whole life insurance on (40), payable at the moment of death, you are given :
 # 1. The death benefit at time t is $b_t = 1 + 0.2 t, \quad t \ge 0$
 # 2. The interest discount factor at time t is $v(t) = (1 + 0.2 t ) − 2, \quad t \ge 0$
 # 3. $_tp_{40} ~ \mu_{40+t} = 0.025~\text{if} ~ 0 \le t < 40$, otherwise $0$
@@ -970,9 +971,9 @@ i = Recursion.solve(fun, target=0, grid=[0.058, 0.066])
 isclose(0.06, i, question="Q4.7")
 
 # + [markdown] id="ccb0f3ff"
-# __SOA Question 4.8  (C) 191
+# __SOA Question 4.8__ :  (C) 191
 #
-# For a whole life insurance of 1000 on (50), you are given__ :
+# For a whole life insurance of 1000 on (50), you are given :
 #
 # 1. The death benefit is payable at the end of the year of death
 #
@@ -1208,9 +1209,9 @@ F *= 5000 * sult.interest.v_t(85-60)
 isclose(390000, F, question="Q4.14")
 
 # + [markdown] id="c736d0c5"
-# __SOA Question 4.15  (E) 0.0833 
+# __SOA Question 4.15__ :  (E) 0.0833 
 #
-# For a special whole life insurance on (x), you are given__ :
+# For a special whole life insurance on (x), you are given :
 # - Death benefits are payable at the moment of death
 # - The death benefit at time $t$ is $b_t = e^{0.02t}$, for $t \ge 0$
 # - $\mu_{x+t} = 0.04$, for $t \ge 0$
@@ -1295,7 +1296,7 @@ A = sult.A_x(48, benefit=benefit)
 isclose(1130, A, question="Q4.17")
 
 # + [markdown] id="258c80e6"
-# __SOA Question 4.18  (A) 81873 
+# __SOA Question 4.18__ :  (A) 81873 
 #
 # You are given that T, the time to first failure of an industrial robot, has a density f(t) given by
 #
@@ -1311,7 +1312,7 @@ isclose(1130, A, question="Q4.17")
 # Consider a supplemental warranty on this robot that pays 100,000 at the time T of its first failure if $2 \le T \le 10$ , with no benefits payable otherwise.
 # You are also given that $\delta = 5\%$. Calculate the 90th percentile of the present value of the future benefits under this warranty.
 #
-# *hints__ :*
+# *hints:*
 #
 #
 # - find values of limits such that integral of lifetime density function equals required survival probability
@@ -1962,10 +1963,10 @@ life.L_plot(x=45, T=10.5, contract=contract)
 isclose(-400, L, question="Q6.13")
 
 # + [markdown] id="73a7c727"
-# __SOA Question 6.14  (D) 1150
+# __SOA Question 6.14__ :  (D) 1150
 #
 # For a special fully discrete whole life insurance of 100,000
-# on (40), you are given__ :
+# on (40), you are given: 
 #
 # 1. The annual net premium is *P* for years 1 through 10, 0.5*P* for
 # years 11 through 20, and 0 thereafter
@@ -2240,10 +2241,10 @@ P = life.solve(fun, target=-800, grid=[12110, 12550])
 isclose(12330, P, question="Q6.25")
 
 # + [markdown] id="71edd123"
-# __SOA Question 6.26  (D) 180
+# __SOA Question 6.26__ :  (D) 180
 #
 # For a special fully discrete whole life insurance policy of
-# 1000 on (90), you are given__ :
+# 1000 on (90), you are given:
 #
 # 1. The first year premium is 0
 #
@@ -2307,11 +2308,11 @@ P = life.gross_premium(a=a, A=A, benefit=1000,
 isclose(36, P, question="Q6.28")
 
 # + [markdown] id="48cd4a00"
-# __SOA Question 6.29  (B) 20.5
+# __SOA Question 6.29__ :  (B) 20.5
 #
 #
 # (35) purchases a fully discrete whole life insurance policy of 100,000.
-# You are given__ :
+# You are given:
 # 1. The annual gross premium, calculated using the equivalence principle, is 1770
 # 2. The expenses in policy year 1 are 50% of premium and 200 per policy
 # 3. The expenses in policy years 2 and later are 10% of premium and 50 per policy
