@@ -33,7 +33,7 @@
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="i9j4jVPE-Fpk" outputId="c2addd37-6cbe-49bf-f4d3-7252d6d3f0c5"
-# #! pip install actuarialmath==0.0.9
+# #! pip install actuarialmath==0.0.11
 
 # + id="a0729fd1"
 """Solutions code and hints for SOA FAM-L sample questions
@@ -369,7 +369,7 @@ isclose(117, q, question="Q3.1")
 #
 # 1. The following extract from a mortality table with a one-year select period:
 #
-# $x$ | $l_{[x]}$ | $d_{[x]}$ | $l_{x+1}$ | $x + 1$ |
+# | $x$ | $l_{[x]}$ | $d_{[x]}$ | $l_{x+1}$ | $x + 1$ |
 # |---|---|---|---|---|
 # | 65 | 1000 | 40 | − | 66 |
 # | 66 | 955 | 45 | − | 67 |
@@ -814,9 +814,9 @@ isclose(0.27212, std, question="Q4.1")
 # 2. The amount of the death benefit is 300,000 for the first
 #  half-year and increases by 30,000 per half-year thereafter
 #
-# 3. *q* = *x* 0.16 and *q* + = 0.23
+# 3. $q_x$ = 0.16 and $q_{x+1}$ = 0.23
 #
-# 4. *i* (2) = 0.18
+# 4. $i^{(2)}$ = 0.18
 #
 # 5. Deaths are assumed to follow a constant force of mortality
 #  between integral ages
@@ -2526,8 +2526,9 @@ life = Recursion().set_interest(i=0.05)\
 a = life.temporary_annuity(x, t=n, discrete=False)
 
 def fun(a):   # solve for discrete annuity, given continuous
-    life = Recursion(verbose=False).set_interest(i=0.05)
-    life.set_a(a, x=x, t=n).set_E(0.172, x=x, t=n)
+    life = Recursion(verbose=False).set_interest(i=0.05)\
+                                   .set_a(a, x=x, t=n)\
+                                   .set_E(0.172, x=x, t=n)
     return UDD(m=0, life=life).temporary_annuity(x, t=n)
 a = life.solve(fun, target=a, grid=a)  # discrete annuity
 P = life.gross_premium(a=a, A=0.192, benefit=1000)
@@ -2743,11 +2744,11 @@ isclose(66400, P, question="Q6.47")
 
 # + colab={"base_uri": "https://localhost:8080/"} id="022f6301" outputId="68a325b9-2d97-476d-bfc2-e0c36019dcb4"
 x = 0
-life = Recursion().set_interest(i=0.06)\
-                  .set_p(.95, x=x, t=5)\
-                  .set_q(.02, x=x+5)\
-                  .set_q(.03, x=x+6)\
-                  .set_q(.04, x=x+7)
+life = Recursion(depth=5).set_interest(i=0.06)\
+                         .set_p(.95, x=x, t=5)\
+                         .set_q(.02, x=x+5)\
+                         .set_q(.03, x=x+6)\
+                         .set_q(.04, x=x+7)
 a = 1 + life.E_x(x, t=5)
 A = life.deferred_insurance(x, u=5, t=3)
 P = life.gross_premium(A=A, a=a, benefit=100000)
@@ -3101,8 +3102,8 @@ isclose(29.85, V, question="Q7.8")
 # + colab={"base_uri": "https://localhost:8080/"} id="95ee4b66" outputId="a39768fc-33af-451c-e8f8-740877c107b4"
 sult = SULT(udd=True)
 x, n, t = 45, 20, 10
-a = UDD(m=12, life=sult).temporary_annuity(x+10, t=n-10)
-A = UDD(m=0, life=sult).endowment_insurance(x+10, t=n-10)
+a = UDD(m=12, life=sult).temporary_annuity(x=x+10, t=n-t)
+A = UDD(m=0, life=sult).endowment_insurance(x=x+10, t=n-t)
 contract = Contract(premium=253*12, endowment=100000, benefit=100000)
 V = sult.gross_future_loss(A=A, a=a, contract=contract)
 isclose(38100, V, question="Q7.9")
