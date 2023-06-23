@@ -180,7 +180,7 @@ class _Blog:
             return args[0] + out if len(args) else "0"
 
 class Blog(_Blog):
-    """Helper to track and display recursion steps in latex format"""
+    """Helper to track recursion steps and display actuarial notation in latex format"""
 
     def __init__(self, label: str, *args, levels: int = _depth):
         super().__init__(label, *args, levels=levels)
@@ -350,6 +350,7 @@ class Recursion(Reserves):
     @staticmethod
     def blog_options(latex: bool = False, notebook: bool = False):
         """Static method to change display options for tracing the recursion steps taken
+
         Args:
           latex: display actuarial notation in latex (True) or raw text (False) strings
           notebook: display to jupyter or colab notebook (True) or terminal (False)
@@ -375,6 +376,7 @@ class Recursion(Reserves):
 
     def _db_put(self, key: Tuple, value: float | None) -> "Recursion":
         """Store the item's key and value; or remove if value is None
+
         Args:
           key : key of the item
           value : value to store for item
