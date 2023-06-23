@@ -244,17 +244,12 @@ isclose(8.2, e, question="Q2.4")
 # - compute $e_{41}$ using backward recursion
 
 # + colab={"base_uri": "https://localhost:8080/"} id="7485cb2a" outputId="5006156c-27ea-43b6-925b-080690daafcd"
-life = Recursion(verbose=False).set_e(25, x=60, curtate=True)\
-                               .set_q(0.2, x=40, t=20)\
-                               .set_q(0.003, x=40)
-def fun(e):   # solve e_40 from e_40:20 = e_40 - 20_p_40 e_60
-    return life.set_e(e, x=40, curtate=True)\
-               .e_x(x=40, t=20, curtate=True)
-e40 = life.solve(fun, target=18, grid=[36, 41])
-life.verbose=True
-fun(e40)
-e41 = life.e_x(41, curtate=True)
-isclose(37.1, e41, question="Q2.5")
+life = Recursion(verbose=True).set_e(25, x=60, curtate=True)\
+                              .set_q(0.2, x=40, t=20)\
+                              .set_q(0.003, x=40)\
+                              .set_e(18, x=40, t=20, curtate=True)
+e = life.e_x(41, curtate=True)
+isclose(37.1, e, question="Q2.5")
 
 # + [markdown] id="b626c732"
 # __SOA Question 2.6__ : (C) 13.3
@@ -857,11 +852,14 @@ isclose(0.18, p, question="Q4.2")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="db579f3b" outputId="e6e2e006-1b78-45b6-b270-435ad567034c"
-life = Recursion(verbose=False).set_interest(i=0.05).set_q(0.01, x=60)
-def fun(q):   # solve for q_61
-    return life.set_q(q, x=61).endowment_insurance(60, t=3)
-life.solve(fun, target=0.86545, grid=0.01)
-A = life.set_interest(i=0.045).endowment_insurance(60, t=3)
+life = Recursion(verbose=True).set_interest(i=0.05)\
+                              .set_q(0.01, x=60)\
+                              .set_A(0.86545, x=60, t=3, endowment=1)
+q = life.q_x(x=61)
+A = Recursion(verbose=True).set_interest(i=0.045)\
+                           .set_q(0.01, x=60)\
+                           .set_q(q, x=61)\
+                           .endowment_insurance(60, t=3)
 isclose(0.878, A, question="Q4.3")
 
 # + [markdown] id="de2d0427"
@@ -1008,15 +1006,17 @@ isclose(191, A, question="Q4.8")
 # *hints:*
 #
 #
-# - use whole-life, term and endowment insurance relationships.
+# - solve $_{15}E_{35}$ from endowment insurance minus term insurance
+#
+# - solve implicitly from whole life as term plus deferred insurance
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="0ab006d1" outputId="39b2b025-14e7-43c3-9b26-cdb734ec6915"
 E = Recursion().set_A(0.39, x=35, t=15, endowment=1)\
                .set_A(0.25, x=35, t=15)\
                .E_x(35, t=15)
-life = Recursion().set_A(0.32, x=35)\
-                  .set_E(E, x=35, t=15)
+life = Recursion(verbose=False).set_A(0.32, x=35)\
+                               .set_E(E, x=35, t=15)
 def fun(A): return life.set_A(A, x=50).term_insurance(35, t=15)
 A = life.solve(fun, target=0.25, grid=[0.35, 0.55])
 isclose(0.5, A, question="Q4.9")
