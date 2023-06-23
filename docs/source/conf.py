@@ -23,7 +23,7 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 autodoc_default_options = {
-    'special-members': '__getitem__, __call__, __str__', #'__init__, __call__',
+    'special-members': '__getitem__, __call__', #'__init__, __call__, __str__',
 }
 
 

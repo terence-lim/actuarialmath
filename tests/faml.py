@@ -1879,10 +1879,10 @@ isclose(647, P, question="Q6.9")
 
 # + colab={"base_uri": "https://localhost:8080/"} id="a6ea62e1" outputId="eeae8f35-92a8-48f3-c9e8-c2db9782fd03"
 x = 0
-life = Recursion(verbose=True).set_interest(i=0.06)\
-                              .set_p(0.975, x=x)\
-                              .set_a(152.85/56.05, x=x, t=3)\
-                              .set_A(152.85, x=x, t=3, b=1000)
+life = Recursion(depth=5).set_interest(i=0.06)\
+                         .set_p(0.975, x=x)\
+                         .set_a(152.85/56.05, x=x, t=3)\
+                         .set_A(152.85, x=x, t=3, b=1000)
 p = life.p_x(x=x+2)
 isclose(0.91, p, question="Q6.10")
 
