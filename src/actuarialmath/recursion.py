@@ -8,19 +8,23 @@ from actuarialmath import Reserves
 from IPython.display import display_latex, display_pretty
 from IPython import get_ipython
 
+"""TODOS
+assert discrete in recursions
+"""
+
 _depth = 3
 
 class _Blog:
     """Helper to track and display recursion steps"""
-    _verbose : bool = True
-    _width: int = 80
     _notebook: bool = False
     _latex: bool = False
 
-    def __init__(self, label, *args, levels: int = _depth):
-        self.title = f" *{label} {' '.join(args)} :="          # to identify this stack
-        self.levels = levels                         # maximum levels to indent
-        self.width = _Blog._width - 3            # line width of display
+    def __init__(self, label, *args, levels: int = _depth, verbose: bool = True,
+                 width: int = 80):
+        self.title = f" *{label} {' '.join(args)} :="    # to identify this stack
+        self.levels = levels                             # maximum levels to indent
+        self.width = width                               # line width of display
+        self.verbose = verbose
         self._history = []
         self._rules = []
         self._depths = []
@@ -49,7 +53,7 @@ class _Blog:
         #pass
 
     def __len__(self) -> int:
-        return int(_Blog._verbose and bool(self._history))
+        return int(self.verbose and bool(self._history))
 
     def __str__(self) -> str:
         """Display message history"""
@@ -77,6 +81,10 @@ class _Blog:
     @staticmethod
     def q(x: int, s: int = 0, t: int = 1, u: int = 0) -> str:
         """Return string representation of mortality u|t_q_x term"""
+        if t == 0:
+            return "0"
+        if t < 0:
+            return "1"
         out = []
         if t != 1:
             out.append(f"t={t}")
@@ -87,6 +95,10 @@ class _Blog:
     @staticmethod
     def p(x: int, s: int = 0, t: int = 1) -> str:
         """Return string representation of survival t_p_x term"""
+        if t == 0:
+            return "1"
+        if t < 0:
+            return "0"
         out = []
         if t != 1:
             out.append(f"t={t}")
@@ -179,11 +191,11 @@ class _Blog:
         else:
             return args[0] + out if len(args) else "0"
 
-class Blog(_Blog):
+class PPrint(_Blog):
     """Helper to track recursion steps and display actuarial notation in latex format"""
 
-    def __init__(self, label: str, *args, levels: int = _depth):
-        super().__init__(label, *args, levels=levels)
+    def __init__(self, label: str, *args, **kwargs):
+        super().__init__(label, *args, **kwargs)
         self.title = f"~\\texttt{{{label}}}{'~'.join(args)}~:="    # to identify this stack
 
     def __str__(self) -> str:
@@ -201,6 +213,10 @@ class Blog(_Blog):
     @staticmethod
     def q(x: int, s: int = 0, t: int = 1, u: int = 0) -> str:
         """Return latex string representation of mortality u|t_q_[x+s] term"""
+        if t == 0:
+            return "~0"
+        if t < 0:
+            return "~1"
         left = '~'
         if t != 1 or u > 0:
             left += "_{{"
@@ -215,6 +231,10 @@ class Blog(_Blog):
     @staticmethod
     def p(x: int, s: int = 0, t: int = 1) -> str:
         """Return latex string representation of survival t_p_[x+s] term"""
+        if t == 0:
+            return "~1"
+        if t < 0:
+            return "~0"
         left = '~'
         if t != 1:
             left += f"_{{{t}}}"
@@ -344,8 +364,14 @@ class Recursion(Reserves):
     def __init__(self, depth: int = _depth, verbose: bool = True, **kwargs):
         super().__init__(**kwargs)
         self.db = {}
+        self._t = {'A': {1, 2}, 'a': {1, 2}, 'e': {1, 2}}
         self.maxdepth = depth
-        _Blog._verbose = verbose
+        self._verbose = verbose
+        self.pprint = Recursion._Blog
+
+    def Blog(self, *args, **kwargs):
+        """Returns a Blog instance to collect messages and display, with verbose flag"""
+        return Recursion._Blog(*args, **kwargs, verbose=self._verbose)
 
     @staticmethod
     def blog_options(latex: bool = False, notebook: bool = False):
@@ -364,7 +390,7 @@ class Recursion(Reserves):
         """
         _Blog._notebook = notebook
         _Blog._latex = latex
-        Recursion._Blog = Blog if latex else _Blog
+        Recursion._Blog = PPrint if latex else _Blog
         
     #
     # helpers to store given input values
@@ -385,6 +411,10 @@ class Recursion(Reserves):
             self.db.pop(key)
         else:
             self.db[key] = value
+            label = key[0]
+            t = [v for k,v in key[1:] if k == 't' and v > 0]
+            if label in self._t:
+                self._t[label] = self._t[label].union(t)
         return self
 
     def _db_print(self):
@@ -435,9 +465,9 @@ class Recursion(Reserves):
             pu = self._p_x(x, s=s, t=u, depth=depth-1) #depth-1)
             qt = self._get_q(x, s=s+u, t=t)
             if pu is not None and qt is not None:
-                self.blog(Recursion._Blog.q(x=x, s=s, t=t, u=u), '=',
-                          Recursion._Blog.p(x=x, s=s, t=u), '*',
-                          Recursion._Blog.q(x=x, s=s+u, t=t),
+                self.blog(self.pprint.q(x=x, s=s, t=t, u=u), '=',
+                          self.pprint.p(x=x, s=s, t=u), '*',
+                          self.pprint.q(x=x, s=s+u, t=t),
                           depth=depth, rule="defer mortality")
                 return pu * qt        # (1) u_p_x * t_q_x+u
             else:
@@ -445,9 +475,9 @@ class Recursion(Reserves):
             qu = self._get_q(x, s=s, t=u)
             qt = self._get_q(x, s=s, t=u+t)
             if qu is not None and qt is not None:
-                self.blog(Recursion._Blog.q(x=x, s=s, t=t, u=u), '=',
-                          Recursion._Blog.q(x=x, s=s, t=t+u), '-',
-                          Recursion._Blog.q(x=x, s=s, t=u),
+                self.blog(self.pprint.q(x=x, s=s, t=t, u=u), '=',
+                          self.pprint.q(x=x, s=s, t=t+u), '-',
+                          self.pprint.q(x=x, s=s, t=u),
                           depth=depth, rule="limit mortality")
                 return qt - qu        # (2) u+t_q_x - u_q_x
             else:
@@ -457,9 +487,9 @@ class Recursion(Reserves):
         pu = self._p_x(x, s=s, t=u, depth=depth-1)
         pt = self._p_x(x, s=s, t=u+t, depth=depth-1)
         if pu is not None and pt is not None:
-            self.blog(Recursion._Blog.q(x=x, s=s, t=t, u=u), '=',
-                      Recursion._Blog.p(x=x, s=s, t=u), '-',
-                      Recursion._Blog.p(x=x, s=s, t=t+u),
+            self.blog(self.pprint.q(x=x, s=s, t=t, u=u), '=',
+                      self.pprint.p(x=x, s=s, t=u), '-',
+                      self.pprint.p(x=x, s=s, t=t+u),
                       depth=depth, rule="complement survival")
             return pu - pt            # (3) u_p_x - u+t_p_x
         else:
@@ -467,9 +497,9 @@ class Recursion(Reserves):
 
 
     def q_x(self, x: int, s: int = 0, t: int = 1, u: int = 0) -> float:
-        self.blog = Recursion._Blog("Mortality",
-                                    Recursion._Blog.q(x=x, s=s, t=t, u=u),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Mortality",
+                              self.pprint.q(x=x, s=s, t=t, u=u),
+                              levels=self.maxdepth)
         """Compute mortality rate by calling recursion helper"""
         q = self._q_x(x, s=s, t=t, u=u, depth=self.maxdepth)
         if q is not None:
@@ -512,8 +542,8 @@ class Recursion(Reserves):
             return found
         found = self._get_q(x, s=s, t=t)  
         if found is not None:
-            self.blog(Recursion._Blog.p(x=x, s=s, t=t), '= 1 -',
-                      Recursion._Blog.q(x=x, s=s, t=t),
+            self.blog(self.pprint.p(x=x, s=s, t=t), '= 1 -',
+                      self.pprint.q(x=x, s=s, t=t),
                       depth=depth, rule='complement of mortality')
             return 1 - found  # (1) complement of q_x
         else:
@@ -525,9 +555,9 @@ class Recursion(Reserves):
         found = self._p_x(x, s=s-1, t=t+1, depth=depth-1)
         p = self._p_x(x, s=s-1, t=1, depth=depth-1)
         if found is not None and p is not None:
-            self.blog(Recursion._Blog.p(x=x, s=s, t=t), '=',
-                      Recursion._Blog.p(x=x, s=s-1, t=t+1), '/',
-                      Recursion._Blog.p(x=x, s=s-1, t=1),
+            self.blog(self.pprint.p(x=x, s=s, t=t), '=',
+                      self.pprint.p(x=x, s=s-1, t=t+1), '/',
+                      self.pprint.p(x=x, s=s-1, t=1),
                       depth=depth, rule="survival chain rule")
             return found / p
         else:
@@ -537,9 +567,9 @@ class Recursion(Reserves):
         found = self._p_x(x, s=s, t=t+1, depth=depth-1)
         p = self._p_x(x, s=s+t, t=1, depth=depth-1)
         if found is not None and p is not None:
-            self.blog(Recursion._Blog.p(x=x, s=s, t=t), '=',
-                      Recursion._Blog.p(x=x, s=s, t=t+1), '/',
-                      Recursion._Blog.p(x=x, s=s+t, t=1),
+            self.blog(self.pprint.p(x=x, s=s, t=t), '=',
+                      self.pprint.p(x=x, s=s, t=t+1), '/',
+                      self.pprint.p(x=x, s=s+t, t=1),
                       depth=depth, rule="survival chain rule")
             return found / p
         else:
@@ -550,9 +580,9 @@ class Recursion(Reserves):
             found = self._p_x(x, s=s+1, t=t-1, depth=depth-1)
             p = self._p_x(x, s=s, t=1, depth=depth-1)
             if found is not None and p is not None:
-                self.blog(Recursion._Blog.p(x=x, s=s, t=t), '=',
-                          Recursion._Blog.p(x=x, s=s+1, t=t-1), '*',
-                          Recursion._Blog.p(x=x, s=s, t=1),
+                self.blog(self.pprint.p(x=x, s=s, t=t), '=',
+                          self.pprint.p(x=x, s=s+1, t=t-1), '*',
+                          self.pprint.p(x=x, s=s, t=1),
                           depth=depth, rule="survival chain rule")
                 return found * p
             else:
@@ -562,9 +592,9 @@ class Recursion(Reserves):
             found = self._p_x(x, s=s, t=t-1, depth=depth-1)
             p = self._p_x(x, s=s+t-1, t=1, depth=depth-1)
             if found is not None and p is not None:
-                self.blog(Recursion._Blog.p(x=x, s=s, t=t), '=',
-                          Recursion._Blog.p(x=x, s=s, t=t-1), '*',
-                          Recursion._Blog.p(x=x, s=s+t-1, t=1),
+                self.blog(self.pprint.p(x=x, s=s, t=t), '=',
+                          self.pprint.p(x=x, s=s, t=t-1), '*',
+                          self.pprint.p(x=x, s=s+t-1, t=1),
                           depth=depth, rule="survival chain rule")
                 return found * p
             else:
@@ -573,8 +603,8 @@ class Recursion(Reserves):
         if t == 1:
             E = self._E_x(x, s=s, t=1, depth=depth-1)
             if E is not None:
-                self.blog(Recursion._Blog.p(x=x, s=s, t=1), '=',
-                          Recursion._Blog.E(x=x, s=s, t=1), "/v",
+                self.blog(self.pprint.p(x=x, s=s, t=1), '=',
+                          self.pprint.E(x=x, s=s, t=1), "/v",
                           depth=depth, rule="one-year pure endowment")
                 return E / self.interest.v
             else:
@@ -586,9 +616,9 @@ class Recursion(Reserves):
                 a = self._a_x(x, s=s, t=_t, depth=depth-1)
                 a1 = self._a_x(x, s=s+1, t=self.add_term(_t, -1), depth=depth-1)
                 if a is not None and a1 is not None:
-                    self.blog(Recursion._Blog.p(x=x, s=s, t=1), '= [',
-                              Recursion._Blog.a(x=x, s=s, t=_t), '- 1 ] / [ v *',
-                              Recursion._Blog.a(x=x, s=s+1, t=_t-1), ']',
+                    self.blog(self.pprint.p(x=x, s=s, t=1), '= [',
+                              self.pprint.a(x=x, s=s, t=_t), '- 1 ] / [ v *',
+                              self.pprint.a(x=x, s=s+1, t=_t-1), ']',
                               depth=depth, rule="annuity recursion")
                     return (a - 1) / (self.interest.v * a1)
                 else:
@@ -601,10 +631,10 @@ class Recursion(Reserves):
                     A1 = self._A_x(x, s=s+1, t=self.add_term(_t, -1), endowment=endowment,
                                    depth=depth-1)
                     if A is not None and A1 is not None:
-                        self.blog(Recursion._Blog.p(x=x, s=s, t=1), '= [ v -',
-                                  Recursion._Blog.A(x=x, s=s, t=_t, endowment=endowment),
+                        self.blog(self.pprint.p(x=x, s=s, t=1), '= [ v -',
+                                  self.pprint.A(x=x, s=s, t=_t, endowment=endowment),
                                   '] / [v * [ 1 -',
-                                  Recursion._Blog.A(x=x, s=s+1, t=_t-1, endowment=endowment),
+                                  self.pprint.A(x=x, s=s+1, t=_t-1, endowment=endowment),
                                   ']]',
                                   depth=depth, rule="insurance recursion")
                         return (self.interest.v - A)/(self.interest.v * (1 - A1))
@@ -619,9 +649,9 @@ class Recursion(Reserves):
           s : years after selection
           t : survives at least t years
         """
-        self.blog = Recursion._Blog("Survival",
-                                    Recursion._Blog.p(x=x, s=s, t=t),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Survival",
+                              self.pprint.p(x=x, s=s, t=t),
+                              levels=self.maxdepth)
         p = self._p_x(x, s=s, t=t, depth=self.maxdepth)
         if p is not None:
             self.blog.display()
@@ -672,8 +702,8 @@ class Recursion(Reserves):
             if t > 0:  
                 p_t = self._p_x(x, s=s, t=t)
                 if t == 1 and curtate:
-                    self.blog(Recursion._Blog.e(x=x, s=s, t=1, curtate=curtate), '=',
-                              Recursion._Blog.p(x=x, s=s, t=1),
+                    self.blog(self.pprint.e(x=x, s=s, t=1, curtate=curtate), '=',
+                              self.pprint.p(x=x, s=s, t=1),
                               #f"e_{x+s}:1",
                               depth=depth, rule='1-year curtate shortcut')
                     return p_t   # (1) if curtate and t=1: e_x:1 = p_x 
@@ -685,10 +715,10 @@ class Recursion(Reserves):
                     e_t = self._e_x(x, s=s+t, t=Reserves.WHOLE, curtate=curtate,
                                     moment=1, depth=depth-1)
                     if e is not None and e_t is not None and p_t is not None:
-                        self.blog(Recursion._Blog.e(x=x, s=s, t=t), '=',
-                                  Recursion._Blog.e(x=x, s=s), '-',
-                                  Recursion._Blog.p(x=x, s=s), '*',
-                                  Recursion._Blog.e(x=x, s=s+t),
+                        self.blog(self.pprint.e(x=x, s=s, t=t, curtate=curtate), '=',
+                                  self.pprint.e(x=x, s=s, curtate=curtate), '-',
+                                  self.pprint.p(x=x, s=s), '*',
+                                  self.pprint.e(x=x, s=s+t, curtate=curtate),
                                   #"e_{x+s}:{t}: e_x - p_x e_x+t",
                                   depth=depth, rule="temporary lifetime")
                         return e - p_t*e_t  # (2) temporary = e_x - t_p_x e_x+t
@@ -704,10 +734,11 @@ class Recursion(Reserves):
                 if e is not None and e1 is not None and p is not None:
                     #_t = "" if t < 0 else ":" + str(t)
                     #msg = f"forward e_{x+s}{_t} = e_{x+s}:1 + p_{x+s} e_{x+s+1}"
-                    self.blog(Recursion._Blog.e(x=x, s=s, t=t), '= [',
-                              Recursion._Blog.e(x=x, s=s-1, t=self.add_term(t, 1)), '-',
-                              Recursion._Blog.e(x=x, s=s-1, t=1), '] /',
-                              Recursion._Blog.p(x=x, s=s-1, t=1), 
+                    self.blog(self.pprint.e(x=x, s=s, t=t, curtate=curtate), '= [',
+                              self.pprint.e(x=x, s=s-1, t=self.add_term(t, 1),
+                                            curtate=curtate), '-',
+                              self.pprint.e(x=x, s=s-1, t=1, curtate=curtate), '] /',
+                              self.pprint.p(x=x, s=s-1, t=1), 
                               depth=depth, rule='forward recursion')
                     return (e - e1) / p # (3) forward: (e_x-1 - e_x-1:1) / p_x-1
                 else:
@@ -718,10 +749,11 @@ class Recursion(Reserves):
                                 moment=1, depth=depth-1)
                 p = self._p_x(x, s=s, t=u)
                 if e is not None and e_t is not None and p is not None:
-                    self.blog(Recursion._Blog.e(x=x, s=s, t=t), '=',
-                              Recursion._Blog.e(x=x ,s=s, t=u), '+',
-                              Recursion._Blog.p(x=x, s=s, t=u), '*',
-                              Recursion._Blog.e(x=x, s=s+u, t=self.add_term(t, -u)),
+                    self.blog(self.pprint.e(x=x, s=s, t=t, curtate=curtate), '=',
+                              self.pprint.e(x=x ,s=s, t=u, curtate=curtate), '+',
+                              self.pprint.p(x=x, s=s, t=u), '*',
+                              self.pprint.e(x=x, s=s+u, t=self.add_term(t, -u),
+                                            curtate=curtate),
                               #f"backward: e_x:1 + p_x e_x+1:{t}",
                               depth=depth, rule='backward recursion')
                     return e + p * e_t # (4) backward: e_x:1 + p_x e_x+1:t-1
@@ -740,10 +772,10 @@ class Recursion(Reserves):
           curtate : whether curtate (True) or complete (False) lifetime
           moment : whether to compute first (1) or second (2) moment
         """
-        self.blog = Recursion._Blog("Lifetime",
-                                    Recursion._Blog.e(x=x, s=s, t=t,
-                                                      moment=moment, curtate=curtate),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Lifetime",
+                              self.pprint.e(x=x, s=s, t=t, moment=moment,
+                                            curtate=curtate),
+                              levels=self.maxdepth)
         e = self._e_x(x, s=s, t=t, curtate=curtate, moment=moment,
                       depth=self.maxdepth)
         if e is not None:
@@ -797,20 +829,23 @@ class Recursion(Reserves):
         if moment > 1:
             E = self._E_x(x, s=s, endowment=endowment, depth=depth)
             if E:  # (1) Shortcut: 2E_x = v E_x
-                self.blog(Recursion._Blog.E(x=x, s=s, t=t, moment=moment),
-                          f"= " + Recursion._Blog.m(moment*t, v="v"), '*',
-                          Recursion._Blog.E(x=x, s=s, t=t),
+                self.blog(self.pprint.E(x=x, s=s, t=t, moment=moment),
+                          f"= " + self.pprint.m(moment*t, v="v"), '*',
+                          self.pprint.E(x=x, s=s, t=t),
                           depth=depth, rule='moments of pure endowment')
                 return E * self.interest.v**(moment-1)
             else:
                 self.blog.pop(depth=depth)
 
         p = self._p_x(x, s=s, t=t, depth=depth-1)  # depth-1)
+
+        #if t == 1 and x==0:
+        #    print('p', x, s, t, depth)
         if p is not None:   # (2) E_x = p_x * v
             #msg = f"pure endowment {t}_E_{x+s} = {t}_p_{x+s} * v^{t}"
-            self.blog(Recursion._Blog.E(x=x, s=s, t=t), '=',
-                      Recursion._Blog.p(x=x, s=s, t=t),
-                      f"*", Recursion._Blog.m(moment*t, v="v"),
+            self.blog(self.pprint.E(x=x, s=s, t=t), '=',
+                      self.pprint.p(x=x, s=s, t=t),
+                      f"*", self.pprint.m(moment*t, v="v"),
                       depth=depth, rule='pure endowment')
             return p * (endowment * self.interest.v_t(t))**moment
         else:
@@ -823,9 +858,9 @@ class Recursion(Reserves):
         A = self._A_x(x, s=s, t=t, b=endowment, endowment=endowment, 
                       moment=moment, depth=depth-1)        
         if A is not None and At is not None:
-            self.blog(Recursion._Blog.E(x=x, s=s, t=t), '=',
-                      Recursion._Blog.A(x=x, s=s, t=t, endowment=endowment), '-',
-                      Recursion._Blog.A(x=x, s=s, t=t, endowment=0),
+            self.blog(self.pprint.E(x=x, s=s, t=t), '=',
+                      self.pprint.A(x=x, s=s, t=t, endowment=endowment), '-',
+                      self.pprint.A(x=x, s=s, t=t, endowment=0),
                       #f"endowment - term insurance = {t}_E_{x+s}",
                       depth=depth, rule='endowment insurance minus term')
             return A - At  # (3) endowment insurance - term (helpful SULT)
@@ -836,10 +871,10 @@ class Recursion(Reserves):
         Et = self._E_x(x, s=s+1, t=t-1, moment=moment, depth=depth-1)
         if E is not None and Et is not None:
             msg = f"chain Rule: {t}_E_{x+s} = E_{x+s} * {t-1}_E_{x+s+1}"
-            self.blog(Recursion._Blog.E(x=x, s=s, t=t, moment=moment), '=',
-                      Recursion._Blog.E(x=x, s=s, t=1, moment=moment), '*',
-                      Recursion._Blog.E(x=x, s=s+1, t=t-1, moment=moment),
-                      # '*', Recursion._Blog.m(moment, endow=endowment),
+            self.blog(self.pprint.E(x=x, s=s, t=t, moment=moment), '=',
+                      self.pprint.E(x=x, s=s, t=1, moment=moment), '*',
+                      self.pprint.E(x=x, s=s+1, t=t-1, moment=moment),
+                      # '*', self.pprint.m(moment, endow=endowment),
                       depth=depth, rule='pure endowment chain rule')
             return E * Et * endowment**moment # (4) chain rule
         else:
@@ -856,10 +891,10 @@ class Recursion(Reserves):
           endowment : amount of pure endowment
           moment : compute first or second moment
         """
-        self.blog = Recursion._Blog("Pure Endowment",
-                                    Recursion._Blog.E(x=x, s=s, t=t, moment=moment,
-                                                      endowment=endowment),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Pure Endowment",
+                              self.pprint.E(x=x, s=s, t=t, moment=moment,
+                                            endowment=endowment),
+                              levels=self.maxdepth)
         if moment == self.VARIANCE:  # Bernoulli shortcut for variance
             found = self._get_E(x, s=s, t=t, endowment=endowment, moment=moment)
             if found is not None:
@@ -918,33 +953,34 @@ class Recursion(Reserves):
         if depth <= 0:
             return None
 
-        if t > 0:  # decreasing must be term insurance
+        if t > 0:
             A = self._A_x(x=x, s=s, t=t, b=b, discrete=discrete, depth=depth-1)
             n = t + int(discrete)
             DA = self._DA_x(x=x, s=s, t=t, b=b, discrete=discrete, depth=depth-1)
             if A is not None and DA is not None:
-                self.blog(Recursion._Blog.IA(x=x, s=s, t=t), f'= {n}',
-                          Recursion._Blog.A(x=x, s=s, t=t), '-',
-                          Recursion._Blog.DA(x=x, s=s, t=t),
+                self.blog(self.pprint.IA(x=x, s=s, t=t), f'= {n}',
+                          self.pprint.A(x=x, s=s, t=t), '-',
+                          self.pprint.DA(x=x, s=s, t=t),
                     #f"identity IA_{x+s}:{t}: ({n})A - DA",
                           depth=depth, rule='varying insurance identity')
                 return A * n - DA  # (1) Identity with term and decreasing
             else:
                 self.blog.pop(depth=depth)
 
-        A = self._A_x(x=x, s=s, t=1, b=b, discrete=discrete, depth=depth-1)
-        IA = self._IA_x(x=x, s=s+1, t=self.add_term(t, -1), b=b, depth=depth-1)
-        p = self._p_x(x, s=s, t=1, depth=depth-1)   # FIXED t=1
-        if A is not None and IA is not None and p is not None:
-            self.blog(Recursion._Blog.IA(x=x, s=s, t=t), '=',
-                      Recursion._Blog.A(x=x, s=s, t=t), '+',
-                      Recursion._Blog.p(x=x, s=s), f"*", Recursion._Blog.m(t, v="v"), "*",
-                      Recursion._Blog.IA(x=x, s=s+1, t=t-1),
-                      #f"backward IA_{x+s}:{t}: A + IA_{x+s+1}:{t-1}",
-                      depth=depth, rule='backward recursion')
-            return A + p * self.interest.v * IA  # (2) backward recursion
-        else:
-            self.blog.pop(depth=depth)
+        if discrete:
+            A = self._A_x(x=x, s=s, t=1, b=b, discrete=discrete, depth=depth-1)
+            IA = self._IA_x(x=x, s=s+1, t=self.add_term(t, -1), b=b, depth=depth-1)
+            p = self._p_x(x, s=s, t=1, depth=depth-1)   # FIXED t=1
+            if A is not None and IA is not None and p is not None:
+                self.blog(self.pprint.IA(x=x, s=s, t=t), '=',
+                          self.pprint.A(x=x, s=s, t=t), '+',
+                          self.pprint.p(x=x, s=s), f"*", self.pprint.m(t, v="v"), "*",
+                          self.pprint.IA(x=x, s=s+1, t=t-1),
+                          #f"backward IA_{x+s}:{t}: A + IA_{x+s+1}:{t-1}",
+                          depth=depth, rule='backward recursion')
+                return A + p * self.interest.v * IA  # (2) backward recursion
+            else:
+                self.blog.pop(depth=depth)
 
     def increasing_insurance(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
                              b: int = 1, discrete: bool = True) -> float:
@@ -957,9 +993,9 @@ class Recursion(Reserves):
           b : amount of benefit in first year
           discrete : benefit paid year-end (True) or moment of death (False)
         """
-        self.blog = Recursion._Blog("Increasing Insurance",
-                                    Recursion._Blog.IA(x=x, s=s, t=t, b=b, discrete=discrete),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Increasing Insurance",
+                              self.pprint.IA(x=x, s=s, t=t, b=b, discrete=discrete),
+                              levels=self.maxdepth)
         IA = self._IA_x(x, s=s, b=b, t=t, discrete=discrete, depth=self.maxdepth)
         if IA is not None:
             self.blog.display()
@@ -1014,33 +1050,33 @@ class Recursion(Reserves):
             return 0
         if depth <= 0:
             return None
-        if t < 0:  # decreasing must be term insurance
-            return None
+        assert t < 0,  "Decreasing insurance must be term insurance"
     
         A = self._A_x(x=x, s=s, t=t, b=b, discrete=discrete, depth=depth-1)
         n = t + int(discrete)
         IA = self._DA_x(x=x, s=s, t=t, b=b, discrete=discrete, depth=depth-1)
         if A is not None and IA is not None:
-            self.blog(Recursion._Blog.DA(x=x, s=s, t=t), f'= {n}',
-                      Recursion._Blog.A(x=x, s=s, t=t), '-',
-                      Recursion._Blog.IA(x=x, s=s, t=t),
+            self.blog(self.pprint.DA(x=x, s=s, t=t), f'= {n}',
+                      self.pprint.A(x=x, s=s, t=t), '-',
+                      self.pprint.IA(x=x, s=s, t=t),
                       depth=depth, rule='varying insurance identity')
-            return A * n - IA  # (1) identity with term and decreasing
+            return A * n - IA  # (1) identity with term and increasing
         else:
             self.blog.pop(depth=depth)
 
-        DA = self._IA_x(x=x, s=s+1, t=self.add_term(t, -1), b=b, depth=depth-1)
-        p = self._p_x(x, s=s, depth=depth-1)
-        if DA is not None and p is not None:
-            #msg = f"backward DA_{x+s}:{t}: v(t q_{x+s} + p_{x+s} DA_{x+s+1}:{t-1})"
-            self.blog(Recursion._Blog.DA(x=x, s=s, t=t), f"=",
-                      Recursion._Blog.m(t, v="v"), "* t *",
-                      Recursion._Blog.q(x=x, s=s), '+',
-                      Recursion._Blog.p(x=x, s=s), '*', Recursion._Blog.DA(x=x, s=s+1, t=t-1),
-                      depth=depth, rule='backward recursion')
-            return self.interest.v * ((1-p)*t + p*DA)  # (2) backward recursion
-        else:
-            self.blog.pop(depth=depth)
+        if discrete:
+            DA = self._IA_x(x=x, s=s+1, t=self.add_term(t, -1), b=b, depth=depth-1)
+            p = self._p_x(x, s=s, depth=depth-1)
+            if DA is not None and p is not None:
+                #f"backward DA_{x+s}:{t}: v(t q_{x+s} + p_{x+s} DA_{x+s+1}:{t-1})"
+                self.blog(self.pprint.DA(x=x, s=s, t=t), f"=",
+                          self.pprint.m(t, v="v"), "* t *",
+                          self.pprint.q(x=x, s=s), '+',
+                          self.pprint.p(x=x, s=s), '*', self.pprint.DA(x=x, s=s+1, t=t-1),
+                          depth=depth, rule='backward recursion')
+                return self.interest.v * ((1-p)*t + p*DA)  # (2) backward recursion
+            else:
+                self.blog.pop(depth=depth)
 
     def decreasing_insurance(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
                              b: int = 1, discrete: bool = True) -> float:
@@ -1053,9 +1089,9 @@ class Recursion(Reserves):
           b : amount of benefit in first year
           discrete : benefit paid year-end (True) or moment of death (False)
         """
-        self.blog = Recursion._Blog("Increasing Insurance",
-                                    Recursion._Blog.DA(x=x, s=s, t=t, b=b, discrete=discrete),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Increasing Insurance",
+                              self.pprint.DA(x=x, s=s, t=t, b=b, discrete=discrete),
+                              levels=self.maxdepth)
         if t == 0:
             return 0
         A = self._DA_x(x=x, s=s, t=t, b=b, discrete=discrete, depth=self.maxdepth)
@@ -1134,10 +1170,10 @@ class Recursion(Reserves):
              b: int = 1, discrete: bool = True, endowment: int = 0,
              moment: int = 1, depth: int = 1) -> float | None:
         """Helper to compute from recursive and alternate formulas"""
-        
+
         if endowment == b and t == 1 and discrete: # 1-year endow ins
-#            self.blog(Recursion._Blog.A(x=x, s=s, t=1, endowment=b, b=b, moment=moment),
-#                      '=', Recursion._Blog.m(moment, v="v"),
+#            self.blog(self.pprint.A(x=x, s=s, t=1, endowment=b, b=b, moment=moment),
+#                      '=', self.pprint.m(moment, v="v"),
 #                      depth=depth, rule='one-year endowment insurance')
             return (self.interest.v_t(1) * endowment)**moment
         found = self._get_A(x=x, s=s, t=t, b=b, u=u, discrete=discrete, 
@@ -1147,15 +1183,15 @@ class Recursion(Reserves):
         if depth <= 0:
             return None
 
-        if u > 0:  # (1) deferred insurance  
+        if discrete and u > 0:  # (1) deferred insurance  
             A = self._A_x(x=x, s=s+1, t=t, b=b, u=u-1, discrete=discrete, 
                               moment=moment, endowment=endowment, depth=depth-1)
             E = self._E_x(x, s=s, t=1, moment=moment, depth=depth-1)
             if A is not None and p is not None:  # (1a) backward E_x * A
                 #msg = f"backward deferred {u}_A_{x+s}: {u}_E * A_{x+s+u}"
-                self.blog(Recursion._Blog.A(x=x, s=s, t=t, u=u, b=b, moment=moment), '=',
-                          Recursion._Blog.E(x=x, s=s, moment=moment), '*',
-                          Recursion._Blog.A(x=x, s=s+1, t=t, u=u-1, moment=moment),
+                self.blog(self.pprint.A(x=x, s=s, t=t, u=u, b=b, moment=moment), '=',
+                          self.pprint.E(x=x, s=s, moment=moment), '*',
+                          self.pprint.A(x=x, s=s+1, t=t, u=u-1, moment=moment),
                           depth=depth, rule='backward recursion')
                 return E * A
             else:
@@ -1166,15 +1202,15 @@ class Recursion(Reserves):
             E = self._E_x(x, s=s-1, t=1, moment=moment, depth=depth-1)
             if A is not None and E is not None: # (1b) forward recursion
                 msg = f"forward deferred {u}_A_{x+s}: {u+1}A_{x+s-1} / E"
-                self.blog(Recursion._Blog.A(x=x, s=s, t=t, u=u, b=b, moment=moment), '=',
-                          Recursion._Blog.A(x=x, s=s-1, t=t, u=u+1, moment=moment), '/',
-                          Recursion._Blog.E(x=x, s=s-1, moment=moment),
+                self.blog(self.pprint.A(x=x, s=s, t=t, u=u, b=b, moment=moment), '=',
+                          self.pprint.A(x=x, s=s-1, t=t, u=u+1, moment=moment), '/',
+                          self.pprint.E(x=x, s=s-1, moment=moment),
                           depth=depth, rule='forward recursion')
                 return A / E
             else:
                 self.blog.pop(depth=depth)
             return None
-
+        
         if endowment > 0: # (2a) endowment = term + E_x * endowment
             A = self._A_x(x=x, s=s, t=t, b=b, discrete=discrete, 
                           moment=moment, depth=depth-1)
@@ -1182,10 +1218,10 @@ class Recursion(Reserves):
                             endowment=endowment, depth=depth-1)
             if A is not None and E_x is not None:
                 # f"term + pure insurance = A_{x+s}:{t}",
-                self.blog(Recursion._Blog.A(x=x, s=s, t=t, endowment=endowment,
+                self.blog(self.pprint.A(x=x, s=s, t=t, endowment=endowment,
                                             moment=moment),
-                          '=', Recursion._Blog.A(x=x, s=s, t=t, moment=moment), '+',
-                          Recursion._Blog.E(x=x, s=s, t=t, endowment=endowment,
+                          '=', self.pprint.A(x=x, s=s, t=t, moment=moment), '+',
+                          self.pprint.E(x=x, s=s, t=t, endowment=endowment,
                                             moment=moment),
                           depth=depth, rule='term plus pure endowment')
                 return A + E_x
@@ -1198,73 +1234,119 @@ class Recursion(Reserves):
                             depth=depth-1)
             if A is not None and E_x is not None:
                 #msg = f"endowment insurance - pure endowment = A_{x+s}^1:{t}"
-                self.blog(Recursion._Blog.A(x=x, s=s, t=t, moment=moment), '=',
-                          Recursion._Blog.A(x=x, s=s, t=t, moment=moment, endowment=b), '-',
-                          Recursion._Blog.E(x=x, s=s, t=t, endowment=b, moment=moment),
+                self.blog(self.pprint.A(x=x, s=s, t=t, moment=moment), '=',
+                          self.pprint.A(x=x, s=s, t=t, moment=moment, endowment=b), '-',
+                          self.pprint.E(x=x, s=s, t=t, endowment=b, moment=moment),
                           depth=depth, rule='endowment insurance - pure')
                 return A - E_x
             else:
                 self.blog.pop(depth=depth)
 
-        if not discrete:  # recursions for discrete insurance
+        if not discrete:  # recursions only for discrete insurance
             return None
         if t == 1:  # special cases for discrete one-year insurance
             if endowment == b:  # (3a) discrete one-year endowment insurance
-#                self.blog(Recursion._Blog.A(x=x, s=s, t=1, endowment=endowment,
-#                                 moment=moment), f"= v"+Recursion._Blog.m(moment),
-#                          "*", Recursion._Blog.m(moment, endow=endowment),
+#                self.blog(self.pprint.A(x=x, s=s, t=1, endowment=endowment,
+#                                 moment=moment), f"= v"+self.pprint.m(moment),
+#                          "*", self.pprint.m(moment, endow=endowment),
 #                          depth=depth, rule='one-year endowment insurance')
-                return (self.interest.v * endowment)**moment
-            
+                return (self.interest.v * endowment)**moment   
             p = self._p_x(x, s=s, t=1)
+
+            #print(p, x, s, t, b, endowment)
+            
             if p is not None:  # (3b) one-year discrete insurance
-                self.blog(Recursion._Blog.A(x=x, s=s, t=t, moment=moment, endowment=endowment),
-                          f"= v"+Recursion._Blog.m(moment), "*",
-                          Recursion._Blog.q(x=x, s=s), f"*",
-                          Recursion._Blog.m(moment, v="v"), "+",
-                          Recursion._Blog.p(x=x, s=s), f"*".
-                          Recursion._Blog.m(moment, endow=endowment),
+                self.blog(self.pprint.A(x=x, s=s, t=t, moment=moment,
+                                            endowment=endowment), "=",
+                          self.pprint.m(moment, v="v"), "*",
+                          self.pprint.q(x=x, s=s), f"*",
+                          self.pprint.m(moment, v="v"), "+",
+                          self.pprint.p(x=x, s=s), f"*".
+                          self.pprint.m(moment, endow=endowment),
                           #f"discrete 1-year insurance: A_{x+s}:1 = qv",
                           depth=depth, rule='one-year discrete insurance')
                 return (self.interest.v**moment 
                         * ((1 - p) * b**moment + p * endowment**moment))
             else:
                 self.blog.pop(depth=depth)
-
+                
         # insurance recursions
-        # TODO: more general recursions u in [1, ..., 50]
+        # TODO: mo re general recursions u in [1, ..., 50]
+
+#        """
         A = self._A_x(x=x, s=s+1, t=self.add_term(t, -1), b=b, 
                       discrete=discrete, moment=moment,
                       endowment=endowment, depth=depth-1)
         p = self._p_x(x, s=s, t=1, depth=depth-1) # (4) backward recursion
         if A is not None and p is not None:
-            self.blog(Recursion._Blog.A(x=x, s=s, t=t, b=b, moment=moment),
-                      f"= v"+Recursion._Blog.m(moment), "* [",
-                      Recursion._Blog.q(x=x,s=s), f"*",
-                      Recursion._Blog.m(moment, b="b"), "+",
-                      Recursion._Blog.p(x=x, s=s), '*',
-                      Recursion._Blog.A(x=x, s=s+1, t=t-1, b=b, moment=moment), ']',
+            self.blog(self.pprint.A(x=x, s=s, t=t, b=b, moment=moment),
+                      f"= v"+self.pprint.m(moment), "* [",
+                      self.pprint.q(x=x,s=s), f"*",
+                      self.pprint.m(moment, b="b"), "+",
+                      self.pprint.p(x=x, s=s), '*',
+                      self.pprint.A(x=x, s=s+1, t=t-1, b=b, moment=moment), ']',
                       #f"backward: A_{x+s} = qv + pvA_{x+s+1}",
                       depth=depth, rule='backward recursion')
             return self.interest.v_t(1)**moment * ((1 - p)*b**moment + p*A)
         else:
             self.blog.pop(depth=depth)
+        """
+        for y in [1]: #self._t['A']:
+            At = self._A_x(x=x, s=s, t=y, discrete=discrete, b=b,
+                           moment=moment, depth=depth-1)
+            A = self._A_x(x=x, s=s+y, t=self.add_term(t, -y), b=b, discrete=discrete,
+                          moment=moment, endowment=endowment, depth=depth-1)
+            E = self._E_x(x, s=s, t=y, moment=moment, depth=depth-1) 
 
-        A = self._A_x(x=x, s=s-1, t=self.add_term(t, 1), b=b, u=u, 
+            #print('*', At, A, E, x, s, t, y, b, endowment)
+            if A is not None and At is not None and E is not None:  # (4a) backward recursion
+                self.blog(self.pprint.A(x=x, s=s, t=t, b=b, moment=moment), "=",
+                          self.pprint.A(x=x, s=s, t=y, moment=moment, b=b), '+',
+                          self.pprint.E(x=x, s=s, t=y, moment=moment), '*',
+                          self.pprint.A(x=x, s=s+y, t=self.add_term(t, -y), b=b,
+                                            moment=moment, endowment=endowment),
+                          #f"backward: A_{x+s} = qv + pvA_{x+s+1}",
+                          depth=depth, rule='backward recursion')
+                return At + E * A
+            else:
+                self.blog.pop(depth=depth)
+
+            At = self._A_x(x=x, s=s-y, t=self.add_term(t, y), b=b, discrete=discrete,
+                           moment=moment, endowment=endowment, depth=depth-1)
+            A = self._A_x(x=x, s=s-y, t=y, b=b, discrete=discrete, moment=moment,
+                          depth=depth-1)
+            E = self._E_x(x, s=s-y, t=y, moment=moment, depth=depth-1) 
+
+            #print('#', At, A, E, x, s, t, y, b, endowment)
+            if A is not None and At is not None and E is not None:  # (5) forward recursion
+                self.blog(self.pprint.A(x=x, s=s, t=t, b=b,
+                                            moment=moment, endowment=endowment), '= [',
+                          self.pprint.A(x=x, s=s-y, t=self.add_term(t, y),
+                                            b=b, endowment=endowment, moment=moment), '-',
+                          self.pprint.A(x=x, s=s-y, t=y, b=b, moment=moment), '] /',
+                          self.pprint.E(x=x, s=s-y, t=y, moment=moment),
+                          #f"forward: A_{x+s} = (A_{x+s-1}/v - q) / p",
+                          depth=depth, rule='forward recursion')
+                return (At - A) / E
+            else:
+                self.blog.pop(depth=depth)
+        """
+        A = self._A_x(x=x, s=s-1, t=self.add_term(t, 1), b=b, 
                       discrete=discrete, moment=moment, 
                       endowment=endowment, depth=depth-1)
         p = self._p_x(x, s=s-1, t=1, depth=depth-1)
         if A is not None and p is not None:  # (5) forward recursion
-            self.blog(Recursion._Blog.A(x=x, s=s, t=t, b=b, moment=moment), '= [',
-                      Recursion._Blog.A(x=x, s=s-1, t=t+1, b=b, moment=moment),
-                      f"/", Recursion._Blog.m(moment, v="v"), "-",
-                      Recursion._Blog.q(x=x,s=s), f"*",
-                      Recursion._Blog.m(moment, b="b"), "] /", Recursion._Blog.p(x=x, s=s),
+            self.blog(self.pprint.A(x=x, s=s, t=t, b=b, moment=moment), '= [',
+                      self.pprint.A(x=x, s=s-1, t=t+1, b=b, moment=moment),
+                      f"/", self.pprint.m(moment, v="v"), "-",
+                      self.pprint.q(x=x, s=s-1), f"*",
+                      self.pprint.m(moment, b="b"), "] /", self.pprint.p(x=x, s=s-1),
                       #f"forward: A_{x+s} = (A_{x+s-1}/v - q) / p",
                       depth=depth, rule='forward recursion')
             return (A/self.interest.v_t(1)**moment - (1-p)*b**moment) / p
         else:
             self.blog.pop(depth=depth)
+ #       """
 
     def whole_life_insurance(self, x: int, s: int = 0, b: int = 1, 
                              discrete: bool = True, moment: int = 1) -> float:
@@ -1277,11 +1359,10 @@ class Recursion(Reserves):
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
         """
-        self.blog = Recursion._Blog("Whole Life Insurance",
-                                    Recursion._Blog.A(x=x, s=s, t=Reserves.WHOLE, b=b, u=0,
-                                                      endowment=0, moment=moment,
-                                                      discrete=discrete),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Whole Life Insurance",
+                              self.pprint.A(x=x, s=s, t=Reserves.WHOLE, b=b, u=0,
+                                            endowment=0, moment=moment, discrete=discrete),
+                              levels=self.maxdepth)
         found = self._A_x(x, s=s, b=b, moment=moment, discrete=discrete,
                           depth=self.maxdepth)
         if found is not None:
@@ -1290,8 +1371,8 @@ class Recursion(Reserves):
         if moment == 1 and self.interest.i > 0:  # (1) twin annuity
             a = self._a_x(x, s=s, b=b, discrete=discrete, depth=self.maxdepth)
             if a is not None:
-                self.blog(Recursion._Blog.a(x=x, s=s), '= [ 1 -',
-                          Recursion._Blog.A(x=x, s=s), f"] / d",
+                self.blog(self.pprint.a(x=x, s=s), '= [ 1 -',
+                          self.pprint.A(x=x, s=s), f"] / d",
                           #"Annuity twin: a = (1 - A) / d",
                           depth=self.maxdepth, rule='annuity twin')
                 self.blog.display()
@@ -1314,11 +1395,10 @@ class Recursion(Reserves):
           moment : compute first or second moment
           discrete : benefit paid year-end (True) or moment of death (False)
         """
-        self.blog = Recursion._Blog("Term Insurance",
-                                    Recursion._Blog.A(x=x, s=s, t=t, b=b, u=0,
-                                                      discrete=discrete,
-                                                      endowment=0, moment=moment),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Term Insurance",
+                              self.pprint.A(x=x, s=s, t=t, b=b, u=0, discrete=discrete,
+                                            endowment=0, moment=moment),
+                              levels=self.maxdepth)
         found = self._A_x(x, s=s, b=b, t=t, moment=moment, discrete=discrete,
                           depth=self.maxdepth)
         if found is not None:
@@ -1334,11 +1414,11 @@ class Recursion(Reserves):
                            t: int = Reserves.WHOLE, moment: int = 1, 
                            discrete: bool = True) -> float:
         """Compute deferred life insurance u|A_x:t^1 by calling recursion helper: """
-        self.blog = Recursion._Blog("Deferred Insurance",
-                                    Recursion._Blog.A(x=x, s=s, t=t, b=b, u=u,
-                                                      discrete=discrete,
-                                                      endowment=0, moment=moment),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Deferred Insurance",
+                              self.pprint.A(x=x, s=s, t=t, b=b, u=u,
+                                            discrete=discrete,
+                                            endowment=0, moment=moment),
+                              levels=self.maxdepth)
         A = self._get_A(x=x, s=s, t=t, b=b, u=u, discrete=discrete, 
                         moment=moment)
         if A is not None:
@@ -1354,11 +1434,11 @@ class Recursion(Reserves):
                             endowment: int = -1, moment: int = 1,
                             discrete: bool = True) -> float:
         """Compute endowment insurance u|A_x:t by calling recursion helper: """
-        self.blog = Recursion._Blog("Endowment Insurance",
-                                    Recursion._Blog.A(x=x, s=s, t=t, b=b, u=0,
-                                                      discrete=discrete,
-                                                      endowment=endowment, moment=moment),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Endowment Insurance",
+                              self.pprint.A(x=x, s=s, t=t, b=b, u=0,
+                                            discrete=discrete,
+                                            endowment=endowment, moment=moment),
+                              levels=self.maxdepth)
         assert t >= 0
         if endowment < 0:
             endowment = b
@@ -1426,7 +1506,7 @@ class Recursion(Reserves):
              variance: bool = False, depth: int = 1) -> float | None:
         """Helper to compute from recursive and alternate formulas"""
         if t == 1 and not u and discrete:
-#            self.blog(Recursion._Blog.a(x=x, s=s, t=1, discrete=discrete), '= 1',
+#            self.blog(self.pprint.a(x=x, s=s, t=1, discrete=discrete), '= 1',
 #                      depth=depth, rule='one-year discrete annuity')
             return b 
         if t == 0:
@@ -1437,8 +1517,7 @@ class Recursion(Reserves):
             return found
         if depth <= 0:
             return None
-        if variance:
-            return None
+        assert variance is False, "Annuity recursion requires variance=False"
 
         if u > 0:  # (1) deferred annuity
             found = self._a_x(x=x, s=s+1, t=t, b=b, u=u-1, discrete=discrete, 
@@ -1446,9 +1525,9 @@ class Recursion(Reserves):
             E = self._E_x(x, s=s, t=1, depth=depth-1)
             if found is not None and E is not None:
                 #msg = f"backward {u}_a_{x+s} = {u}_E * a_{x+s+u}"
-                self.blog(Recursion._Blog.a(x=x, s=s, u=u, t=t), '=',
-                          Recursion._Blog.a(x=x, s=s+1, t=t, u=u-1), '/',
-                          Recursion._Blog.E(x=x, s=s),
+                self.blog(self.pprint.a(x=x, s=s, u=u, t=t), '=',
+                          self.pprint.a(x=x, s=s+1, t=t, u=u-1), '/',
+                          self.pprint.E(x=x, s=s),
                           depth=depth, rule='backward deferred annuity')
                 return E * found  # (1a) backward recusion
             else:
@@ -1459,16 +1538,17 @@ class Recursion(Reserves):
             E = self._E_x(x, s=s-1, t=1, depth=depth-1)
             if found is not None and E is not None:  # (1b) forward
                 #msg = f"forward: {u}_a_{x+s} = {u+1}_a_{x+s-1}/E_{x+s-1}"
-                self.blog(Recursion._Blog.a(x=x, s=s, u=u, t=t), '=',
-                          Recursion._Blog.a(x=x, s=s-1, t=t, u=u+1), '/',
-                          Recursion._Blog.E(x=x, s=s-1),
+                self.blog(self.pprint.a(x=x, s=s, u=u, t=t), '=',
+                          self.pprint.a(x=x, s=s-1, t=t, u=u+1), '/',
+                          self.pprint.E(x=x, s=s-1),
                           depth=depth, rule='forward deferred annuity')
                 return found / E
             else:
                 self.blog.pop(depth=depth)
+            return None
 
-        # TODOS: more general recursions u in [1,...,50]
-        else:  # (2) Temporary and whole annuity recursions
+        # TODOS: more general recursions u in [1,...,50]?
+        if discrete:   # recursions only for discrete annuities
             found = self._a_x(x=x, s=s+1, t=self.add_term(t, -1), b=b, u=u, 
                               discrete=discrete, 
                               variance=variance, depth=depth-1)
@@ -1477,9 +1557,9 @@ class Recursion(Reserves):
                 #msg = (f"backward: a_{x+s}{'' if t < 0 else (':'+str(t))} = 1 + "
                 #       + f"E_{x+s} a_{x+s+1}{'' if t < 0 else (':'+str(t-1))}")
                 #_t = "" if t < 0 else f":{t-1}"
-                self.blog(Recursion._Blog.a(x=x, s=s, t=t), '= 1 +',
-                          Recursion._Blog.E(x=x, s=s, t=1), '*',
-                          Recursion._Blog.a(x=x, s=s+1, t=t-1),
+                self.blog(self.pprint.a(x=x, s=s, t=t), '= 1 +',
+                          self.pprint.E(x=x, s=s, t=1), '*',
+                          self.pprint.a(x=x, s=s+1, t=t-1),
                           depth=depth, rule='backward recursion')
                 return b + E * found
             else:
@@ -1490,9 +1570,9 @@ class Recursion(Reserves):
             E = self._E_x(x, s=s-1, t=1, depth=depth-1)
             if found is not None and E is not None:  # (2b) forward
                 _t = "" if t < 0 else f":{t-1}"
-                self.blog(Recursion._Blog.a(x=x, s=s, t=t), '= [',
-                          Recursion._Blog.a(x=x, s=s-1, t=self.add_term(t, 1)), '- 1 ] /',
-                          Recursion._Blog.E(x=x, s=s-1, t=1),
+                self.blog(self.pprint.a(x=x, s=s, t=t), '= [',
+                          self.pprint.a(x=x, s=s-1, t=self.add_term(t, 1)), '- 1 ] /',
+                          self.pprint.E(x=x, s=s-1, t=1),
                     #f"forward: a_{x+s}{_t} = (a_{x+s-1} - 1)/E",
                           depth=depth, rule='forward recursion')
                 return (found - b) / E
@@ -1511,10 +1591,10 @@ class Recursion(Reserves):
           variance (bool): return EPV (True) or variance (False)
           discrete : annuity due (True) or continuous (False)
         """
-        self.blog = Recursion._Blog("Whole Life Annuity",
-                                    Recursion._Blog.a(x=x, s=s, t=Reserves.WHOLE, b=b, u=0,
-                                                      discrete=discrete, variance=False),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Whole Life Annuity",
+                              self.pprint.a(x=x, s=s, t=Reserves.WHOLE, b=b, u=0,
+                                            discrete=discrete, variance=False),
+                              levels=self.maxdepth)
         found = self._a_x(x, s=s, b=b, variance=variance, 
                           discrete=discrete, depth=self.maxdepth)
         if found is not None:
@@ -1523,8 +1603,8 @@ class Recursion(Reserves):
         if not variance and self.interest.i > 0:  # (1) twin insurance shortcut
             A = self._A_x(x, s=s, b=b, discrete=discrete, depth=self.maxdepth)
             if A is not None:
-                self.blog(Recursion._Blog.a(x=x, s=s, discrete=discrete, variance=variance),
-                          "= [1 -", Recursion._Blog.A(x=x, s=s, discrete=discrete), "] / d",
+                self.blog(self.pprint.a(x=x, s=s, discrete=discrete, variance=variance),
+                          "= [1 -", self.pprint.A(x=x, s=s, discrete=discrete), "] / d",
                           depth=self.maxdepth, rule='insurance twin')
                 self.blog.display()
                 return self.annuity_twin(A=A, discrete=discrete)
@@ -1547,10 +1627,10 @@ class Recursion(Reserves):
           variance (bool): return EPV (True) or variance (False)
           discrete : annuity due (True) or continuous (False)
         """
-        self.blog = Recursion._Blog("Temporary Annuity",
-                                    Recursion._Blog.a(x=x, s=s, t=t, b=b, u=0,
-                                                      discrete=discrete, variance=variance),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Temporary Annuity",
+                              self.pprint.a(x=x, s=s, t=t, b=b, u=0,
+                                            discrete=discrete, variance=variance),
+                              levels=self.maxdepth)
         found = self._a_x(x, s=s, b=b, t=t, variance=variance, 
                           discrete=discrete, depth=self.maxdepth)
         if found is not None:
@@ -1560,8 +1640,8 @@ class Recursion(Reserves):
             A = self._A_x(x, s=s, b=b, t=t, endowment=b, discrete=discrete, 
                           depth=self.maxdepth)
             if A is not None:
-                self.blog(Recursion._Blog.a(x=x, s=s, t=t, b=b), '= [ 1 -',
-                          Recursion._Blog.A(x=x, s=s, t=t, b=b, endowment=b), f"] / d",
+                self.blog(self.pprint.a(x=x, s=s, t=t, b=b), '= [ 1 -',
+                          self.pprint.A(x=x, s=s, t=t, b=b, endowment=b), f"] / d",
                           #"Annuity twin: a = (1 - A) / d",
                           depth=self.maxdepth, rule='annuity twin')
                 self.blog.display()
@@ -1584,10 +1664,10 @@ class Recursion(Reserves):
           b : annuity benefit amount
           discrete : annuity due (True) or continuous (False)
         """
-        self.blog = Recursion._Blog("Deferred Annuity",
-                                    Recursion._Blog.a(x=x, s=s, t=t, b=b, u=u,
-                                                      discrete=discrete, variance=False),
-                                    levels=self.maxdepth)
+        self.blog = self.Blog("Deferred Annuity",
+                              self.pprint.a(x=x, s=s, t=t, b=b, u=u,
+                                            discrete=discrete, variance=False),
+                              levels=self.maxdepth)
         a = self._a_x(x, s=s, b=b, t=t, u=u, 
                       discrete=discrete, depth=self.maxdepth)
         if a is not None:
@@ -1606,7 +1686,7 @@ class Recursion(Reserves):
 try:
     _shell = str(type(get_ipython())).lower()
     if "colab" in _shell or "zmq" in _shell:
-        Recursion._Blog = Blog
+        Recursion._Blog = PPrint
         _Blog._notebook = True
         _Blog._latex = True
     else:

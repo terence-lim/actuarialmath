@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: actuarialmath
-Version: 0.0.11
+Version: 0.0.14
 Summary: A package for actuarial math and life contingent risks
 Author: Terence Lim
 Project-URL: Homepage, https://terence-lim.github.io/actuarialmath-guide

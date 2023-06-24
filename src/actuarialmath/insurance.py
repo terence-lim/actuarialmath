@@ -83,13 +83,16 @@ class Insurance(Fractional):
         else:
             E = 0
         t = self.max_term(x+s+u, t=t)
-        if discrete:
-            A = sum([(benefit(x+s, k+1)*self.interest.v_t(k+1))**moment 
-                     * self.q_x(x, s=s, u=k) for k in range(u, t+u)])
-        else:   # use continous first principles
-            Z = lambda t: ((benefit(x+s, t+u) * self.interest.v_t(t+u))**moment 
-                           * self.f(x, s, t+u))
-            A = self.integral(Z, 0, t)
+        try:
+            if discrete:
+                A = sum([(benefit(x+s, k+1)*self.interest.v_t(k+1))**moment 
+                         * self.q_x(x, s=s, u=k) for k in range(u, t+u)])
+            else:   # use continous first principles
+                Z = lambda t: ((benefit(x+s, t+u) * self.interest.v_t(t+u))**moment 
+                               * self.f(x, s, t+u))
+                A = self.integral(Z, 0, t)
+        except:
+            raise Exception("Failed attempting to numerically integrate EPV of insurance")
         return A + E
 
     @staticmethod

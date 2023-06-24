@@ -53,13 +53,16 @@ class Annuity(Insurance):
           >>> life.a_x(x=20)
         """
         t = self.max_term(x+s+u, t=t)
-        if discrete:
-            a = sum([benefit(x+s, k) * self.interest.v_t(k) 
-                     * self.p_x(x, s=s, t=k) for k in range(u, t+u)])
-        else:   # use continuous first principles
-            Y = lambda t: (benefit(x+s, t+u) * self.interest.v_t(t+u) 
-                           * self.S(x, 0, t=t+u))
-            a = self.integral(Y, 0, t)
+        try:
+            if discrete:
+                a = sum([benefit(x+s, k) * self.interest.v_t(k) 
+                         * self.p_x(x, s=s, t=k) for k in range(u, t+u)])
+            else:   # use continuous first principles
+                Y = lambda t: (benefit(x+s, t+u) * self.interest.v_t(t+u) 
+                               * self.S(x, 0, t=t+u))
+                a = self.integral(Y, 0, t)
+        except:
+            raise Exception("Failed attempting to numerically integrate EPV of annuity")
         return a
 
 

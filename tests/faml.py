@@ -852,14 +852,14 @@ isclose(0.18, p, question="Q4.2")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="db579f3b" outputId="e6e2e006-1b78-45b6-b270-435ad567034c"
-life = Recursion(verbose=True).set_interest(i=0.05)\
-                              .set_q(0.01, x=60)\
-                              .set_A(0.86545, x=60, t=3, endowment=1)
+life = Recursion(depth=4).set_interest(i=0.05)\
+                         .set_q(0.01, x=60)\
+                         .set_A(0.86545, x=60, t=3, endowment=1)
 q = life.q_x(x=61)
-A = Recursion(verbose=True).set_interest(i=0.045)\
-                           .set_q(0.01, x=60)\
-                           .set_q(q, x=61)\
-                           .endowment_insurance(60, t=3)
+A = Recursion(depth=4).set_interest(i=0.045)\
+                      .set_q(0.01, x=60)\
+                      .set_q(q, x=61)\
+                      .endowment_insurance(60, t=3)
 isclose(0.878, A, question="Q4.3")
 
 # + [markdown] id="de2d0427"
