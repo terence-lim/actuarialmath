@@ -25,8 +25,6 @@ This Python package implements fundamental methods for modeling life contingent 
    - Adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes
 
 
-The code chunks in the [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing), or [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), demonstrate how to solve each of the sample FAM-L exam questions released by the SOA. Examples, a user guide, API references and other resources are made available below. 
-
 ## Examples
 
 __SOA FAM-L sample question 5.7__: 
