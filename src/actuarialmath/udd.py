@@ -13,18 +13,6 @@ class UDD(Mthly):
     Args:
       m : number of payments per year
       life : original fractional survival and mortality functions
-
-    Examples:
-      >>> x = 0
-      >>> life = Recursion().set_interest(i=0.05).set_a(9.19, x=x)
-      >>> benefits = UDD(m=0, life=life).whole_life_insurance(x)
-      >>> payments = UDD(m=12, life=life).whole_life_annuity(x)
-      >>> print(benefits, payments)
-      >>> print(life.gross_premium(a=payments, A=benefits, benefit=100000)/12)
-      >>> life = SULT(udd=True)
-      >>> a = UDD(m=12, life=life).temporary_annuity(45, t=20)
-      >>> A = UDD(m=0, life=life).whole_life_insurance(45)
-      >>> print(life.gross_premium(A=A, a=a, benefit=100000)/12)
     """
 
     def __init__(self, m: int, life: Annuity, **kwargs):
@@ -67,6 +55,9 @@ class UDD(Mthly):
           s : years after selection
           b : amount of benefit
           moment : compute first or second moment
+
+        Examples:
+          >>> UDD(m=0, life=SULT(udd=True)).whole_life_insurance(x)
         """
         assert moment in [1, 2, Annuity.VARIANCE]
         if moment == Annuity.VARIANCE:
@@ -112,6 +103,9 @@ class UDD(Mthly):
           t : term of insurance in years
           b : amount of benefit
           moment : return first or second moment
+
+        Examples:
+          >>> UDD(m=12, life=SULT(udd=True)).term_insurance(45)
         """
         assert moment in [1, 2, Annuity.VARIANCE]
         if moment == Annuity.VARIANCE:
@@ -133,6 +127,9 @@ class UDD(Mthly):
           s : years after selection
           b : amount of benefit
           variance : return first moment (False) or variance (True)
+
+        Examples:
+          >>> UDD(m=12, life=SULT(udd=True)).whole_life_annuity(x)
         """
         if variance:  # short cut for variance of whole life
             A1 = self.whole_life_insurance(x, s=s, moment=1)
@@ -151,6 +148,9 @@ class UDD(Mthly):
           t : term of annuity in years
           b : amount of benefit
           variance : return first moment (False) or variance (True)
+
+        Examples:
+          >>> UDD(m=12, life=SULT(udd=True)).temporary_annuity(45, t=20)
         """
         if variance:  # short cut for variance of temporary life annuity
             A1 = self.temporary_insurance(x, s=s, t=t)

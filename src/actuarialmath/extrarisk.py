@@ -11,14 +11,9 @@ class ExtraRisk(Actuarial):
     """Adjust mortality by extra risk
 
     Args:
-      life : original survival and mortality rates
+      life : contains original survival and mortality rates
       extra : amount of extra risk to adjust
-      risk : adjust by {"ADD_FORCE" "MULTIPLY_FORCE" "ADD_AGE" "MULTIPLY_RATE"}
-
-    Examples:
-      >>> life = SULT()
-      >>> extra = ExtraRisk(life=life, extra=2, risk="MULTIPLY_FORCE")
-      >>> print(life.p_x(45), extra.p_x(45))
+      risk : adjust by {"ADD_FORCE", "MULTIPLY_FORCE", "ADD_AGE" or "MULTIPLY_RATE"}
     """
     risks = ["ADD_FORCE", "MULTIPLY_FORCE", "ADD_AGE", "MULTIPLY_RATE"]
 
@@ -43,7 +38,8 @@ class ExtraRisk(Actuarial):
         Examples:
           >>> life = SULT()
           >>> extra = ExtraRisk(life=life, extra=0.05, risk="ADD_FORCE")
-          >>> select = SelectLife(periods=1).set_select(s=0, age_selected=True, q=extra['q'])
+          >>> select = SelectLife(periods=1).set_select(s=0, age_selected=True, 
+                                                        q=extra['q'])
         """
         f = {'q': self.q_x, 'p': self.p_x}[col[0]]
         return {x: f(x) for x in range(self.life._MINAGE, self.life._MAXAGE+1)}
@@ -54,6 +50,11 @@ class ExtraRisk(Actuarial):
         Args:
           x : age of selection
           s : years after selection
+
+        Examples:
+          >>> life = SULT()
+          >>> extra = ExtraRisk(life=life, extra=2, risk="MULTIPLY_FORCE")
+          >>> print(life.p_x(45), extra.p_x(45))
         """
         if self.risk_ in ["MULTIPLY_RATE"]:
             return 1 - self.q_x(x, s=s)

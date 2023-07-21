@@ -6,18 +6,7 @@ import math
 from actuarialmath import Survival
 
 class Lifetime(Survival):
-    """Computes expected moments of future lifetime
-
-    Examples:
-      >>> def l(x, s): return 0. if (x+s) >= 100 else 1 - ((x + s)**2) / 10000.
-      >>> e = Lifetime().set_survival(l=l).e_x(75, t=10, curtate=False)
-      >>> def fun(omega):  # Solve first for omega, given mu_65 = 1/180
-      >>>     return Lifetime().set_survival(l=lambda x,s: (1-(x+s)/omega)**0.25,
-      >>>                                    maxage=omega).mu_x(65)
-      >>> omega = int(Lifetime.solve(fun, target=1/180, grid=100))  # solve for omega
-      >>> e = Lifetime().set_survival(l=lambda x,s: (1 - (x+s)/omega)**0.25, 
-      >>>                             maxage=omega).e_x(106)
-    """
+    """Computes expected moments of future lifetime"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

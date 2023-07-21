@@ -11,14 +11,7 @@ from typing import Callable, Dict, Any, Tuple, List
 from actuarialmath import Actuarial, Interest
 
 class Life(Actuarial):
-    """Compute moments and probabilities
-
-    Examples:
-      >>> p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
-      >>> p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
-      >>> conditional = math.sqrt(Life.conditional_variance(p=.2, p1=p1, p2=p2, N=100000))
-      >>> mixture = math.sqrt(Life.mixture(p=.2, p1=p1, p2=p2, N=100000, variance=True))
-    """
+    """Compute moments and probabilities"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -103,6 +96,11 @@ class Life(Actuarial):
           p2 : probability of occurrence if other r.v.
           N : number of trials
           variance : whether to return variance (True) or mean (False)
+
+        Examples:
+          >>> p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
+          >>> p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
+          >>> math.sqrt(Life.mixture(p=.2, p1=p1, p2=p2, N=100000, variance=True))
         """
         assert 0 <= p <= 1 and 0 <= p1 <= 1 and 0 <= p2 <= 1 and N >= 1
         mean1 = Life.binomial(p1, N)
@@ -124,6 +122,11 @@ class Life(Actuarial):
           p1 : probability of occurence for first r.v.
           p2 : probability of occurence for other r.v.
           N : number of trials
+
+        Examples:
+          >>> p1 = (1. - 0.02) * (1. - 0.01)  # 2_p_x if vaccine given
+          >>> p2 = (1. - 0.02) * (1. - 0.02)  # 2_p_x if vaccine not given
+          >>> math.sqrt(Life.mixture(p=.2, p1=p1, p2=p2, N=100000, variance=True))
         """
         assert 0 <= p <= 1 and 0 <= p1 <= 1 and 0 <= p2 <= 1 and N >= 1
         mean1 = Life.binomial(p1, N)

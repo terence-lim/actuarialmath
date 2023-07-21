@@ -20,16 +20,6 @@ class Interest(Actuarial):
       i_m : or assumed monthly interest rate
       d_m : or assumed monthly discount rate
       m : m'thly frequency, if i_m or d_m are given
-
-    Examples:
-      >>> interest = Interest(v=0.75)
-      >>> L = 35 * interest.annuity(t=4, due=False) + 75 * interest.v_t(t=5)
-      >>> interest = Interest(v=0.5)
-      >>> R = 15 * interest.annuity(t=4, due=False) + 25 * interest.v_t(t=5)
-      >>> i2 = Interest.double_force(i=0.05)  # Double the force of interest
-      >>> d2 = Interest(i=i2).d               # Convert interest to discount rate
-      >>> i = Interest.mthly(i_m=0.05, m=12)  # Convert mthly to annual-pay
-      >>> i_m = Interest.mthly(i=i, m=12)     # Convert annual-pay to mthly
     """
 
     def __init__(self, i: float = -1., delta: float = -1., d: float = -1., 
@@ -68,17 +58,17 @@ class Interest(Actuarial):
    
     @property
     def d(self) -> float:
-       """discount rate"""
+       """annual discount rate of interest"""
        return self._d
    
     @property
     def delta(self) -> float:
-       """continuously compounded interest rate"""
+       """continuously compounded interest rate, or force of interest, per year"""
        return self._delta
    
     @property
     def v(self) -> float:
-       """discount factor"""
+       """annual discount factor"""
        return self._v
    
     @property
@@ -109,7 +99,7 @@ class Interest(Actuarial):
 
     @staticmethod
     def mthly(m: int = 0, i: float = -1, d: float = -1,
-            i_m: float = -1, d_m: float = -1) -> float:
+              i_m: float = -1, d_m: float = -1) -> float:
         """Convert to or from m'thly interest rates
 
         Args:

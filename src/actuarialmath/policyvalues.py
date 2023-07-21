@@ -24,17 +24,6 @@ class Contract(Actuarial):
       discrete : annuity due (True) or continuous (False)
       T : term of insurance
       discrete : annuity due (True) or continuous (False)        
-
-    Examples:
-      >>> life = PolicyValues().set_interest(i=0.06)
-      >>> a = 12
-      >>> A = life.insurance_twin(a)
-      >>> contract = Contract(benefit=1000, settlement_policy=20, 
-      >>>                     initial_policy=10, initial_premium=0.75, 
-      >>>                     renewal_policy=2, renewal_premium=0.1)
-      >>> contract.premium = life.gross_premium(A=A, a=a, **contract.premium_terms)
-      >>> print(A, contract.premium)
-      >>> L = life.gross_variance_loss(A1=A, A2=0.14, contract=contract)
     """
     
     def __init__(self, 
@@ -72,7 +61,15 @@ class Contract(Actuarial):
 
     @property
     def premium_terms(self) -> Dict:    # terms required by gross_premiums 
-        """Getter returns dict of terms required for calculating gross premiums"""
+        """Getter returns dict of terms required for calculating gross premiums
+
+        Examples:
+          >>> life = PolicyValues().set_interest(i=0.04)
+          >>> contract = Contract(premium=2.338, benefit=100, initial_premium=.1, 
+          >>>                     renewal_premium=0.05)
+          >>> contract.premium = life.gross_premium(a=12, A=life.insurance_twin(a),
+          >>>                                       **contract.premium_terms)
+        """
         return dict(benefit=self.benefit,
                     initial_policy=self.initial_policy,
                     initial_premium=self.initial_premium,
@@ -115,15 +112,7 @@ class Contract(Actuarial):
         return self.benefit + self.settlement_policy
 
 class PolicyValues(Premiums):
-    """Compute net and gross future losses and policy values
-
-    Examples:
-      >>> life = PolicyValues().set_interest(i=0.04)
-      >>> contract = Contract(premium=2.338, benefit=100, initial_premium=.1, 
-      >>>                     renewal_premium=0.05)
-      >>> var = life.gross_variance_loss(A1=life.insurance_twin(16.50),
-      >>>                                A2=0.17, contract=contract)
-    """
+    """Compute net and gross future losses and policy values"""
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

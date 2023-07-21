@@ -9,33 +9,7 @@ import numpy as np
 from actuarialmath import Insurance
 
 class Annuity(Insurance):
-    """Compute present values and relationships of life annuities
-
-    Examples:
-      >>> life = Annuity().set_interest(delta=0.06).set_survival(mu=lambda *x: 0.04)
-      >>> life.a_x(x=20)
-      >>> life.immediate_annuity(x=20, t=30)
-      >>> life.annuity_twin(A=0.05879)
-      >>> life.insurance_twin(a=19.7655)
-      >>> life.annuity_variance(A2=0.22, A1=0.45)
-      >>> life.whole_life_annuity(x=24, variance=True, due=False)
-      >>> life.temporary_annuity(x=24, t=10)
-      >>> life.deferred_annuity(x=24, u=5, t=10, discrete=False)
-      >>> life.certain_life_annuity(x=24, u=5, t=10)
-      >>> life.increasing_annuity(x=24, t=10)
-      >>> life.decreasing_annuity(x=24, t=10)
-      >>> prob, x, discrete = 0.5, 0, False
-      >>> t = life.Y_t(0, prob, discrete=discrete)
-      >>> life.Y_plot(x=20, T=t, discrete=discrete)
-      >>> Y = life.Y_from_prob(x, prob=prob, discrete=discrete)
-      >>> print(t, life.Y_to_t(Y))
-      >>> print(Y, life.Y_from_t(t, discrete=discrete))
-      >>> print(prob, life.Y_to_prob(x, Y=Y))
-      >>> life = Annuity().set_interest(i=0.05)
-      >>> var = life.annuity_variance(A2=0.22, A1=0.45)
-      >>> mean = life.annuity_twin(A=0.45)
-      >>> print(life.portfolio_percentile(mean=mean, variance=var, prob=.95, N=100))
-    """
+    """Compute present values and relationships of life annuities"""
 
     def a_x(self, x: int, s: int = 0, t: int = Insurance.WHOLE, u: int = 0,
             benefit: Callable = lambda x,t: 1, discrete: bool = True) -> float:
@@ -62,7 +36,7 @@ class Annuity(Insurance):
                                * self.S(x, 0, t=t+u))
                 a = self.integral(Y, 0, t)
         except:
-            raise Exception("Failed attempting to numerically integrate EPV of annuity")
+            raise Exception("Failed to numerically integrate EPV of annuity")
         return a
 
 

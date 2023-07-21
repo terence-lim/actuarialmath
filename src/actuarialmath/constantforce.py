@@ -15,10 +15,7 @@ class ConstantForce(MortalityLaws):
 
     Examples:
       >>> life = ConstantForce(mu=0.01).set_interest(delta=0.05)
-      >>> A = life.term_insurance(35, t=35) + life.E_x(35, t=35) * 0.51791 # A_35
-      >>> A = (life.term_insurance(35, t=35, discrete=False) 
-      >>>      + life.E_x(35, t=35) * 0.51791)    # A_35
-      >>> P = life.premium_equivalence(A=A, b=100000, discrete=False)
+      >>> life.term_insurance(35, t=35, discrete=False) + life.E_x(35, t=35)*0.51791
     """
 
     def __init__(self, mu: float, udd: bool = False, **kwargs):

@@ -11,15 +11,6 @@ class Fractional(Lifetime):
 
     Args:
       udd : select UDD (True, default) or CFM (False) between integer ages
-
-    Examples:
-      >>> print(Fractional.e_approximate(e_complete=15))  # output e_curtate
-      >>> print(Fractional.e_approximate(e_curtate=15))   # output e_complete
-      >>> x = 45
-      >>> life = Fractional(udd=False).set_survival(l=lambda x,t: 50-x-t)
-      >>> print(life.q_r(x, r=0.), life.q_r(x, r=0.5), life.q_r(x, r=1.))
-      >>> life = Fractional(udd=True).set_survival(l=lambda x,t: 50-x-t)
-      >>> print(life.q_r(x, r=0.), life.q_r(x, r=0.5), life.q_r(x, r=1.))
     """
 
     def __init__(self, udd: bool = True, **kwargs):
@@ -61,6 +52,7 @@ class Fractional(Lifetime):
           t : fractional number of years survived
 
         Examples:
+
         >>> life = Fractional(udd=False).set_survival(l=lambda x,t: 50-x-t)
         >>> print(life.p_r(47, r=0.), life.p_r(47, r=0.5), life.p_r(47, r=1.))
 
@@ -228,8 +220,8 @@ class Fractional(Lifetime):
           approximate complete or curtate expectation assuming UDD
         
         Examples:
-          >>> print(Fractional.e_curtate(e_complete=15))
-          >>> print(Fractional.e_curtate(e_curtate=15))
+          >>> print(Fractional.e_approximate(e_complete=15))
+          >>> print(Fractional.e_approximate(e_curtate=15))
         """
         if e_complete is not None:
             assert e_curtate is None, "one of e and e_curtate must be None"

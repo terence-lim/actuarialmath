@@ -25,14 +25,6 @@ class SelectLife(LifeTable):
       - 'A' : whole life insurance
       - 'a' : whole life annuity
       - 'e' : expected future curtate lifetime of [x]+s
-
-    Examples:
-      >>> life = SelectLife().set_interest(i=0.04).set_table(q={65: [.08, .10, .12, .14],
-      >>>                                                       66: [.09, .11, .13, .15],
-      >>>                                                       67: [.10, .12, .14, .16],
-      >>>                                                       68: [.11, .13, .15, .17],
-      >>>                                                       69: [.12, .14, .16, .18]})
-      >>> print(life.deferred_insurance(65, t=2, u=2, b=2000))
     """
 
     def __init__(self, periods: int = 0, udd: bool = True,

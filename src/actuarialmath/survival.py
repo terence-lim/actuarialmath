@@ -8,21 +8,7 @@ import numpy as np
 from actuarialmath import Life
 
 class Survival(Life):
-    """Set and derive basic survival and mortality functions
-
-    Examples:
-      >>> B, c = 0.00027, 1.1
-      >>> def S(x,s,t): return (math.exp(-B * c**(x+s) * (c**t - 1)/math.log(c)))
-      >>> f = Survival().set_survival(S=S).f_x(x=50, t=10)
-      >>> def ell(x,s): return (1 - (x+s) / 60)**(1 / 3)
-      >>> mu = Survival().set_survival(l=ell).mu_x(35) * 1000
-      >>> def ell(x,s): return (1 - ((x+s)/250)) if x+s < 40 else (1 - ((x+s)/100)**2)
-      >>> q = Survival().set_survival(l=ell).q_x(30, t=20)
-      >>> def fun(k):
-      >>>     return Survival().set_survival(l=lambda x,s: 100*(k - (x+s)/2)**(2/3))\
-      >>>                      .mu_x(50)
-      >>> k = int(Survival.solve(fun, target=1/48, grid=50))
-    """
+    """Set and derive basic survival and mortality functions"""
     _RADIX = 100000   # default initial number of lives in life table
 
     def set_survival(self,
@@ -41,6 +27,15 @@ class Survival(Life):
           mu : or force of mortality at age (x+t)
           maxage : maximum age
           minage : minimum age
+
+        Examples:
+
+        >>> B, c = 0.00027, 1.1
+        >>> def S(x,s,t): return (math.exp(-B * c**(x+s) * (c**t - 1)/math.log(c)))
+        >>> life = Survival().set_survival(S=S)
+
+        >>> def ell(x,s): return (1 - (x+s) / 60)**(1 / 3)
+        >>> life = Survival().set_survival(l=ell)
         """
         self._MAXAGE = maxage
         self._MINAGE = minage
@@ -159,6 +154,11 @@ class Survival(Life):
           s : years after selection
           u : survives u years, then
           t : dies within next t years
+
+        Examples:
+
+        >>> def ell(x,s): return (1-((x+s)/250)) if x+s < 40 else (1-((x+s)/100)**2)
+        >>> q = Survival().set_survival(l=ell).q_x(30, t=20)
         """
         assert x >= 0, "x must be non-negative"
         assert s >= 0, "s must be non-negative"
@@ -171,6 +171,12 @@ class Survival(Life):
           x : age of selection
           s : years after selection
           t : dies at year t
+
+        Examples:
+
+        >>> B, c = 0.00027, 1.1
+        >>> def S(x,s,t): return (math.exp(-B * c**(x+s) * (c**t - 1)/math.log(c)))
+        >>> f = Survival().set_survival(S=S).f_x(x=50, t=10)
         """
         assert x >= 0, "x must be non-negative"
         assert s >= 0, "s must be non-negative"
@@ -187,9 +193,8 @@ class Survival(Life):
           t : force of mortality at year t
 
         Examples:
-          >>> def S(x, s): return (1 - (x+s) / 60)**(1 / 3)
-          >>> print(Survival().set_survival(l=S).mu_x(35))
-
+          >>> def ell(x, s): return (1 - (x+s) / 60)**(1 / 3)
+          >>> print(Survival().set_survival(l=ell).mu_x(35))
         """
         assert x >= 0, "x must be non-negative"
         assert s >= 0, "s must be non-negative"

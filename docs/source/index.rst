@@ -96,7 +96,7 @@ Resources
 
 .. toctree::
    :maxdepth: 2
-   :caption: Submodules:
+   :caption: Modules:
 
    actuarialmath.actuarial
    actuarialmath.interest
@@ -109,10 +109,10 @@ Resources
    actuarialmath.premiums
    actuarialmath.policyvalues
    actuarialmath.reserves
+   actuarialmath.recursion
    actuarialmath.lifetable
    actuarialmath.sult
    actuarialmath.selectlife
-   actuarialmath.recursion
    actuarialmath.mortalitylaws
    actuarialmath.constantforce
    actuarialmath.extrarisk

@@ -1,4 +1,4 @@
-"""Reserves - Computes recursive, interim and modified reserves
+"""Reserves - Computes recursive, interim or modified reserves
 
 MIT License. Copyright 2022-2023 Terence Lim
 """
@@ -10,23 +10,7 @@ from typing import Callable, Dict, Any
 from actuarialmath import PolicyValues, Contract
 
 class Reserves(PolicyValues):
-    """Compute recursive, interim and modified reserves
-
-    Examples:
-      >>> x = 0
-      >>> life = Reserves().set_reserves(T=3)
-      >>> G = 368.05
-      >>> def fun(P):  # solve net premium from expense reserve equation
-      >>>     return life.t_V(x=x, t=2, premium=G-P, benefit=lambda t: 0,
-      >>>                     per_policy=5+.08*G)
-      >>> P = life.solve(fun, target=-23.64, grid=[.29, .31]) / 1000
-      >>> life = SULT()
-      >>> x, T, b = 50, 20, 500000    # $500K 20-year term insurance for (50)
-      >>> P = life.net_premium(x=x, t=T, b=b)
-      >>> life.set_reserves(T=T).fill_reserves(x=x, contract=Contract(premium=P, benefit=b))
-      >>> life.V_plot(title=f"Reserves for ${b} {T}-year term insurance issued to ({x})")
-    """
-    
+    """Compute recursive, interim or modified reserves"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._reserves = {'V': {}}
@@ -43,6 +27,9 @@ class Reserves(PolicyValues):
           T : max term of policy
           V : reserve values, keyed by time t
           endowment : endowment benefit amount
+
+        Examples:
+          >>> life = Reserves().set_reserves(T=3)
         """
         if T:
             self.T = T
@@ -95,6 +82,9 @@ class Reserves(PolicyValues):
         Args:
           title : title to display
           color : color to plot curve
+
+        Examples:
+          >>> life.V_plot(title=f"Reserves for term insurance")
         """
         if ax is None:
             fig, ax = plt.subplots(1, 1)
@@ -184,6 +174,13 @@ class Reserves(PolicyValues):
           per_premium : expense per $ premium
           per_policy : expense per policy
           reserve_benefit : whether reserve value included in benefit
+
+        Examples:
+          >>> G, x = 368.05, 0
+          >>> def fun(P):  # solve net premium from expense reserve equation
+          >>>     return life.t_V(x=x, t=2, premium=G-P, benefit=lambda t: 0,
+          >>>                     per_policy=5+.08*G)
+          >>> P = life.solve(fun, target=-23.64, grid=[.29, .31]) / 1000
         """
         if t in self._reserves['V']:   # already solved in reserves table
             return self._reserves['V'][t]

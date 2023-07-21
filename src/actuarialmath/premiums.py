@@ -5,19 +5,7 @@ MIT License. Copyright (c) 2022-2023 Terence Lim
 from actuarialmath import Annuity
 
 class Premiums(Annuity):
-    """Compute et and gross premiums under equivalence principle
-
-    Examples:
-      >>> life = Premiums().set_interest(delta=0.06).set_survival(mu=lambda x,s: 0.04)
-      >>> print(life.net_premium(x=0))
-      >>> life = Premiums().set_interest(i=0.05)
-      >>> var = life.annuity_variance(A2=0.22, A1=0.45)
-      >>> mean = life.annuity_twin(A=0.45)
-      >>> fund = life.portfolio_percentile(mean, var, prob=.95, N=100)
-      >>> life = Premiums().set_interest(d=0.05)
-      >>> A = life.insurance_equivalence(premium=2143, b=100000)
-      >>> a = life.annuity_equivalence(premium=2143, b=100000)
-    """
+    """Compute et and gross premiums under equivalence principle"""
 
     #
     # Net level premiums for special insurances
@@ -44,7 +32,7 @@ class Premiums(Annuity):
 
         Examples:
           >>> life = Premiums().set_interest(delta=0.06).set_survival(mu=lambda x,s: 0.04)
-          >>> print(life.net_premium(x=0))
+          >>> life.net_premium(x=0)
 
         """
         if annuity:
@@ -80,7 +68,7 @@ class Premiums(Annuity):
 
         Examples:
           >>> life = Premiums().set_interest(d=0.05)
-          >>> A = life.insurance_equivalence(premium=2143, b=100000)
+          >>> life.insurance_equivalence(premium=2143, b=100000)
         """
         d = self.interest.d if discrete else self.interest.delta
         return premium / (d*b + premium)  # from P = b[dA/(1-A)]
@@ -157,16 +145,14 @@ class Premiums(Annuity):
           discrete : annuity due (True) or continuous (False)
 
         Examples:
-          >>> life = Premiums()
-          >>> A, IA, a = 0.17094, 0.96728, 6.8865
-          >>> print(life.gross_premium(a=a,
-          >>>                        A=A,
-          >>>                        IA=IA,
-          >>>                        benefit=100000,
-          >>>                        initial_premium=0.5,
-          >>>                        renewal_premium=.05,
-          >>>                        renewal_policy=200,
-          >>>                        initial_policy=200))
+          >>> Premiums().gross_premium(a=0.17094,
+          >>>                          A=6.8865,
+          >>>                          IA= 0.96728,
+          >>>                          benefit=100000,
+          >>>                          initial_premium=0.5,
+          >>>                          renewal_premium=.05,
+          >>>                          renewal_policy=200,
+          >>>                          initial_policy=200)
         """
         if a is None:    # assume WL or Endowment Insurance for twin
             a = self.annuity_twin(A, discrete=discrete)

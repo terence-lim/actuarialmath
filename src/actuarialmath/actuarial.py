@@ -17,16 +17,6 @@ class Actuarial(object):
       VARIANCE : select variance as the statistical moment to calculate
 
       WHOLE : indicates that term of insurance or annuity is Whole Life
-
-    Examples:
-      >>> actuarial = Actuarial()
-      >>> def as_term(t): return "WHOLE_LIFE" if t == Actuarial.WHOLE else t    
-      >>> for a,b in [(3, Actuarial.WHOLE), (3, 2), (3, -1)]:
-      >>>     print(f"({as_term(a)}) + ({as_term(b)}) =",
-      >>>           as_term(actuarial.add_term(a, b)))        
-      >>> print(Actuarial.solve(fun=lambda omega: 1/omega, 
-      >>>                       target=0.05, grid=[1, 100]))
-      >>> print(Actuarial.derivative(fun=lambda x: x/50, x=25))
     """
     # constants
     VARIANCE = -2
@@ -62,22 +52,29 @@ class Actuarial(object):
         Args:
           fun : function to compute derivative
           x : value to compute derivative at
+
+        Examples:
+          >>> print(Actuarial.derivative(fun=lambda x: x/50, x=25))
         """
         return scipy.misc.derivative(fun, x0=x, dx=1)
 
     @staticmethod
     def solve(fun: Callable[[float], float], target: float, 
               grid: float | Tuple | List, mad: bool = False) -> float:
-        """Solve for the root of, or parameter value that minimizes, a function
+        """Solve root, or parameter that minimizes absolute value, of a function
 
         Args:
           fun : function to compute output given input values
           target : target value of function output
           grid : initial range of guesses
-          root : whether solve root (True), or minimize absolute deviation (False)
+          root : whether to solve root (True), or minimize absolute function (False)
 
         Returns:
           value s.t. output of function fun(value) ~ target
+
+        Examples:
+          >>> print(Actuarial.solve(fun=lambda omega: 1/omega, 
+          >>>                       target=0.05, grid=[1, 100]))
         """
         if mad:   # minimize absolute difference
             f = lambda t: abs(fun(t) - target)

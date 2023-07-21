@@ -8,10 +8,6 @@ from actuarialmath import Reserves
 from IPython.display import display_latex, display_pretty
 from IPython import get_ipython
 
-"""TODOS
-assert discrete in recursions
-"""
-
 _depth = 3
 
 class _Blog:
@@ -192,20 +188,21 @@ class _Blog:
             return args[0] + out if len(args) else "0"
 
 class PPrint(_Blog):
-    """Helper to track recursion steps and display actuarial notation in latex format"""
+    """Helper to display recursion steps as actuarial notation in latex format"""
 
     def __init__(self, label: str, *args, **kwargs):
         super().__init__(label, *args, **kwargs)
-        self.title = f"~\\texttt{{{label}}}{'~'.join(args)}~:="    # to identify this stack
+        self.title = f"~\\texttt{{{label}}}{'~'.join(args)}~:=" # identify this stack
 
     def __str__(self) -> str:
         if len(self):
-            beg = "\\begin{array}{lr}\n"
+            beg = "\\begin{array}{llll}\n"
             end = "\\end{array}"
             lines = [self.title]
             for msg, depth, rule in zip(self._history, self._depths, self._rules):
                 left = '~~' * (1 + max(self.levels-abs(depth), 0))
-                lines.append(left + msg + '& \\quad \\texttt{' + rule + '}')
+                line = left + msg + '& \\quad \\texttt{' + rule + '}'
+                lines.append(line) #.replace("=", "& ="))
             s = beg + "\\\\\n".join(lines) + end
             return s
         return ""
@@ -348,16 +345,6 @@ class Recursion(Reserves):
       - 'IA' : decreasing life insurance of t years
       - 'DA' : increasing life insurance of t years
       - 'a' : deferred, temporary or whole life annuity of t years, and moments
-
-    Examples:
-      >>> x = 0
-      >>> life = Recursion().set_interest(i=0.06).set_a(7, x=x+1).set_q(0.05, x=x)
-      >>> a = life.whole_life_annuity(x)
-      >>> A = 110 * a / 1000
-      >>> print(a, A)
-      >>> life = Recursion().set_interest(i=0.06).set_A(A, x=x).set_q(0.05, x=x)
-      >>> A1 = life.whole_life_insurance(x+1)
-      >>> P = life.gross_premium(A=A1 / 1.03, a=7) * 1000
     """
     
     _Blog = _Blog
@@ -370,23 +357,24 @@ class Recursion(Reserves):
         self.pprint = Recursion._Blog
 
     def Blog(self, *args, **kwargs):
-        """Returns a Blog instance to collect messages and display, with verbose flag"""
+        """Returns Blog instance to collect messages and display for this query"""
         return Recursion._Blog(*args, **kwargs, verbose=self._verbose)
 
     @staticmethod
     def blog_options(latex: bool = False, notebook: bool = False):
-        """Static method to change display options for tracing the recursion steps taken
+        """Static method to change display options for tracing the recursion steps
 
         Args:
-          latex: display actuarial notation in latex (True) or raw text (False) strings
+          latex: display actuarial notation in latex (True) or raw text (False)
           notebook: display to jupyter or colab notebook (True) or terminal (False)
 
         Notes:
-          latex and notebook options are set to True if notebook environment is auto-detected 
+          latex and notebook options are set to True if notebook is auto-detected 
 
         Examples:
-          >>> Recursion.blog_options(latex=False)    # display raw text strings
-          >>> Recursion.blog_options(latex=True, notebook=True)   # display latex formatted
+
+        >>> Recursion.blog_options(latex=False)                # display as raw text
+        >>> Recursion.blog_options(latex=True, notebook=True)  # display latex format
         """
         _Blog._notebook = notebook
         _Blog._latex = latex
@@ -448,6 +436,9 @@ class Recursion(Reserves):
           s : years after selection
           u : survive u years, then...
           t : death within next t years        
+
+        Examples:
+          >>> Recursion(depth=3).set_q(0.02, x=3)
         """
         return self._db_put(self._db_key('q', x=x+s, u=u, t=t), val)
 
@@ -532,6 +523,9 @@ class Recursion(Reserves):
           x : age of selection
           s : years after selection
           t : survives next t years
+
+        Examples:
+          >>> Recursion(depth=3).set_p(0.99, x=0)\
         """
         return self._db_put(self._db_key('p', x=x+s, t=t), val)
 
@@ -1080,7 +1074,7 @@ class Recursion(Reserves):
 
     def decreasing_insurance(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
                              b: int = 1, discrete: bool = True) -> float:
-        """Compute decreasing insurance by calling recursive helper first
+        """Compute decreasing insurance by attempting recursive helper first
 
         Args:
           x : age of selection
@@ -1151,6 +1145,9 @@ class Recursion(Reserves):
           endowment : endowment amount
           discrete : discrete (True) or continuous (False) insurance
           moment : first or second moment of insurance
+
+        Examples
+          >>> Recursion().set_interest(i=0.06).set_A(A, x=0)
         """
         if endowment < 0:      # endowment insurance with equal death and endow
             endowment = b
@@ -1350,7 +1347,7 @@ class Recursion(Reserves):
 
     def whole_life_insurance(self, x: int, s: int = 0, b: int = 1, 
                              discrete: bool = True, moment: int = 1) -> float:
-        """Compute whole life insurance A_x by calling recursion helper and twin
+        """Compute whole life insurance A_x by attempting recursion and twin first
 
         Args:
           x : age of selection
@@ -1361,7 +1358,8 @@ class Recursion(Reserves):
         """
         self.blog = self.Blog("Whole Life Insurance",
                               self.pprint.A(x=x, s=s, t=Reserves.WHOLE, b=b, u=0,
-                                            endowment=0, moment=moment, discrete=discrete),
+                                            endowment=0, moment=moment,
+                                            discrete=discrete),
                               levels=self.maxdepth)
         found = self._A_x(x, s=s, b=b, moment=moment, discrete=discrete,
                           depth=self.maxdepth)
@@ -1385,7 +1383,7 @@ class Recursion(Reserves):
 
     def term_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1, 
                        moment: int = 1, discrete: bool = True) -> float:
-        """Compute term life insurance A_x:t^1 by calling recursion helper: 
+        """Compute term life insurance A_x:t^1 by attempting recursion first 
 
         Args:
           x : age of selection
@@ -1413,7 +1411,7 @@ class Recursion(Reserves):
     def deferred_insurance(self, x: int, s: int = 0, b: int = 1, u: int = 0, 
                            t: int = Reserves.WHOLE, moment: int = 1, 
                            discrete: bool = True) -> float:
-        """Compute deferred life insurance u|A_x:t^1 by calling recursion helper: """
+        """Compute deferred life insurance u|A_x:t^1 by attempting recursion first"""
         self.blog = self.Blog("Deferred Insurance",
                               self.pprint.A(x=x, s=s, t=t, b=b, u=u,
                                             discrete=discrete,
@@ -1433,7 +1431,7 @@ class Recursion(Reserves):
     def endowment_insurance(self, x: int, s: int = 0, t: int = 1, b: int = 1,
                             endowment: int = -1, moment: int = 1,
                             discrete: bool = True) -> float:
-        """Compute endowment insurance u|A_x:t by calling recursion helper: """
+        """Compute endowment insurance u|A_x:t by attempting recursion first"""
         self.blog = self.Blog("Endowment Insurance",
                               self.pprint.A(x=x, s=s, t=t, b=b, u=0,
                                             discrete=discrete,
@@ -1496,6 +1494,9 @@ class Recursion(Reserves):
           b : benefit amount
           discrete : whether annuity due (True) or continuous (False)
           variance : whether first moment (False) or variance (True)
+ 
+        Examples:
+          >>> Recursion().set_interest(i=0.06).set_a(7, x=1)
         """
         val /= b    # store with benefit=1
         return self._db_put(self._db_key('a', x=x+s, t=t, u=u, 
@@ -1582,7 +1583,7 @@ class Recursion(Reserves):
     def whole_life_annuity(self, x: int, s: int = 0, b: int = 1, 
                            variance: bool = False,
                            discrete: bool = True) -> float:
-        """Compute whole life annuity a_x by calling recursion then twin first
+        """Compute whole life annuity a_x by attempting recursion then twin first
 
         Args:
           x : age of selection
@@ -1617,7 +1618,7 @@ class Recursion(Reserves):
     def temporary_annuity(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
                           b: int = 1, variance: bool = False,
                           discrete: bool = True) -> float:
-        """Compute temporary annuity a_x:t by calling recursion then twin first
+        """Compute temporary annuity a_x:t by attempting recursion then twin first
 
         Args:
           x : age of selection
@@ -1654,7 +1655,7 @@ class Recursion(Reserves):
 
     def deferred_annuity(self, x: int, s: int = 0, t: int = Reserves.WHOLE,
                          u: int = 0, b: int = 1, discrete: bool = True) -> float:
-        """Compute deferred annuity u|a_x:t by calling recursion first
+        """Compute deferred annuity u|a_x:t by attempting recursion first
 
         Args:
           x : age of selection

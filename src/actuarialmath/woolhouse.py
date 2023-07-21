@@ -14,12 +14,7 @@ class Woolhouse(Mthly):
       m : number of payments per year
       life : original fractional survival and mortality functions
       three_term : whether to include (True) or ignore (False) third term
-      approximate_mu : exact (False), approximate (True) or provide function for third term
-
-    Examples:
-      >>> life = Recursion().set_interest(i=0.05).set_a(3.4611, x=0)
-      >>> woolhouse = Woolhouse(m=4, life=life)
-      >>> a2 = woolhouse.whole_life_annuity(x=x)
+      approximate_mu : exact (False), approximate (True) or function for third term
     """
     
     def __init__(self, m: int, life: Annuity, three_term: bool = False,
@@ -35,10 +30,10 @@ class Woolhouse(Mthly):
           x : age of selection
           s : years after selection
         """
-        if self.approximate_mu is True:       # approximate mu
+        if self.approximate_mu is True:       # approximate mu from integer ages
             return -.5 * sum([math.log(self.life.p_x(x, s=s+t)) for t in [0,-1]])
         elif self.approximate_mu is False:
-            return self.life.mu_x(x, s=s)     # use exact mu
+            return self.life.mu_x(x, s=s)     # use exact mu from survival model
         else:                                 # apply custom function for mu
             return self.approximate_mu(x, s)
 
@@ -121,6 +116,10 @@ class Woolhouse(Mthly):
           s : years after selection
           b : amount of benefit
           mu : value of mu at age x+s
+
+        Examples:
+          >>> life = Recursion().set_interest(i=0.05).set_a(3.4611, x=0)
+          >>> Woolhouse(m=4, life=life).whole_life_annuity(x=0)
         """
         a = (self.life.whole_life_annuity(x, s=s, discrete=True) -
              (self.m - 1)/(2 * self.m))

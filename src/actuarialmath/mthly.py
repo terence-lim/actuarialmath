@@ -14,13 +14,6 @@ class Mthly(Actuarial):
     Args:
       m : number of payments per year
       life : original survival and life contingent functions
-
-    Examples:
-      >>> mthly = Mthly(m=12, life=Annuity().set_interest(i=0.06))
-      >>> A1, A2 = 0.4075, 0.2105
-      >>> mean = mthly.annuity_twin(A1)*15*12
-      >>> var = mthly.annuity_variance(A1=A1, A2=A2, b=15 * 12)
-      >>> S = Annuity.portfolio_percentile(mean=mean, variance=var, prob=.9, N=200)
     """
     _methods = ['v_m', 'p_m', 'q_m', 'Z_m', 'E_x', 'A_x',
                  'whole_life_insurance', 'term_insurance', 'deferred_insurance',
@@ -68,20 +61,6 @@ class Mthly(Actuarial):
         r = sr - s
         return self.life.p_r(x, s=s, r=r, t=t_m/self.m)
 
-    def E_x(self, x: int, s: int = 0, t: int = 1, moment: int = 1,
-            endowment: int = 1) -> float:
-        """Compute pure endowment factor
-
-        Args:
-          x : year of selection
-          s : years after selection
-          t : term length in years
-          moment : return first or second moment
-          endowment : endowment amount
-        """
-        assert moment > 0
-        return self.life.E_x(x, s=s, t=t, moment=moment) * endowment**moment
-
     def Z_m(self, x: int, s: int = 0, t: int = 1, 
             benefit: Callable = lambda x,t: 1, moment: int = 1):
         """Return PV of insurance r.v. Z and probability of death at mthly intervals
@@ -106,6 +85,20 @@ class Mthly(Actuarial):
         q = [self.q_m(x, s_m=s*self.m, u_m=k) for k in range (t*self.m)]
         return pd.DataFrame.from_dict(dict(m=range(1, self.m*t + 1), Z=Z, q=q))\
                            .set_index('m')
+
+    def E_x(self, x: int, s: int = 0, t: int = 1, moment: int = 1,
+            endowment: int = 1) -> float:
+        """Compute pure endowment factor
+
+        Args:
+          x : year of selection
+          s : years after selection
+          t : term length in years
+          moment : return first or second moment
+          endowment : endowment amount
+        """
+        assert moment > 0
+        return self.life.E_x(x, s=s, t=t, moment=moment) * endowment**moment
 
     def A_x(self, x: int, s: int = 0, t: int = 1, u: int = 0, 
             benefit: Callable = lambda x,t: 1, moment: int = 1) -> float:
@@ -141,8 +134,8 @@ class Mthly(Actuarial):
           b : amount of benefit
           moment : compute first or second moment
         """
-        assert moment in [1, 2, Annuity.VARIANCE]
-        if moment == Annuity.VARIANCE:
+        assert moment in [1, 2, Actuarial.VARIANCE]
+        if moment == Actuarial.VARIANCE:
             A2 = self.whole_life_insurance(x, s=s, moment=2)
             A1 = self.whole_life_insurance(x, s=s)
             return self.life.insurance_variance(A2=A2, A1=A1, b=b)
@@ -160,8 +153,8 @@ class Mthly(Actuarial):
           b : amount of benefit
           moment : return first or second moment
         """
-        assert moment in [1, 2, Annuity.VARIANCE]
-        if moment == Annuity.VARIANCE:
+        assert moment in [1, 2, Actuarial.VARIANCE]
+        if moment == Actuarial.VARIANCE:
             A2 = self.term_insurance(x, s=s, t=t, moment=2)
             A1 = self.term_insurance(x, s=s, t=t)
             return self.life.insurance_variance(A2=A2, A1=A1, b=b)
@@ -231,6 +224,10 @@ class Mthly(Actuarial):
 
         Args:
           A : amount of m'thly insurance
+
+        Examples:
+          >>> mthly = Mthly(m=12, life=Annuity().set_interest(i=0.06))
+          >>> mthly.annuity_twin(A=0.4075)*15*12
         """
         d = self.life.interest.d
         d_m = self.life.interest.mthly(m=self.m, d=d)        
@@ -243,6 +240,10 @@ class Mthly(Actuarial):
           A2 : double force of interest of m'thly insurance
           A1 : first moment of m'thly insurance
           b : amount of benefit
+
+        Examples:
+          >>> mthly = Mthly(m=12, life=Annuity().set_interest(i=0.06))
+          >>> mthly.annuity_variance(A1=0.4075, A2=0.2105, b=15*12)
         """
         num = self.life.insurance_variance(A2=A2, A1=A1, b=b)
         den = self.life.interest.mthly(m=self.m, d=self.life.interest.d)

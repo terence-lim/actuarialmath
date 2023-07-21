@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "actuarialmath"
-#version =  "0.0.105"
-version = "0.0.14" 
+#version =  "0.0.106"
+version = "0.0.15" 
 authors = [
   { name="Terence Lim"},
 ]
