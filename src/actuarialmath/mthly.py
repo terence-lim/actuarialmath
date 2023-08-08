@@ -76,7 +76,8 @@ class Mthly(Actuarial):
           DataFrame, indexed by mthly period, with column names ['Z', 'p']
 
         Examples:
-          >>> life = LifeTable(udd=False).set_table(q={0:.16,1:.23}).set_interest(i_m=.18,m=2)
+          >>> life = LifeTable(udd=False).set_table(q={0:.16,1:.23})\
+          >>>                            .set_interest(i_m=.18,m=2)
           >>> mthly = Mthly(m=2, life=life)
           >>> Z = mthly.Z_m(0, t=2, benefit=lambda x,t: 300000 + t*30000*2)
         """

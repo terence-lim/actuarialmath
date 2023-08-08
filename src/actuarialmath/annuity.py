@@ -30,7 +30,7 @@ class Annuity(Insurance):
         try:
             if discrete:
                 a = sum([benefit(x+s, k) * self.interest.v_t(k) 
-                         * self.p_x(x, s=s, t=k) for k in range(u, t+u)])
+                         * self.p_x(x, s=s, t=k) for k in range(int(u), int(t+u))])
             else:   # use continuous first principles
                 Y = lambda t: (benefit(x+s, t+u) * self.interest.v_t(t+u) 
                                * self.S(x, 0, t=t+u))
@@ -252,59 +252,17 @@ class Annuity(Insurance):
           x : age of selection
           prob : desired probability threshold
           discrete : annuity due (True) or continuous (False)
+
+        Returns:
+          T s.t. S(T) == 1-prob; if discrete, return K=ceil(T) s.t. S(K) <= 1-prob
+
         """
         assert prob < 1.0
-        t = self.solve(lambda t: self.S(x, 0, t), target=1-prob, grid=25)
-        return math.floor(t) if discrete else t   # opposite of insurance
+        t = self.solve(lambda t: self.S(x, 0, t), target=1. - prob,
+                       grid=[self._MINAGE, self._MAXAGE])
+        return math.ceil(t) if discrete else t   # should be opposite of insurance?
 
-    def Y_from_t(self, t: float, discrete: bool = True) -> float:
-        """PV of insurance payment Y(t), given T_x (or K_x if discrete)
-
-        Args:
-          t : year of death
-          discrete : annuity due (True) or continuous (False)
-        """
-        if self.interest.delta == 0.:  # return number of payments if interest=0
-            return math.floor(t) + 1 if discrete else t
-        if discrete:
-            return (1 - self.interest.v_t(math.floor(t) + 1)) / self.interest.d
-        else:
-            return (1 - self.interest.v_t(t)) / self.interest.delta
-
-    def Y_to_t(self, Y: float) -> float:
-        """T_x  s.t. PV of annuity payments is Y
-
-        Args:
-          Y : Present value of benefits paid
-        """
-        if self.interest.v == 0.:
-            return Y
-        else:
-            return math.log(1 - self.interest.delta*Y) / math.log(self.interest.v)
-
-
-    def Y_from_prob(self, x: int, prob: float, discrete: bool = True) -> float:
-        """Percentile of annuity PV r.v. Y, given probability
-
-        Args:
-          x : age initially insured
-          prob : desired probability threshold
-          discrete : annuity due (True) or continuous (False)
-        """
-        t = self.Y_t(x, prob, discrete=discrete)
-        return self.Y_from_t(t=t, discrete=discrete)
-
-    def Y_to_prob(self, x: int, Y: float) -> float:
-        """Cumulative density of insurance PV r.v. Y, given percentile value
-
-        Args:
-          x : age initially insured
-          Y : present value of benefits paid
-        """
-        t = self.Y_to_t(Y)
-        return 1 - self.S(x, 0, t)   # opposite of Insurance
-
-    def Y_x(self, x, s: int = 0, t: int = 1, discrete: bool = True) -> float:
+    def Y_x(self, x, s: int = 0, t: float = 1., discrete: bool = True) -> float:
         """EPV of year t annuity benefit for life aged [x]+s: b_x[s]+s(t)
 
         Args:
@@ -315,18 +273,139 @@ class Annuity(Insurance):
         """
         assert t >= 0
         if discrete:
-            return (self.interest.v_t(math.floor(t)) 
-                    * self.p_x(x, s=s, t=math.floor(t)))
+            u = math.floor(t)
+            return self.interest.v_t(u) * self.p_x(x, s=s, t=u)
         else:
-            return (self.interest.v_t(t) * self.p_r(x, s=s, t=t))
+            return self.interest.v_t(t) * self.p_r(x, s=s, t=t)
 
-    def Y_plot(self, x: int, s: int = 0, stop : int = 0,
+    def Y_from_t(self, t: float, discrete: bool = True) -> float:
+        """PV of insurance payment Y(t), given T_x
+
+        Args:
+          t : year of death
+          discrete : annuity due (True) or continuous (False)
+        """
+        if self.isclose(self.interest.delta):            # if interest=0:
+            return math.floor(t) + 1 if discrete else t  #   return number of payments
+        if discrete:
+            return (1 - self.interest.v_t(math.floor(t) + 1)) / self.interest.d
+        else:
+            return (1 - self.interest.v_t(t)) / self.interest.delta
+
+    def Y_from_prob(self, x: int, prob: float, discrete: bool = True) -> float:
+        """Percentile of annual or continuous WL annuity PV r.v. Y, given probability
+
+        Args:
+          x : age initially insured
+          prob : desired probability threshold
+          discrete : annuity due (True) or continuous (False)
+        """
+        t = self.Y_t(x, prob, discrete=discrete)
+        return self.Y_from_t(t=t, discrete=discrete)
+
+    def Y_to_t(self, Y: float) -> float:
+        """T_x s.t. PV of continuous WL annuity payments is Y
+
+        Args:
+          Y : Present value of benefits paid
+        """
+        if self.interest.v == 0.:
+            return Y
+        else:
+            return math.log(1 - self.interest.delta*Y) / math.log(self.interest.v)
+
+
+    def Y_to_prob(self, x: int, Y: float) -> float:
+        """Probability that continuous WL annuity PV r.v. is no more than Y
+
+        Args:
+          x : age initially insured
+          Y : present value of benefits paid
+        """
+        t = self.Y_to_t(Y)
+        return 1 - self.S(x, 0, t)   # opposite of Insurance
+
+    def Y_plot(self,
+               x: int,
+               s: int = 0,
+               stop : int = 0,
                benefit: Callable = lambda x,k: 1,
                T: float | None = None,
                discrete: bool = True,
                ax: Any = None,
+               dual: bool = False,
                title: str | None = None,               
-               color='r') -> float:
+               color: str ='r',
+               alpha: float = 0.3)-> float | None:
+        """Plot PV of annuity r.v. Y vs T
+
+        Args:
+          x : age of selection
+          s : years after selection
+          stop : time to end plot
+          benefit : benefit as a function of selection age and time
+          discrete : discrete or continuous insurance
+          ax : figure object to plot in
+          dual: whether to plot survival function on secondary axis
+          color : color of primary plot 
+          alpha : transparency of plot area
+          title : title of plot 
+        """
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        K = 'K' if discrete else 'T'
+        stop = stop or self._MAXAGE - (x + s)
+        step = 1 if discrete else stop / 1000.
+        steps = np.arange(0, stop + step, step)
+
+        # plot benefit values
+        y = [benefit(x, s+t) * self.Y_from_t(t, discrete=discrete) for t in steps]
+        ax.bar(steps, y, width=step, alpha=alpha, color=color)
+        ax.tick_params(axis='y', colors=color)
+        #ax.step(steps, y, ':', c=color, where='pre' if discrete else 'post')
+        xmin, xmax = ax.get_xlim()
+        xjig = (xmax - xmin) / 50
+        ymin, ymax = ax.get_ylim()
+        yjig = (ymax - ymin) / 50
+
+        # plot survival probabilities in secondary axis
+        if dual:
+            p = [self.p_x(x=x, s=s, t=t) for t in steps]
+            bx = ax.twinx()
+            bx.step(steps, p, '-', c='g', alpha=alpha,
+                    where='pre' if discrete else 'post')
+            #bx.bar(steps, p, color='g', alpha=.2, width=step, align='edge')
+            bx.set_ylabel(f"$S({K})$", color='g')
+            bx.tick_params(axis='y', colors='g')
+    
+        if T is not None:
+            # indicate PV benefit Y(T*)
+            Y = self.Y_from_t(T, discrete=discrete) * benefit(self._MINAGE, T)
+            
+            label1, = ax.plot(T, Y, c=color, marker='o',
+                              label=f"Y({T:.2f})={Y:.4f}")            
+            #ax.text(T + xjig, Y + 1*yjig, f"Y*={Y:.2f}", c=color)
+            ax.legend(handles=[label1], loc='upper left')
+
+            if dual:
+                prob = self.S(x, 0, T)
+                label2, = bx.plot(T, prob, c='g', marker='o',
+                                  label=f"Pr[{K}>{T:.2f}]={prob:.4f}")
+                bx.legend(handles=[label2], loc='upper right')
+        ax.set_title(f"PV annuity r.v. $Y({K}_{{{x if x else 'x'}}})$"
+                     if title is None else title)
+        ax.set_ylabel(f"$Y({K}_x)$", color=color)
+        ax.set_xlabel(f"${K}_x$")
+        #plt.tight_layout()
+        return Y if T else None
+
+    def _Y_plot(self, x: int, s: int = 0, stop : int = 0,
+                benefit: Callable = lambda x,k: 1,
+                T: float | None = None,
+                discrete: bool = True,
+                ax: Any = None,
+                title: str | None = None,               
+                color='r') -> float:
         """Plot PV of annuity r.v. Y vs T
 
         Args:
@@ -378,7 +457,7 @@ class Annuity(Insurance):
         ax.set_xlabel(f"${K}_x$")
         plt.tight_layout()
         return Y
-
+    
 if __name__ == "__main__":
     from actuarialmath.policyvalues import Contract
     from actuarialmath.sult import SULT

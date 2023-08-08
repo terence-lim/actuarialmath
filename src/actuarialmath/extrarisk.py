@@ -13,11 +13,13 @@ class ExtraRisk(Actuarial):
     Args:
       life : contains original survival and mortality rates
       extra : amount of extra risk to adjust
-      risk : adjust by {"ADD_FORCE", "MULTIPLY_FORCE", "ADD_AGE" or "MULTIPLY_RATE"}
+      risk : adjust by {"ADD_FORCE", "MULTIPLY_FORCE", "ADD_AGE", "MULTIPLY_RATE"}
     """
     risks = ["ADD_FORCE", "MULTIPLY_FORCE", "ADD_AGE", "MULTIPLY_RATE"]
 
-    def __init__(self, life: Survival, risk: str = "",
+    def __init__(self,
+                 life: Survival,
+                 risk: str = "",
                  extra: float = 0.) -> "ExtraRisk":
         """Specify type and amount of mortality adjustment to apply"""
         assert not risk or risk in self.risks, "risk must be one of " + str(risks)

@@ -22,7 +22,7 @@ class UDD(Mthly):
 
     @staticmethod
     def alpha(m: int, i: float) -> float:
-        """Derive 1/mthly UDD interest rate beta function value
+        """Compute 1/mthly UDD interest rate beta function value
 
         Args:
           m : number of payments per year
@@ -35,7 +35,7 @@ class UDD(Mthly):
 
     @staticmethod
     def beta(m: int, i: float) -> float:
-        """Derive 1/mthly UDD interest rate alpha function value
+        """Compute 1/mthly UDD interest rate alpha function value
 
         Args:
           m : number of payments per year
@@ -187,7 +187,7 @@ class UDD(Mthly):
 
     @staticmethod
     def interest_frame(i: float = 0.05):
-        """Display 1/mthly UDD interest function values
+        """Return 1/mthly UDD interest function values in a DataFrame
 
         Args:
           i : annual interest rate

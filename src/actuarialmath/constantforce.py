@@ -11,15 +11,14 @@ class ConstantForce(MortalityLaws):
 
     Args:
       mu : constant value of force of mortality
-      udd : assume UDD (True) or CFM (False, default) between integer ages
 
     Examples:
       >>> life = ConstantForce(mu=0.01).set_interest(delta=0.05)
       >>> life.term_insurance(35, t=35, discrete=False) + life.E_x(35, t=35)*0.51791
     """
 
-    def __init__(self, mu: float, udd: bool = False, **kwargs):
-        super().__init__(udd=udd, **kwargs)
+    def __init__(self, mu: float, **kwargs):
+        super().__init__(**kwargs)
 
         def _mu(x: int, s: float) -> float:
             """Constant force of mortality"""
@@ -164,7 +163,7 @@ class ConstantForce(MortalityLaws):
         """Shortcut for T_x (or K_x) given survival probability for insurance
 
         Args:
-          x : age selected
+          x : age (does not depend)
           prob : desired probability threshold
           discrete : benefit paid year-end (True) or moment of death (False)
         """
@@ -175,8 +174,8 @@ class ConstantForce(MortalityLaws):
         """Shortcut for T_x (or K_x) given survival probability for annuity
 
         Args:
-          x : age selected
-          prob5~ : desired probability threshold
+          x : age (does not depend)
+          prob: desired probability threshold
           discrete : continuous (False) or annuity due (True)
         """
         t = -math.log(1 - prob) / self.mu_

@@ -27,11 +27,12 @@ class Premiums(Annuity):
           endowment : endowment amount
           initial_cost : EPV of any other expenses or benefits, if any
           return_premium : if premiums without interest refunded at death 
-          annuity : whether benefit is insurance (False) or deferred annuity
+          annuity : whether benefit is insurance (False) or annuity
           discrete : whether annuity due (True) or continuous (False)
 
         Examples:
-          >>> life = Premiums().set_interest(delta=0.06).set_survival(mu=lambda x,s: 0.04)
+          >>> life = Premiums().set_interest(delta=0.06)\
+          >>>                  .set_survival(mu=lambda x,s: 0.04)
           >>> life.net_premium(x=0)
 
         """

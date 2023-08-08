@@ -54,7 +54,8 @@ class Insurance(Fractional):
 
         Examples:
 
-        >>> life = Insurance().set_interest(delta=.05).set_survival(mu=lambda x,s: .03)
+        >>> life = Insurance().set_interest(delta=.05)\
+        >>>                   .set_survival(mu=lambda x,s: .03)
         >>> benefit = lambda x,t: math.exp(0.04 * t)
         >>> A = life.A_x(0, benefit=benefit)
         >>> print(A)   # 0.75
@@ -70,7 +71,7 @@ class Insurance(Fractional):
         try:
             if discrete:
                 A = sum([(benefit(x+s, k+1)*self.interest.v_t(k+1))**moment 
-                         * self.q_x(x, s=s, u=k) for k in range(u, t+u)])
+                         * self.q_x(x, s=s, u=k) for k in range(int(u), int(t+u))])
             else:   # use continous first principles
                 Z = lambda t: ((benefit(x+s, t+u) * self.interest.v_t(t+u))**moment 
                                * self.f(x, s, t+u))
@@ -241,28 +242,49 @@ class Insurance(Fractional):
                                                discrete=discrete)
 
     #
-    # Insurance random variable: Z(t)
+    # Insurance random variable: Z(t) 
     #
+    def Z_x(self, x, s: int = 0, t: float = 0., discrete: bool = True):
+        """EPV of year t insurance death benefit for life aged [x]+s: b_x[s]+s(t)
+
+        Args:
+          x : age of selection
+          s : years after selection
+          t : year of benefit
+          discrete : benefit paid year-end (True) or moment of death (False)
+        """
+        assert t >= 0
+        if discrete:
+            k = math.floor(t)
+            return self.q_x(x, s=s, u=k) * self.interest.v_t(k+1)
+        else:
+            return self.f_r(x, s=s, t=t) * self.interest.v_t(t)
+
     def Z_t(self, x: int, prob: float, discrete: bool = True) -> float:
-        """T_x given percentile of the PV of WL or Term insurance, i.e. r.v. Z(t)
+        """T_x, given the prob of the PV of life insurance, i.e. r.v. Z(t)
 
         Args:
           x : age initially insured
           prob : desired probability threshold
           discrete : benefit paid year-end (True) or moment of death (False)
 
+        Returns:
+          T s.t. S(t)==prob; if discrete, return K=floor(T) s.t. S(K)>=prob
+
         Examples:
           >>> t = life.Z_t(x=20, prob=0.8, discrete=True)
         """
-        assert prob < 1.0
-        t = self.solve(lambda t: self.S(x, 0, t), target=prob, grid=50)
-        return math.floor(t) if discrete else t    # opposite of annuity
+        assert prob < 1.0  # Note survival function and PV both decreasing in t
+        t = self.solve(lambda t: self.S(x, 0, t),
+                       target=prob, grid=[self._MINAGE, self._MAXAGE])
+        return math.floor(t) if discrete else t       # opposite of annuity
 
     def Z_from_t(self, t: float, discrete: bool = True) -> float:
-        """PV of insurance payment Z(t), given T_x (or K_x if discrete)
+        """PV of annual or continuous insurance payment Z(t) at t=T_x
 
         Args:
           t : year of death
+          b : benefit paid at t
           discrete : benefit paid year-end (True) or moment of death (False)
 
         Examples:
@@ -271,24 +293,8 @@ class Insurance(Fractional):
         """
         return self.interest.v_t((math.floor(t) + 1) if discrete else t)
 
-    def Z_to_t(self, Z: float) -> float:
-        """T_x s.t. PV of insurance payment is Z
-
-        Args:
-          Z : Present value of benefit paid
-
-        Examples:
-
-        >>> t = life.Z_t(x=20, prob=0.8, discrete=True)
-        >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=True)
-        >>> print(t, life.Z_to_t(Z))
-        """
-        #t = Insurance.solve(lambda t: self.Z_from_t(t), Z, self._MAXAGE/2)
-        t = math.log(Z) / math.log(self.interest.v)
-        return t
-
     def Z_from_prob(self, x: int, prob: float, discrete: bool = True) -> float:
-        """Percentile of insurance PV r.v. Z, given probability
+        """Percentile of annual or continuous WL insurance PV r.v. Z given probability
 
         Args:
           x : age initially insured
@@ -298,46 +304,121 @@ class Insurance(Fractional):
         Examples:
           >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=True)
         """
-        t = self.Z_t(45, prob, discrete=discrete)   # opposite of annuity!
+        t = self.Z_t(x=x, prob=prob, discrete=discrete)
         return self.Z_from_t(t, discrete=discrete)  # z is WL or Term Insurance
 
+    def Z_to_t(self, Z: float) -> float:
+        """T_x s.t. PV of continuous WL insurance payment is Z
+
+        Args:
+          Z : Present value of benefit paid
+
+        Examples:
+        >>> t = life.Z_t(x=20, prob=0.8, discrete=False)
+        >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=False)
+        >>> print(t, life.Z_to_t(Z))
+        """
+        t = math.log(Z) / math.log(self.interest.v)
+        return t
+
     def Z_to_prob(self, x: int, Z: float) -> float:
-        """Cumulative density of insurance PV r.v. Z, given percentile value
+        """Probability that continuous WL insurance PV r.v. is no more than Z
 
         Args:
           x : age initially insured
           Z : present value of benefit paid
 
         Examples:
-          >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=True)
+          >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=False)
           >>> print(life.Z_to_prob(x=20, Z=Z))
         """
         t = self.Z_to_t(Z) 
-        return self.S(x, 0, t)      # z is WL or Term Insurance
+        return self.S(x, 0, t)      # z is continuous whole life
 
-    def Z_x(self, x, s: int = 0, t: int = 1, discrete: bool = True):
-        """EPV of year t insurance death benefit for life aged [x]+s: b_x[s]+s(t)
-
-        Args:
-          x : age of selection
-          s : years after selection
-          t : year of benefit
-          discrete : benefit paid year-end (True) or moment of death (False)
-        """
-        assert t > 0
-        if discrete:
-            u = math.ceil(t) - 1
-            return self.q_x(x, s=s, u=u) * self.interest.v_t(u+1)
-        else:
-            return self.f_r(x, s=s, t=t) * self.interest.v_t(t)
-
-    def Z_plot(self, x: int, s: int = 0, stop : int = 0,
+    def Z_plot(self,
+               x: int,
+               s: int = 0,
+               stop : int = 0,
                benefit: Callable = lambda x,k: 1,
                T: float | None = None,
                discrete: bool = True,
                ax: Any = None,
+               dual: bool = False,
                title: str | None = None,
-               color: str ='r')-> float | None:
+               color: str ='r',
+               alpha: float = 0.3)-> float | None:
+        """Plot of PV of insurance r.v. Z vs t
+
+        Args:
+          x : age of selection
+          s : years after selection
+          stop : time to end plot
+          benefit : benefit as a function of age and time
+          T : specific time to annotate
+          discrete  discrete or continuous insurance
+          ax : figure object to plot in
+          dual: whether to plot survival function on secondary axis
+          color : color of primary plot 
+          alpha : transparency of plot area
+          title : title of plot 
+        """
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        K = 'K' if discrete else 'T'
+        stop = stop or self._MAXAGE - (x + s)
+        step = 1 if discrete else stop / 1000.
+        steps = np.arange(0, stop + step, step)
+
+        # plot Z(t) = PV benefit values
+        z = [benefit(x, s+t) * self.Z_from_t(t, discrete=discrete) for t in steps]
+        ax.bar(steps, z, width=step, alpha=alpha, color=color)
+        ax.tick_params(axis='y', colors=color)
+        #ax.step(steps, z, ':', c=color, where='pre' if discrete else 'post')
+        xmin, xmax = ax.get_xlim()
+        xjig = (xmax - xmin) / 50
+        # ymin, ymax = ax.get_ylim()
+        # yjig = (ymax - ymin) / 50
+
+        # plot survival probabilities in secondary axis
+        if dual:
+            p = [self.p_x(x=x, s=s, t=t) for t in steps]
+            bx = ax.twinx()
+            bx.step(steps, p, '-', c='g', alpha=alpha,
+                    where='pre' if discrete else 'post')
+            #bx.bar(steps, p, color='g', alpha=.2, width=step, align='edge')
+            bx.set_ylabel(f"$S({K})$", color='g')
+            bx.tick_params(axis='y', colors='g')
+            
+        if T is not None:
+            # indicate PV of benefit Z(T*)
+            Z = benefit(self._MINAGE, T) * self.Z_from_t(T, discrete=discrete)
+            label1, = ax.plot(T, Z, c=color, marker='o',
+                              label=f"Z({T:.2f})={Z:.4f}")
+            #ax.text(T + xjig, Z, f"Z({T:.2f})={Z:.4f}", c=color)
+            ax.legend(handles=[label1], loc='lower left')
+
+            if dual:
+                prob = self.S(x, 0, T)      # note: is opposite of annuity
+                label2, = bx.plot(T, prob, c='g', marker='o',
+                                  label=f"Pr[{K}>{T:.2f}]={prob:.4f}")
+                bx.legend(handles=[label2], loc='upper right')
+        ax.set_title(f"PV insurance r.v. $Z(T_{{{x if x else 'x'}}})$"
+                     if title is None else title)
+        ax.set_ylabel(f"$Z({K}_x)$", color=color)
+        ax.set_xlabel(f"${K}_x$")
+        #plt.tight_layout()
+        return Z if T else None
+
+    def _Z_plots(self,
+                 x: int,
+                 s: int = 0,
+                 stop : int = 0,
+                 benefit: Callable = lambda x,k: 1,
+                 T: float | None = None,
+                 discrete: bool = True,
+                 ax: Any = None,
+                 title: str | None = None,
+                 color: str ='r')-> float | None:
         """Plot of PV of insurance r.v. Z vs t
 
         Args:
@@ -345,6 +426,7 @@ class Insurance(Fractional):
           s : years after selection
           stop : time to end plot
           benefit : benefit as a function of selection age and time
+          T : specific time to annotate
           discrete  discrete or continuous insurance
           ax : figure object to plot in
           color : color to plot
@@ -364,38 +446,39 @@ class Insurance(Fractional):
             Z = None
         else:
             # plot Z(t)
-            ax.step(steps, z, ':', c=color, where='pre' if discrete else 'post')
+            ax.bar(steps, z, width=step, alpha=0.5, color=color)
+            #ax.step(steps, z, ':', c=color, where='pre' if discrete else 'post')
             xmin, xmax = ax.get_xlim()
             ymin, ymax = ax.get_ylim()
             yjig = (ymax - ymin) / 50
             xjig = (xmax - xmin) / 50
             
             # indicate PV of benefit Z(T*)
-            Z = self.Z_from_t(T, discrete=discrete) * benefit(self._MINAGE, T)
+            Z = b=benefit(self._MINAGE, T) * self.Z_from_t(T, discrete=discrete)
             ax.plot(T, Z, c=color, marker='o')
-            ax.text(T, Z + yjig, f"Z*={Z:.2f}", c=color)
+            ax.text(T, Z + yjig, f"Z*={Z:.4f}", c=color)
 
             # indicate given time of death T*
             ax.vlines(T, ymin, Z, colors='g', linestyles=':')
-            ax.text(T + xjig, ymin, f"${K}_x$={T:.2f}", c='g')
+            ax.text(T + xjig, ymin, f"${K}_x$={T:.4f}", c='g')
 
             # indicate corresponding S(T*)
             p = self.S(x, 0, T)     # S(t): note that is opposite of annuity
             ax.hlines(Z, T, xmax, colors='g', linestyles=':')
-            ax.text(xmax, Z - yjig, f"Prob={p:.3f}", c='g', va='top', ha='right')
-        ax.set_title(f"PV insurance r.v. $Z({K}_{{{x if x else 'x'}}})$"
+            ax.text(xmax, Z - yjig, f"Prob={p:.4f}", c='g', va='top', ha='right')
+        ax.set_title(f"PV insurance r.v. $Z(T_{{{x}}})$"
                      if title is None else title)
         ax.set_ylabel(f"$Z({K}_x)$", color=color)
         ax.set_xlabel(f"${K}_x$")
-        plt.tight_layout()
+        #plt.tight_layout()
         return Z
 
-    def Z_curve(self, x: int, s: int = 0, stop: int = 0,
-                benefit: Callable = lambda x, k: 1,
-                T: float | None = None,
-                discrete: bool = True,
-                title: str | None = None,
-                ax: Any = None):
+    def _Z_curve(self, x: int, s: int = 0, stop: int = 0,
+                 benefit: Callable = lambda x, k: 1,
+                 T: float | None = None,
+                 discrete: bool = True,
+                 title: str | None = None,
+                 ax: Any = None):
         """Plot PV of insurance r.v. Z(t) and survival probability vs time t
 
         Args:
@@ -411,8 +494,8 @@ class Insurance(Fractional):
             fig, ax = plt.subplots(1, 1)        
         K = 'K' if discrete else 'T'
         stop = stop or self._MAXAGE - (x + s)
-        step = 1 # if discrete else stop/1000.
-        steps = range(stop + step)
+        step = 1 if discrete else stop/1000.
+        steps = np.arange(0, stop + step, step)
         p = [self.p_x(x=x, s=s, t=t) for t in steps]
 
         # plot survival probabilities in secondary axis
@@ -428,20 +511,22 @@ class Insurance(Fractional):
         ax.tick_params(axis='y', colors='r')
 
         if T is not None:   # plot PV benefit value and survival prob at given T
-            Z = self.Z_from_t(T, discrete=discrete) * benefit(self._MINAGE, T)
+            Z = benefit(self._MINAGE, T) * self.Z_from_t(T, discrete=discrete)
             label1, = ax.plot(T, Z, c='r', marker='o',
-                              label=f"Z({K}*={T:.2f}): {Z:.2f}")
-            ax.legend(handles=[label1], loc='center left')
-            
+                              label=f"Z({K}*={T:.2f}): {Z:.4f}")
+            ax.legend(handles=[label1], loc='upper left')
+
             prob = self.S(x, 0, T)      # note: is opposite of annuity
             label2, = bx.plot(T, prob, c='g', marker='o',
-                               label=f"Pr[{K}>{K}*]<={prob:.3f}")
-            bx.legend(handles=[label2], loc='center right')
+                               label=f"Pr[{K}>{K}*]={prob:.3f}")
+            bx.legend(handles=[label2], loc='upper right')
+        else:
+            Z = None
         ax.set_title(title if title is not None else
                      f"PV benefit $Z({K})$ and survival probability $S({K})$")
         ax.set_xlabel(f"${K}$")
         plt.tight_layout()
-
+        return Z
     
 if __name__ == "__main__":
 
@@ -561,8 +646,8 @@ if __name__ == "__main__":
     life = Insurance().set_interest(delta=0.06)\
                       .set_survival(mu=lambda *x: 0.04)
     benefit = lambda x,t: math.exp(0.02 * t)
-    A1 = life.A_x(0, benefit=benefit)
-    A2 = life.A_x(0, moment=2, benefit=benefit)
+    A1 = life.A_x(0, benefit=benefit, discrete=False)
+    A2 = life.A_x(0, moment=2, benefit=benefit, discrete=False)
     var = A2 - A1**2 
     print(var)  # 0.0833
 

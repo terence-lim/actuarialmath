@@ -33,9 +33,9 @@ class Fractional(Lifetime):
         assert r >= 0, "r must be non-negative"
         s += math.floor(r)  # interpolate lives between consecutive integer ages
         r -= math.floor(r)
-        if r == 0:
+        if self.isclose(r):
             return self.l_x(x, s=s)
-        if r == 1.0:
+        if self.isclose(r, 1.0):
             return self.l_x(x, s=s+1)
         if self.udd_:
             return self.l_x(x, s=s)*(1-r) + self.l_x(x, s=s+1)*r
@@ -64,7 +64,7 @@ class Fractional(Lifetime):
         r_floor = math.floor(r)
         s += r_floor
         r -= r_floor
-        if 0. <= r + t <= 1.:
+        if 0. <= r + t <= 1.:            
             if self.udd_:
                 return 1 - self.q_r(x, s=s, r=r, t=t)
             else:          # Constant force shortcut within int age
@@ -119,13 +119,15 @@ class Fractional(Lifetime):
         r_floor = math.floor(r)
         s += r_floor
         r -= r_floor
+        if self.isclose(r):
+            return self.mu_x(x, s=s)
         if self.udd_:   # UDD shortcut
             return self.q_x(x, s=s) / (1. - r*self.q_x(x, s=s))
         else:          # Constant force shortcut
-            return -math.log(max(0.0001, self.p_x(x, s=s)))
+            return -math.log(max(0.000001, self.p_x(x, s=s)))
 
     def f_r(self, x: int, s: int = 0, r: float = 0., t: float = 0.0) -> float:
-        """mortality function at fractional age: f_[x]+s+r (t)
+        """Lifetime density function at fractional age: f_[x]+s+r (t)
 
         Args:
           x : age of selection
@@ -138,12 +140,14 @@ class Fractional(Lifetime):
         assert r >= 0, "r must be non-negative"
         assert t >= 0, "t must be non-negative"
         if 0. <= r + t <= 1.:   # shortcuts available within integer ages
-            if self.udd_:           # UDD constant q_x
-                return self.q_x(x, s=s)      # does not depent on fractional age
-            else:                  # Constant force shortcut
+            if self.udd_:       # UDD shortcut: constant q_x
+                return self.q_x(x, s=s)  # does not depend fractional age or duration
+            else:               # Constant force shortcut:
+                if self.isclose(t):
+                    return self.f_x(x=x, s=s)
                 mu = -math.log(max(0.00001, self.p_x(x, s=s)))
-                return math.exp(-mu*t) * mu  # does not depend on fractional age
-        else:      # survive to integer age then extend by fractional mortality
+                return math.exp(-mu*t) * mu    # does not depend on fractional age
+        else: # else survive to integer age, times density at fractional age
             r_floor = math.floor(r)
             r -= r_floor            # s.t. r < 1 
             s += r_floor            # while maintaining x+s+r unchanged
@@ -186,35 +190,42 @@ class Fractional(Lifetime):
         assert s >= 0, "s must be non-negative"
         if t == 0:
             return 0
-        elif t < 0:   # shortcuts for complete expectation 
+
+        # shortcuts for complete expectation
+        elif t < 0:   
             if self.udd_:  # UDD case
-                return self.e_x(x, s=s, t=t, curtate=True) + 0.5
-            else:         # Constant Force Case: compute as maxage temporary
-                return self.e_r(x, s=s, t=self.max_term(x+s, t))
-        elif t <= 1:  # shortcuts within integer age
+                return self.e_x(x=x, s=s, t=t, curtate=True) + 0.5
+            else:         # Constant Force: compute as temporary through maxage
+                return self.e_r(x=x, s=s, t=self.max_term(x+s, t))
+
+        # shortcuts between integer ages
+        elif t <= 1:
             if self.udd_:  # UDD case
-                if t == 1:   # shortcut for UDD 1-year temporary expectation
-                    return 1. - self.q_x(x, s=s)*(1/2)
-                else:        # UDD formula for fractional temporary expectation
-                    return (self.q_r(x, s=s, t=t) * (t/2)
-                            + self.p_r(x, s=s, t=t) * t)
+                if t == 1:     # shortcut for UDD 1-year limited expectation
+                    return 1. - self.q_x(x=x, s=s)*(1/2)
+                else:          # shortcut for fractional limited expectation
+                    return self.q_r(x=x, s=s, t=t)*(t/2) + self.p_r(x, s=s, t=t)*t
             else:         # Constant Force case
-                mu = -math.log(max(0.00001, self.p_x(x, s=s)))  # constant mu
-                return (1. - math.exp(-mu*t)) / mu   # constant force formula
-        else:  # apply one-year recursion formula
-            return (self.e_x(x, s=s, t=1) +
-                    (self.p_x(x, s=s, t=1) * self.e_r(x, s=s+1, t=t-1)))
+                mu = -math.log(max(0.00001, self.p_x(x=x, s=s)))  # constant mu
+                return (1. - math.exp(-mu*t)) / mu                # shortcut
+
+        # t > 1: apply one-year recursion formula            
+        else:
+            return (self.e_r(x=x, s=s, t=1) +
+                    (self.p_x(x=x, s=s) * self.e_r(x=x, s=s+1, t=t-1)))
 
     #
     # Approximation of curtate and complete lifetimes
     #
     @staticmethod 
-    def e_approximate(e_complete: float = None, e_curtate: float = None) -> float:
+    def e_approximate(e_complete: float = None, e_curtate: float = None,
+                      variance: bool = False) -> float:
         """Convert between curtate and complete expectations assuming UDD shortcut
 
         Args:
           e_complete : complete expected lifetime
           e_curtate : or curtate expected lifetime
+          variance : to approximate mean (False) or variance (True)
 
         Returns:
           approximate complete or curtate expectation assuming UDD
@@ -225,9 +236,11 @@ class Fractional(Lifetime):
         """
         if e_complete is not None:
             assert e_curtate is None, "one of e and e_curtate must be None"
-            return e_complete - 0.5
+            return e_complete - (1/12 if variance else 0.5)
+        elif e_curtate is not None:
+            return e_curtate + (1/12 if variance else 0.5)
         else:
-            return e_curtate + 0.5
+            raise Exception("Provide a value for either e_complete or e_curtate")
 
 if __name__ == "__main__":
     print(Fractional.e_approximate(e_complete=15))  # output e_curtate

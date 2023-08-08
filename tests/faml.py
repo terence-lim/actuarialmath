@@ -222,8 +222,9 @@ isclose(0.0483, f, question="Q2.3")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="a6412173" outputId="832f29a4-ef2a-4847-afa7-5ae4612c63c8"
-def l(x, s): return 0. if (x+s) >= 100 else 1 - ((x + s)**2) / 10000.
-e = Lifetime().set_survival(l=l).e_x(75, t=10, curtate=False)
+def q(t) : return (t**2)/10000. if t < 100 else 1.
+e = Lifetime().set_survival(l=lambda x,s: 1 - q(x+s))\
+              .e_x(75, t=10, curtate=False)
 isclose(8.2, e, question="Q2.4")
 
 # + [markdown] id="b73ac219"
@@ -383,13 +384,14 @@ isclose(117, q, question="Q3.1")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="b3c05afd" outputId="70ff503b-9a20-4a33-ef3f-587cadc266da"
+from actuarialmath import Fractional, SelectLife
 e_curtate = Fractional.e_approximate(e_complete=15)
 life = SelectLife(udd=True).set_table(l={65: [1000, None,],
                                          66: [955, None]},
                                       e={65: [e_curtate, None]},
                                       d={65: [40, None,],
                                          66: [45, None]})
-e = life.e_r(66)
+e = life.e_r(x=66)
 isclose(14.7, e, question="Q3.2")
 
 # + [markdown] id="fb02d76f"
@@ -716,7 +718,7 @@ life = SelectLife().set_table(l={55: [10000, 9493, 8533, 7664],
                                  57: [7011, 6443, 5395, 3904],
                                  58: [5853, 4846, 3548, 2210]},
                               e={57: [None, None, None, 1]})
-e = life.e_r(58, s=2)
+e = life.e_r(x=58, s=2)
 isclose(1.6, e, question="Q3.13")
 
 # + [markdown] id="b784697d"
@@ -1325,7 +1327,7 @@ life = Insurance().set_interest(delta=0.05)\
 def benefit(x,t): return 0 if t < 2 else 100000
 prob = 0.9 - life.q_x(0, t=2)
 T = life.Z_t(0, prob=prob)
-Z = life.Z_from_t(T) * benefit(0, T)
+Z = life.Z_from_t(T, discrete=False) * benefit(0, T)
 isclose(81873, Z, question="Q4.18")
 
 # + [markdown] id="04492903"
@@ -1741,8 +1743,9 @@ isclose(1890, S, question="Q6.4")
 # + colab={"base_uri": "https://localhost:8080/"} id="bda89a9a" outputId="aee7da6d-8a7d-4dae-c28a-6bbcee937c29"
 life = SULT()
 P = life.net_premium(30, b=1000)
-def gain(k): return life.Y_x(30, t=k) * P - life.Z_x(30, t=k) * 1000
-k = min([k for k in range(20, 40) if gain(k) < 0])
+def gain(k): 
+    return life.Y_x(30, t=k) * P - life.Z_x(30, t=k) * 1000
+k = min([k for k in range(100) if gain(k) < 0]) + 1  # add 1 because k=0 is first policy year
 isclose(33, k, question="Q6.5")
 
 # + [markdown] id="bba959b2"
@@ -2688,8 +2691,7 @@ isclose(2.2, P, question="Q6.44")
 life = SULT(udd=True)
 contract = Contract(benefit=100000, premium=560, discrete=False)
 L = life.L_from_prob(x=35, prob=0.75, contract=contract)
-life.L_plot(x=35, contract=contract, 
-            T=life.L_to_t(L=L, contract=contract))
+life.L_plot(x=35, contract=contract, T=life.L_to_t(L=L, contract=contract))
 isclose(690, L, question="Q6.45")
 
 # + [markdown] id="96fbe650"

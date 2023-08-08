@@ -8,7 +8,7 @@ import scipy
 import matplotlib.pyplot as plt
 from typing import Callable, Any, Tuple, List
 
-plt.style.use('ggplot')
+plt.style.use('seaborn-dark') # 'ggplot'
 
 class Actuarial(object):
     """Define constants and common utility functions
@@ -25,22 +25,31 @@ class Actuarial(object):
     _WHOLE = WHOLE
     _TOL = 1e-6
     _verbose = 0
-    _MAXAGE = 130    # default oldest age
+    _MAXAGE = 100    # default oldest age
     _MINAGE = 0      # default youngest age
 
     #
     # Helpers for numerical computations
     #
     @staticmethod
+    def isclose(r: float, target: float = 0., abs_tol=1e-6) -> bool:
+        """Is close to zero or target value
+        
+        Args:
+          r : value to test if close to zero or target
+          target : target value, default is 0.0
+        """
+        return math.isclose(r, target, abs_tol=abs_tol)
+    
+    @staticmethod
     def integral(fun: Callable[[float], float],
-                 lower: float,
-                 upper: float) -> float:
+                 lower: float, upper: float) -> float:
         """Compute integral of the function between lower and upper limits
         
         Args:
           fun : function to integrate
-          lower : lower limit
           upper : upper limit
+          lower : lower limit
         """
         y = scipy.integrate.quad(fun, lower, upper, full_output=1)
         return y[0]

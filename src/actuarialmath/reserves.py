@@ -94,7 +94,7 @@ class Reserves(PolicyValues):
         ax.set_ylabel(f"$_tV$", color=color)
         ax.set_xlabel(f"t")
 
-    def V_t(self):
+    def reserves_frame(self):
         """Returns reserves table as a DataFrame"""
         return pd.DataFrame(self._reserves)\
                  .rename_axis('t')\

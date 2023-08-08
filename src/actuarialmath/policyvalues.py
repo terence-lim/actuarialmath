@@ -61,7 +61,7 @@ class Contract(Actuarial):
 
     @property
     def premium_terms(self) -> Dict:    # terms required by gross_premiums 
-        """Getter returns dict of terms required for calculating gross premiums
+        """Dict of terms required for calculating gross premiums
 
         Examples:
           >>> life = PolicyValues().set_interest(i=0.04)
@@ -96,19 +96,19 @@ class Contract(Actuarial):
 
     @property
     def renewal_profit(self) -> float:
-        """Getter returns renewal dollar profit (premium less renewal expenses)"""
+        """Renewal dollar profit (premium less renewal expenses)"""
         # premium less renewal per premium and expense"""
         return ((self.premium * (1 - self.renewal_premium)) - self.renewal_policy)
 
     @property
     def initial_cost(self) -> float:
-        """Getter returns total initial cost (excludes renewal expenses)"""
+        """Total initial cost (net of renewal component of expenses and premiums)"""
         return ((self.initial_policy - self.renewal_policy) +
                 (self.premium * (self.initial_premium - self.renewal_premium)))
 
     @property
     def claims_cost(self) -> float:
-        """Getter returns total claims cost (death benefit + settlement expense)"""
+        """Total claims cost (death benefit + settlement expense)"""
         return self.benefit + self.settlement_policy
 
 class PolicyValues(Premiums):
@@ -121,7 +121,7 @@ class PolicyValues(Premiums):
     # Net Future Loss shortcuts for WL and Endowment Insurance 
     #
     def net_future_loss(self, A: float, A1: float, b: int = 1) -> float:
-        """Shortcuts for WL or Endowment Insurance net loss
+        """Shortcut for net policy value with WL or Endowment Insurance factors
 
         Args:
           A : insurance factor at age (x)
@@ -132,7 +132,7 @@ class PolicyValues(Premiums):
 
     def net_variance_loss(self, A1: float, A2: float, A: float = 0, 
                          b: int = 1) -> float:
-        """Shortcuts for variance of net loss of WL or Endowment Insurance
+        """Variance of net loss with WL or Endowment Insurance factors
 
         Args:
           A : insurance factor at age (x)
@@ -147,13 +147,13 @@ class PolicyValues(Premiums):
     def net_policy_variance(self, x, s: int = 0, t: int = 0, b: int = 1, 
                             n: int = Premiums.WHOLE, endowment: int = 0, 
                             discrete: bool = True) -> float:
-        """Variance of future loss for WL or Endowment Ins assuming equivalence
+        """Variance of net future loss for WL or Endowment Insurance only
 
         Args:
           x : age of selection
           s : years after selection
-          t : term of life annuity in years
-          n : number of years premiums paid
+          n : term of life insurance
+          t : years after issue to compute policy variance
           b : benefit amount
           endowment : endowment amount
           discrete : annuity due (True) or continuous (False)
@@ -164,7 +164,7 @@ class PolicyValues(Premiums):
             A1 = self.whole_life_insurance(x, s=s+t, discrete=discrete)
             A = self.whole_life_insurance(x, s=s, discrete=discrete)
         elif endowment == b:   # Endowment Insurance 
-            n = self.max_term(x+s+t, n)
+            n = self.max_term(x=x+s+t, t=n)
             A2 = self.endowment_insurance(x, s=s+t, t=n-t, moment=2,
                                             discrete=discrete)
             A1 = self.endowment_insurance(x, s=s+t, t=n-t, discrete=discrete)
@@ -179,13 +179,13 @@ class PolicyValues(Premiums):
     def net_policy_value(self, x: int, s: int = 0, t: int = 0, b: int = 1, 
                          n: int = Premiums.WHOLE, endowment: int = 0, 
                          discrete: bool = True) -> float:
-        """Net policy value assuming premiums from equivalence: E[L_t]
+        """Net policy value assuming net premiums from equivalence principle: E[L_t]
 
         Args:
           x : age initially insured
           s : years after selection
-          n : number of years of premiums paid
-          t : year of death
+          n : term of life insurance
+          t : years after issue to compute policy variance
           b : benefit amount
           endowment : endowment amount
           discrete : discrete/annuity due (True) or continuous (False)
@@ -194,12 +194,12 @@ class PolicyValues(Premiums):
             A1 = self.whole_life_insurance(x, s=s+t, discrete=discrete)
             A = self.whole_life_insurance(x, s=s, discrete=discrete)
         elif endowment == b:  # Shortcut available for (equal) Endowment Insurance
-            n = self.max_term(x+s+t, n)
+            n = self.max_term(x=x+s+t, t=n)
             A1 = self.endowment_insurance(x, s=s+t, t=n-t, 
                                             discrete=discrete)
             A = self.endowment_insurance(x, s=s, t=n, discrete=discrete)
         else:   # Special Term or (unequal) Endowment insurance has no shortcut
-            n = self.max_term(x+s+t, n)
+            n = self.max_term(x=x+s+t, t=n)
             A1 = self.endowment_insurance(x, s=s+t, t=n-t, discrete=discrete,
                                             b=b, endowment=endowment)
             a1 = self.temporary_annuity(x, s=s+t, t=n-t, b=b, 
@@ -216,7 +216,7 @@ class PolicyValues(Premiums):
     def gross_future_loss(self, A: float | None = None, 
                           a: float | None = None, 
                           contract: Contract | None = None) -> float:
-        """Shortcut for WL or Endowment Insurance gross future loss
+        """Shortcut for gross policy value with WL or Endowment Insurance factors
 
         Args:
           A : insurance factor at age (x)
@@ -233,7 +233,7 @@ class PolicyValues(Premiums):
 
     def gross_variance_loss(self, A1: float, A2: float = 0,
                             contract: Contract | None = None) -> float:
-        """Shortcuts for variance of gross loss for WL or endowment insurance
+        """Variance of gross loss with WL or endowment insurance factors
 
         Args:
           A1 : insurance factor
@@ -248,13 +248,13 @@ class PolicyValues(Premiums):
     def gross_policy_variance(self, x: int, s: int = 0, t: int = 0,
                               n: int = Premiums.WHOLE,
                               contract: Contract | None = None) -> float:
-        """Variance of gross policy value for WL and Endowment Insurance
+        """Variance of gross policy value for WL and Endowment Insurance only
 
         Args:
           x : age initially insured
           s : years after selection
-          n : number of years of premiums paid
-          t : year of death
+          n : term of life insurance
+          t : years after issue to compute policy variance
           contract : policy contract terms and expenses
         """
         contract = contract or Contract()
@@ -264,7 +264,7 @@ class PolicyValues(Premiums):
             A1 = self.whole_life_insurance(x, s=s+t, 
                                             discrete=contract.discrete)
         elif contract.endowment == contract.claims_cost:  # Endowment
-            n = self.max_term(x+s+t, n)
+            n = self.max_term(x=x+s+t, t=n)
             A2 = self.endowment_insurance(x, s=s+t, t=n-t, moment=2, 
                                             discrete=contract.discrete)
             A1 = self.endowment_insurance(x, s=s+t, t=n-t, 
@@ -293,11 +293,11 @@ class PolicyValues(Premiums):
             A = self.whole_life_insurance(x, s=s+t, 
                                           discrete=contract.discrete)
         elif contract.endowment == contract.claims_cost:  # Endowment Ins shortcut
-            n = self.max_term(x+s+t, n)
+            n = self.max_term(x=x+s+t, t=n)
             A = self.endowment_insurance(x, s=s+t, t=n-t, 
                                             discrete=contract.discrete)
         else:  # Special term insurance
-            n = self.max_term(x+s+t, n)
+            n = self.max_term(x=x+s+t, t=n)
             A = self.term_insurance(x, s=s+t, t=n-t, discrete=contract.discrete)
             a = self.temporary_annuity(x, s=s+t, t=n-t,
                                        discrete=contract.discrete)
@@ -314,52 +314,56 @@ class PolicyValues(Premiums):
     # Future Loss random variable: L(T_x)
     #
     def L_from_t(self, t: float, contract: Contract | None = None) -> float:
-        """PV of Loss L(t) at time of death t = T_x (or K_x if discrete)
+        """PV of Loss L(t) at time of death t = T_x
 
         Args:
           t : year of death
           contract : policy contract
         """
-        contract = contract or Contract()
-        k = math.floor(t) if contract.discrete else t  # if endowment paid
-        if contract.T > 0 and k >= contract.T:
-            t = contract.T
-            endowment = contract.endowment * self.Z_from_t(t)
+        c = contract or Contract()
+        k = math.floor(t) if c.discrete else t
+        if c.T > 0 and k >= c.T:   # if endowment insurance and t is beyond term
+            t = c.T
+            endowment = c.endowment * self.Z_from_t(t)
         else:
             endowment = 0
-        return ((contract.claims_cost
-                 * self.Z_from_t(t, discrete=contract.discrete))
-                + contract.initial_cost
+        return ((c.claims_cost * self.Z_from_t(t, discrete=c.discrete))
                 + endowment
-                - (contract.renewal_profit
-                   * self.Y_from_t(t, discrete=contract.discrete)))
-
-    def L_to_t(self, L: float, contract: Contract | None = None) -> float:
-        """Compute time of death T_x s.t. PV future loss is L
-
-        Args:
-          L : PV of future loss
-          contract : policy contract terms and expenses
-        """
-        contract = contract or Contract()
-        return Contract.solve(lambda t: self.L_from_t(t, contract),
-                              target=L, grid=(0, self._MAXAGE), mad=True)
+                + c.initial_cost
+                - (c.renewal_profit * self.Y_from_t(t, discrete=c.discrete)))
 
     def L_from_prob(self, x: int, prob: float, 
                     contract: Contract | None = None) -> float:
-        """Compute PV of future loss at given percentile prob
+        """Percentile of PV future loss r.v. L given probability
 
         Args:
           x : age
           prob : probability threshold
           contract : policy contract
         """
+        contract = contract or Contract()
         t = self.Z_t(x, prob, discrete=contract.discrete)
         return self.L_from_t(t, contract)
 
+    def L_to_t(self, L: float, contract: Contract | None = None) -> float:
+        """Time of death T_x s.t. PV future loss is no more than L
+
+        Args:
+          L : PV of future loss
+          contract : policy contract terms and expenses
+        """
+        c = contract or Contract()
+        T = Contract.solve(lambda t: self.L_from_t(t, c),
+                           target=L,
+                           grid=(0, self._MAXAGE),
+                           mad=True)
+        if not c.discrete:
+            return T
+        return math.floor(T) if self.L_from_t(t=T, contract=c) <= L else math.ceil(T)
+
     def L_to_prob(self, x: int, L: float,
                   contract: Contract = Contract()) -> float:
-        """Compute percentile of L on the PV of future loss curve"
+        """Probability such that PV of future loss r.v. is no more than L"
 
         Args:
           x : age selected
@@ -369,12 +373,82 @@ class PolicyValues(Premiums):
         t = self.L_to_t(L, contract)
         return self.S(x, 0, t)
 
-    def L_plot(self, x: int, s: int = 0, stop: int = 0,
+    def L_plot(self,
+               x: int,
+               s: int = 0,
+               stop: int = 0,
                T: float | None = None,
-               contract: Contract = Contract(),
+               contract: Contract | None = None,
                ax: Any = None,
+               dual: bool = False,
                title: str | None = None,
-               color='r') -> float:
+               color: str = 'r',
+               alpha: float = 0.3)-> float | None:
+        """Plot PV of future loss r.v. L vs time of death T_x
+        
+        Args:
+          x : age selected
+          s : years after selection
+          stop : time to end plot
+          contract : policy contract terms and expenses
+          T : point in time to indicate probability and loss values
+          ax : figure object to plot in
+          title : title of plot 
+          dual: whether to plot survival function on secondary axis
+          color : color to plot curve
+          alpha : transparency of plot area
+        """
+        contract = contract or Contract()
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        K = 'K' if contract.discrete else 'T'
+        stop = stop or self._MAXAGE - (x + s)
+        step = 1 if contract.discrete else stop / 1000.
+        steps = np.arange(0, stop + step, step)
+
+        # plot PV loss values
+        y = [self.L_from_t(t, contract=contract) for t in steps]
+        ax.bar(steps, y, width=step, alpha=alpha, color=color)
+        ax.tick_params(axis='y', colors=color)
+        #ax.plot(steps, y, '.', c=color)
+        xmin, xmax = ax.get_xlim()
+        ymin, ymax = ax.get_ylim()
+        yjig = (ymax - ymin) / 50
+        xjig = (xmax - xmin) / 50
+
+        if dual:
+            p = [self.p_x(x=x, s=s, t=t) for t in steps]
+            bx = ax.twinx()
+            bx.step(steps, p, '-', c='g', alpha=alpha,
+                    where='pre' if contract.discrete else 'post')
+            #bx.bar(steps, p, color='g', alpha=.2, width=step, align='edge')
+            bx.set_ylabel(f"$S({K})$", color='g')
+            bx.tick_params(axis='y', colors='g')
+
+        if T is not None:
+            # plot indicate(T*)
+            z = self.L_from_t(T, contract=contract)
+            label1, = ax.plot(T, z, c=color, marker='o', label=f"L({T:.2f})={z:.4f}")
+            ax.legend(handles=[label1], loc='lower left')
+
+            # indicate corresponding S(T*)
+            if dual:
+                prob = self.S(x, s, T)
+                label2, = bx.plot(T, prob, c='g', marker='o',
+                                  label=f"Pr[{K}>{T:.2f}]={prob:.4f}")
+                bx.legend(handles=[label2], loc='upper right')
+        ax.set_title(f"PV future loss at issue r.v. $_0L$")
+        ax.set_ylabel(f"$L({K}_x)$", color=color)
+        ax.set_xlabel(f"${K}_x$")
+        #plt.tight_layout()
+        return z
+
+    def _L_plot(self, x: int, s: int = 0, stop: int = 0,
+                T: float | None = None,
+                contract: Contract | None = None,
+                ax: Any = None,
+                title: str | None = None,
+                color='r') -> float:
         """Plot PV of future loss r.v. L vs time of death T_x
         
         Args:
@@ -385,7 +459,8 @@ class PolicyValues(Premiums):
           T : point in time to indicate probability and loss values
           title : title of plot 
           color : color to plot curve
-        """        
+        """
+        contract = contract or Contract()
         if ax is None:
             fig, ax = plt.subplots(1, 1)
         K = 'K' if contract.discrete else 'T'

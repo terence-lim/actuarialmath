@@ -37,8 +37,7 @@ class Lifetime(Survival):
         t = self.max_term(x+s, t)   # length of term must be bounded by max age
         if curtate:
             if moment == 1:
-                return sum([self.p_x(x, s=s, t=k)
-                            for k in range(1, round(t+1))]) 
+                return sum([self.p_x(x, s=s, t=k) for k in range(1, round(t+1))]) 
             e2 = sum([((2 * k) - 1) * self.p_x(x, s=s, t=k)
                       for k in range(1, round(t+1))])
         else:
@@ -47,7 +46,7 @@ class Lifetime(Survival):
             e2 = self.integral(lambda t: 2 * t * self.S(x, s, t), 0., float(t))
 
         if moment == self.VARIANCE:  # variance is E[T_x^2] - E[T_x]^2
-            return e2 - self.e(x, s=s, t=t, curtate=curtate, moment=1)**2
+            return e2 - self.e_x(x, s=s, t=t, curtate=curtate, moment=1)**2
         return e2   # return second moment
 
 

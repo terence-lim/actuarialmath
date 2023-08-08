@@ -336,22 +336,22 @@ class Recursion(Reserves):
       verbose : whether to echo recursion steps (True, default)
 
     Notes:
-      7 types of information can be loaded and calculated in recursions:
+      7 types of function values can be loaded for recursion computations:
 
       - 'q' : (deferred) probability (x) dies in t years
       - 'p' : probability (x) survives t years
-      - 'e' : (temporary) expected future lifetime, and moments
-      - 'A' : deferred, term, endowment or whole life insurance, and moments
+      - 'e' : (temporary) expected future lifetime, or moments
+      - 'A' : deferred, term, endowment or whole life insurance, or moments
       - 'IA' : decreasing life insurance of t years
       - 'DA' : increasing life insurance of t years
-      - 'a' : deferred, temporary or whole life annuity of t years, and moments
+      - 'a' : deferred, temporary or whole life annuity of t years, or moments
     """
     
     _Blog = _Blog
     def __init__(self, depth: int = _depth, verbose: bool = True, **kwargs):
         super().__init__(**kwargs)
         self.db = {}
-        self._t = {'A': {1, 2}, 'a': {1, 2}, 'e': {1, 2}}
+        self._t = {'A': {1, 2}, 'a': {1, 2}, 'e': {1, 2}}  # recursion periods to try
         self.maxdepth = depth
         self._verbose = verbose
         self.pprint = Recursion._Blog

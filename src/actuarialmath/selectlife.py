@@ -42,13 +42,15 @@ class SelectLife(LifeTable):
         """
         return self._select[table[0]]
 
-    def set_table(self, fill: bool = True,
+    def set_table(self,
                   l: Dict[int, List[float]] | None = None,
                   d: Dict[int, List[float]] | None = None, 
                   q: Dict[int, List[float]] | None = None,
                   A: Dict[int, List[float]] | None = None,
                   a: Dict[int, List[float]] | None = None, 
-                  e: Dict[int, List[float]] | None = None) -> "SelectLife":
+                  e: Dict[int, List[float]] | None = None,
+                  fill: bool = True,
+                  radix: int = LifeTable._RADIX) -> "SelectLife":
         """Update from table, every age has row for all select durations
 
         Args:
@@ -58,6 +60,8 @@ class SelectLife(LifeTable):
           A : whole life insurance, or
           a : whole life annuity, or 
           e : expected future lifetime of [x]+s
+          radix : initial number of lives
+          fill : whether to fill missing values using recursion formulas
         
         Examples:
           >>> life = SelectLife().set_table(l={55: [10000, 9493, 8533, 7664],
@@ -85,10 +89,14 @@ class SelectLife(LifeTable):
         self._MAXAGE = maxage
 
         if fill:         # iteratively fill missing table values
-            self.fill_table()
+            self.fill_table(radix=radix)
         return self
 
-    def set_select(self, s: int, age_selected: bool, fill: bool = False,
+    def set_select(self,
+                   s: int,
+                   age_selected: bool,
+                   radix: int = LifeTable._RADIX,
+                   fill: bool = False,
                    l: Dict[int, float] | None = None,
                    d: Dict[int, float] | None = None,
                    q: Dict[int, float] | None = None,
@@ -100,6 +108,8 @@ class SelectLife(LifeTable):
         Args:
           s : column to populate - n is ultimate, 0..n-1 is year after select
           age_selected : is indexed by age selected or actual (False, default)
+          radix : initial number of lives
+          fill : whether to fill missing values using recursion formulas
           q : probabilities [x]+s dies in next year, by age
           l : number of lives aged [x]+s, by age
           d : number of deaths of [x]+s, by age
@@ -133,7 +143,7 @@ class SelectLife(LifeTable):
                     if age > self._MAXAGE:                    # infer max age
                         self._MAXAGE = x
         if fill:
-            self.fill_table()
+            self.fill_table(radix=radix)
         return self
 
     def _get_sel(self, x: int, s: int, table: str) -> float | None:

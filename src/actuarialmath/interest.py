@@ -9,17 +9,17 @@ from typing import Callable
 from actuarialmath import Actuarial
 
 class Interest(Actuarial):
-    """Converts interest rates, and computes value of annuity certain
+    """Store an assumed interest rate, and compute interest rate functions
     
     Args:
       i : assumed annual interest rate
-      d : or assumed discount rate
-      v : or assumed discount factor
-      delta : or assumed continuously compounded interest rate
-      v_t : or assumed discount rate as a function of time
-      i_m : or assumed monthly interest rate
-      d_m : or assumed monthly discount rate
-      m : m'thly frequency, if i_m or d_m are given
+      d : or annual discount rate
+      v : or annual discount factor
+      delta : or continuously compounded interest rate
+      v_t : or discount rate as a function of time
+      i_m : or m-thly interest rate
+      d_m : or m-thly discount rate
+      m : m'thly frequency, if i_m or d_m are specified
     """
 
     def __init__(self, i: float = -1., delta: float = -1., d: float = -1., 

@@ -50,7 +50,11 @@ class LifeTable(Reserves):
         self.set_survival(mu=_mu, S=_S, f=_f, l=_l, minage=-1, maxage=-1)
 
 
-    def set_table(self, fill: bool = True, minage: int = -1, maxage: int = -1,
+    def set_table(self,
+                  radix: int = Reserves._RADIX,
+                  minage: int = -1,
+                  maxage: int = -1,
+                  fill: bool = True,
                   l: Dict[int, float] | None = None,
                   d: Dict[int, float] | None = None,
                   p: Dict[int, float] | None = None, 
@@ -65,6 +69,7 @@ class LifeTable(Reserves):
           fill : whether to automatically fill table cells (default is True)
           minage : minimum age in table
           maxage : maximum age in table
+          radix : initial number of lives
 
         Examples:
 
@@ -98,10 +103,10 @@ class LifeTable(Reserves):
 
         # derive and fill table values
         if fill:
-            self.fill_table()
+            self.fill_table(radix=radix)
         return self
 
-    def fill_table(self, radix: int = Reserves._RADIX) -> "LifeTable":
+    def fill_table(self, radix: int) -> "LifeTable":
         """Iteratively fill in missing table cells (does not check consistency)
 
         Args:

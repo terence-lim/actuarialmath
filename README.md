@@ -18,11 +18,11 @@ This Python package implements fundamental methods for modeling life contingent 
 2. Start Python (version >= 3.10) or Jupyter-notebook
 
 
-   - Select and import a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
+   - Select a suitable subclass to initialize with your actuarial assumptions, such as `MortalityLaws` (or a special law like `ConstantForce`), `LifeTable`, `SULT`, `SelectLife` or `Recursion`.
 
    - Call appropriate methods to compute intermediate or final results, or to `solve` parameter values implicitly.
 
-   - Adjust the answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes
+   - Adjust answers with `ExtraRisk` or `Mthly` (or its `UDD` or `Woolhouse`) classes
 
 
 ## Examples

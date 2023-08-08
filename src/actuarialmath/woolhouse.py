@@ -21,7 +21,7 @@ class Woolhouse(Mthly):
                  approximate_mu: Callable[[int, int], float] | bool = True):
         super().__init__(m=m, life=life)
         self.three_term = three_term          # whether to include third term
-        self.approximate_mu = approximate_mu  # whether to approximate mu
+        self.approximate_mu = approximate_mu  # how to approximate mu
 
     def mu_x(self, x: int, s: int = 0) -> float:
         """Computes mu_x or calls approximate_mu for third term

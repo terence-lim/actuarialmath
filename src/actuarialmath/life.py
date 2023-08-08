@@ -115,7 +115,7 @@ class Life(Actuarial):
         
     @staticmethod
     def conditional_variance(p, p1, p2: float, N: int = 1) -> float:
-        """Conditional variance formula
+        """Conditional variance formula for mixture of binomials
 
         Args:
           p : probability of selecting first r.v.

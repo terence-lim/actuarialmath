@@ -16,13 +16,12 @@ class Survival(Life):
                      f: Callable[[int,float,float], float] | None = None,
                      l: Callable[[int,float], float] | None = None, 
                      mu: Callable[[int,float], float] | None = None,
-                     maxage: int = Life._MAXAGE,
-                     minage: int = Life._MINAGE) -> "Survival":
+                     minage: int = 0, maxage: int = 1000) -> "Survival":
         """Construct the basic survival and mortality functions given any one form
 
         Args:
           S : probability [x]+s survives t years
-          f : or mortality of [x]+s after t years 
+          f : or lifetime density function of [x]+s after t years 
           l : or number of lives aged (x+t)
           mu : or force of mortality at age (x+t)
           maxage : maximum age
@@ -37,6 +36,7 @@ class Survival(Life):
         >>> def ell(x,s): return (1 - (x+s) / 60)**(1 / 3)
         >>> life = Survival().set_survival(l=ell)
         """
+        assert(any([S, f, l, mu])), "One form of survival function must be specified"
         self._MAXAGE = maxage
         self._MINAGE = minage
         self.S = None   # survival probability: Prob(T_[x]+s > t)
@@ -50,7 +50,7 @@ class Survival(Life):
 
         def mu_from_l(x: int, t: float) -> float:
             """Derive force of mortality from number of lives"""
-            return -self.derivative(lambda s: math.log(self.l(x, s)), t)
+            return -self.derivative(lambda s: self.l(x, s), t) / self.l(x,t)
 
         def f_from_l(x: int, s, t: float) -> float:
             """Derive lifetime density function from number of lives"""
@@ -58,7 +58,7 @@ class Survival(Life):
 
         def mu_from_S(x: int, t: float) -> float:
             """Derive force of mortality from survival probability"""
-            return -self.derivative(lambda s: math.log(self.S(x, 0, s)), t)
+            return -self.derivative(lambda s: self.S(x, 0, s), t) / self.S(x,0,t)
 
         def f_from_S(x: int, s, t: float) -> float:
             """Derive lifetime density function from survival probability"""
@@ -66,11 +66,12 @@ class Survival(Life):
 
         def S_from_mu(x: int, s, t: float) -> float:
             """Derive survival probability from force of mortality"""
-            return math.exp(-self.integral(lambda t: self.mu(x, s+t), 0, t))
+            return math.exp(-self.integral(lambda t: self.mu(x, s+t),
+                                           lower=0, upper=t))
 
         def S_from_f(x: int, s, t: float) -> float:
             """Derive survival probability from lifetime density function"""
-            return 1 - self.integral(lambda t: self.f(x, s, t), 0, t)
+            return 1 - self.integral(lambda t: self.f(x, s, t), lower=0, upper=t)
 
         def f_from_mu(x: int, s, t: float) -> float:
             """Derive lifetime density function from force of mortality"""
@@ -78,7 +79,7 @@ class Survival(Life):
 
         def mu_from_f(x: int, t: float) -> float:
             """Derive force of mortality from lifetime density function"""
-            self.mu = self.f(x, 0, t) / self.S(x, 0, t)
+            return self.f(x, 0, t) / self.S(x, 0, t)
 
         # derive and set all forms of basic survival and mortality functions
         if l is not None:
@@ -119,7 +120,7 @@ class Survival(Life):
         assert s >= 0, "s must be non-negative"
         if self.l is not None:
             return self.l(x, s)
-        return Life.LIFES * self.p_x(x=self._MINAGE, s=0, t=s+x-self._MINAGE)
+        return self._RADIX * self.p_x(x=self._MINAGE, s=0, t=s+x-self._MINAGE)
 
     def d_x(self, x: int, s: int = 0) -> float:
         """Number of deaths at integer age [x]+s: d_[x]+s

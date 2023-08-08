@@ -8,8 +8,12 @@ from actuarialmath import Reserves
 class MortalityLaws(Reserves):
     """Apply shortcut formulas for special mortality laws"""
 
+    def __init__(self, **kwargs):
+        assert 'udd' not in kwargs, "Fractional age must assume same mortality law"
+        super().__init__(**kwargs)
+    
     #
-    # Define fractional age actuarial survival functions
+    # Fractional age actuarial survival functions can use continuous laws
     #
     def l_r(self, x: int, s: int = 0, r: float = 0.) -> float:
         """Fractional lives given special mortality law: l_[x]+s+r
@@ -86,17 +90,14 @@ class Beta(MortalityLaws):
     Args:
       omega : maximum age
       alpha : alpha paramter of beta distribution
-      lives : assumed starting number of lives for survival function
+      radix : assumed starting number of lives for survival function
 
     Examples:
-      >>> life = Beta(omega=100, alpha=0.5)
-      >>> print(life.q_x(25, t=1, u=10))     # 0.0072
-      >>> print(life.e_x(25))                # 50
       >>> print(Beta(omega=60, alpha=1/3).mu_x(35) * 1000)
     """
-    
+
     def __init__(self, omega: int, alpha: float,
-                 lives: int = MortalityLaws._RADIX, **kwargs): 
+                 radix: int = MortalityLaws._RADIX, **kwargs): 
         """Two parameters: alpha and omega, with mu(x) = alpha/(omega-x)"""
 
         super().__init__(**kwargs)
@@ -105,7 +106,7 @@ class Beta(MortalityLaws):
             return alpha / (omega - (x+s))
 
         def _l(x: int, s: float) -> float:
-            return lives * (omega - (x+s))**alpha
+            return radix * (omega - (x+s))**alpha
 
         def _S(x: int, s,t : float) -> float:
             return ((omega-(x+s+t))/(omega-(x+s)))**alpha
@@ -150,26 +151,21 @@ class Beta(MortalityLaws):
             if moment == self.VARIANCE and n < 0: # shortcut for complete variance
                 return ((self.omega_ - (x + s))
                         / ((self.alpha_ + 1)**2 * (self.alpha_ + 1)))
-        return super().__init__(x=x, s=s, n=n, curtate=curtate, moment=moment)
+        return super().e_x(x=x, s=s, n=n, curtate=curtate, moment=moment)
 
 class Uniform(Beta):
     """Shortcuts with uniform distribution of deaths aka DeMoivre's Law
 
     Args:
       omega : maximum age
-      udd : assume UDD (True, default) or CFM (False) between integer ages
 
     Examples:
-      >>> uniform = Uniform(80).set_interest(delta=0.04)
-      >>> print(uniform.whole_life_annuity(20, discrete=False))        # 15.53
-      >>> print(uniform.temporary_annuity(20, t=5, discrete=False))   # 4.35
-      >>> print(Uniform(161).p_x(70, t=1)) # 0.98901
       >>> print(Uniform(95).e_x(30, t=40, curtate=False)) # 27.692
     """
 
-    def __init__(self, omega: int, udd: bool = True, **kwargs):
+    def __init__(self, omega: int, **kwargs):
         """One parameter: omega = maxage, with mu(x) = 1/(omega - x)"""
-        super().__init__(omega=omega, alpha=1, udd=udd, **kwargs)
+        super().__init__(omega=omega, alpha=1, **kwargs)
 
     def e_x(self, x: int, s: int = 0, t: int = Beta.WHOLE, 
           curtate: bool = False, moment: int = 1) -> float:
@@ -193,7 +189,7 @@ class Uniform(Beta):
                 t = self.max_term(x+s, t)
                 t_p_x = t / (self.omega_ - x)
                 return t_p_x * t  + (1 - t_p_x) * (t / 2)
-        return super().__init__(x=x, s=s, t=t, curtate=curtate, moment=moment)
+        return super().e_x(x=x, s=s, t=t, curtate=curtate, moment=moment)
 
     
     def E_x(self, x: int, s: int = 0, t: int = Beta.WHOLE, 
@@ -273,8 +269,7 @@ class Makeham(MortalityLaws):
       A, B, c : parameters of Makeham distribution
 
     Examples:
-      >>> life = Makeham(A=0.00022, B=2.7e-6, c=1.124)
-      >>> print(life.mu_x(60) * 0.9803)  # 0.00316
+      >>> print(Makeham(A=0.00022, B=2.7e-6, c=1.124).mu_x(60) * 0.9803)  # 0.00316
     """
     
     def __init__(self, A: float, B: float, c: float, **kwargs):
@@ -301,15 +296,12 @@ class Gompertz(Makeham):
       B, c : parameters of Gompertz distribution
 
     Examples:
-      >>> life = Gompertz(B=0.000005, c=1.10)
-      >>> p = life.p_x(80, t=10)  # 869.4
-      >>> print(life.portfolio_percentile(N=1000, mean=p, variance=p*(1-p), prob=0.99)) 
       >>> print(Gompertz(B=0.00027, c=1.1).f_x(50, t=10)) # 0.04839
     """
 
-    def __init__(self, B: float, c: float):
+    def __init__(self, B: float, c: float, **kwargs):
         """Gompertz's Law is Makeham's Law with A = 0"""
-        super().__init__(A=0., B=B, c=c)
+        super().__init__(A=0., B=B, c=c, **kwargs)
 
 if __name__ == "__main__":
     print('Beta')
