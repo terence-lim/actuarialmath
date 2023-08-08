@@ -33,7 +33,7 @@
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="i9j4jVPE-Fpk" outputId="c2addd37-6cbe-49bf-f4d3-7252d6d3f0c5"
-# #! pip install actuarialmath==0.0.11
+# #! pip install actuarialmath
 
 # + id="a0729fd1"
 """Solutions code and hints for SOA FAM-L sample questions
@@ -69,6 +69,7 @@ from actuarialmath import Woolhouse
 # __Helper to compare computed answers to expected solutions__
 
 # + id="903e972b"
+import time
 class IsClose:
     """Helper class for testing and reporting if two values are close"""
     def __init__(self, rel_tol : float = 0.01, score : bool = False,
@@ -78,6 +79,7 @@ class IsClose:
         self.verbose = verbose  # whether to run silently
         self.incorrect = []     # to keep list of messages for INCORRECT
         self.tol = rel_tol
+        self.tic = time.time()
 
     def __call__(self, solution, answer, question="", rel_tol=None):
         """Compare solution to answer within relative tolerance
@@ -105,7 +107,8 @@ class IsClose:
 
     def __str__(self):
         """Display cumulative score and errors"""
-        return f"Passed: {self.num}/{self.den}\n" + "\n".join(self.incorrect)
+        return f"Elapsed: {time.time()-self.tic:.1f} secs\n" \
+               + f"Passed:  {self.num}/{self.den}\n" + "\n".join(self.incorrect)
 isclose = IsClose(0.01, score=False, verbose=True)
 
 # + [markdown] id="831d29e6"
@@ -223,8 +226,7 @@ isclose(0.0483, f, question="Q2.3")
 
 # + colab={"base_uri": "https://localhost:8080/"} id="a6412173" outputId="832f29a4-ef2a-4847-afa7-5ae4612c63c8"
 def q(t) : return (t**2)/10000. if t < 100 else 1.
-e = Lifetime().set_survival(l=lambda x,s: 1 - q(x+s))\
-              .e_x(75, t=10, curtate=False)
+e = Lifetime().set_survival(l=lambda x,s: 1 - q(x+s)).e_x(75, t=10, curtate=False)
 isclose(8.2, e, question="Q2.4")
 
 # + [markdown] id="b73ac219"
@@ -242,7 +244,7 @@ isclose(8.2, e, question="Q2.4")
 #
 #
 # - solve for $e_{40}$ from limited lifetime formula
-# - compute $e_{41}$ using backward recursion
+# - compute $e_{41}$ using forward recursion
 
 # + colab={"base_uri": "https://localhost:8080/"} id="7485cb2a" outputId="5006156c-27ea-43b6-925b-080690daafcd"
 life = Recursion(verbose=True).set_e(25, x=60, curtate=True)\
@@ -319,7 +321,7 @@ def fun(mu):  # Solve first for mu, given ratio of start and end proportions
     male = Survival().set_survival(mu=lambda x,s: 1.5 * mu)
     female = Survival().set_survival(mu=lambda x,s: mu)
     return (75 * female.p_x(0, t=20)) / (25 * male.p_x(0, t=20))
-mu = Survival.solve(fun, target=85/15, grid=[0.89, 0.99])
+mu = Survival.solve(fun, target=85/15, grid=0.5)
 p = Survival().set_survival(mu=lambda x,s: mu).p_x(0, t=1)
 isclose(0.94, p, question="Q2.8")
 
@@ -384,7 +386,6 @@ isclose(117, q, question="Q3.1")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="b3c05afd" outputId="70ff503b-9a20-4a33-ef3f-587cadc266da"
-from actuarialmath import Fractional, SelectLife
 e_curtate = Fractional.e_approximate(e_complete=15)
 life = SelectLife(udd=True).set_table(l={65: [1000, None,],
                                          66: [955, None]},
@@ -451,6 +452,7 @@ isclose(815, pct, question="Q3.4")
 #
 #
 # You are given:
+#
 # | $x$ | 60 | 61 | 62 | 63 |64 | 65 | 66 | 67 |
 # |---|---|---|---|---|---|---|---|---|
 # | $l_x$ | 99,999 | 88,888 |77,777 | 66,666 | 55,555 | 44,444 | 33,333 | 22,222|
@@ -854,14 +856,14 @@ isclose(0.18, p, question="Q4.2")
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="db579f3b" outputId="e6e2e006-1b78-45b6-b270-435ad567034c"
-life = Recursion(depth=4).set_interest(i=0.05)\
-                         .set_q(0.01, x=60)\
-                         .set_A(0.86545, x=60, t=3, endowment=1)
+life = Recursion(verbose=True).set_interest(i=0.05)\
+                              .set_q(0.01, x=60)\
+                              .set_A(0.86545, x=60, t=3, endowment=1)
 q = life.q_x(x=61)
-A = Recursion(depth=4).set_interest(i=0.045)\
-                      .set_q(0.01, x=60)\
-                      .set_q(q, x=61)\
-                      .endowment_insurance(60, t=3)
+A = Recursion(verbose=True).set_interest(i=0.045)\
+                           .set_q(0.01, x=60)\
+                           .set_q(q, x=61)\
+                           .endowment_insurance(60, t=3)
 isclose(0.878, A, question="Q4.3")
 
 # + [markdown] id="de2d0427"
@@ -912,7 +914,7 @@ isclose(0.036, var, question="Q4.4")
 
 # + colab={"base_uri": "https://localhost:8080/"} id="3c9d0b1e" outputId="9ce6ae62-ce6a-4afb-d1bf-abe00bb38caf"
 sult = SULT(udd=True).set_interest(delta=0.05)
-Z = 100000 * sult.Z_from_prob(45, 0.95, discrete=False)
+Z = 100000 * sult.Z_from_prob(45, prob=0.95, discrete=False)
 isclose(35200, Z, question="Q4.5")
 
 # + [markdown] id="1792b7aa"
@@ -2691,7 +2693,8 @@ isclose(2.2, P, question="Q6.44")
 life = SULT(udd=True)
 contract = Contract(benefit=100000, premium=560, discrete=False)
 L = life.L_from_prob(x=35, prob=0.75, contract=contract)
-life.L_plot(x=35, contract=contract, T=life.L_to_t(L=L, contract=contract))
+life.L_plot(x=35, contract=contract, 
+            T=life.L_to_t(L=L, contract=contract))
 isclose(690, L, question="Q6.45")
 
 # + [markdown] id="96fbe650"
@@ -2884,7 +2887,7 @@ isclose(720, P, question="Q6.53")
 #
 # 2. *i* = 0.05
 #
-# 3. The annual premium is determined using the equivalencep rinciple.
+# 3. The annual premium is determined using the equivalence principle.
 #
 # Calculate the standard deviation of
 # $_0L$ , the present value random variable for the loss at issue. 
@@ -3196,7 +3199,7 @@ isclose(4.09, V, question="Q7.12")
 
 
 # + [markdown] id="4ea704b8"
-# Answer 7.13: (A) 180
+# __SOA Question 7.13__ : (A) 180
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="0b8778cc" outputId="e86b40bf-745e-4d08-a5ae-bc70e33c4c37"
