@@ -78,7 +78,7 @@ print(R-S)   # solution = -277.19
 
 ## Resources
 
-1. [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing) or [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), to solve all sample SOA FAM-L exam questions
+1. [Colab](https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing) or [Jupyter notebook](https://colab.research.google.com/github/terence-lim/terence-lim.github.io/blob/master/notes/faml.ipynb), to solve all sample SOA FAM-L exam questions
 
 2. [Online User Guide](https://terence-lim.github.io/actuarialmath-guide/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
 
