@@ -314,9 +314,9 @@ class Insurance(Fractional):
           Z : Present value of benefit paid
 
         Examples:
-        >>> t = life.Z_t(x=20, prob=0.8, discrete=False)
-        >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=False)
-        >>> print(t, life.Z_to_t(Z))
+          >>> t = life.Z_t(x=20, prob=0.8, discrete=False)
+          >>> Z = life.Z_from_prob(x=20, prob=0.8, discrete=False)
+          >>> print(t, life.Z_to_t(Z))
         """
         t = math.log(Z) / math.log(self.interest.v)
         return t
