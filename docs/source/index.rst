@@ -1,5 +1,5 @@
-actuarialmath - Life Contingent Risks with Python
-=================================================
+actuarialmath - Solve Life Contingent Risks with Python
+=======================================================
 
 This Python package implements fundamental methods for modeling life contingent risks, and closely follows the coverage of traditional topics in actuarial exams and standard texts such as the "Fundamentals of Actuarial Math - Long-term" exam syllabus by the Society of Actuaries, and "Actuarial Mathematics for Life Contingent Risks" by Dickson, Hardy and Waters.
 
@@ -86,9 +86,9 @@ Examples
 Resources
 ---------
 
-1. `Colab <https://colab.research.google.com/drive/1TcNr1x5HbT2fF3iFMYGXdN_cvRKiSua4?usp=sharing>`_ or `Jupyter notebook <https://terence-lim.github.io/notes/faml.ipynb>`_, to solve all sample SOA FAM-L exam questions
+1. `Jupyter notebook <https://terence-lim.github.io/notes/faml.ipynb>`_ or `run in Colab <https://colab.research.google.com/github/terence-lim/terence-lim.github.io/blob/master/notes/faml.ipynb>`_, to solve all sample SOA FAM-L exam questions
 
-2. `Online User Guide <https://terence-lim.github.io/actuarialmath-guide/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-guide.pdf>`_
+2. `User Guide <https://actuarialmath-guide.readthedocs.io/en/latest/>`_, or `download pdf <https://terence-lim.github.io/notes/actuarialmath-guide.pdf>`_
 
 3. `API reference <https://actuarialmath.readthedocs.io/en/latest/>`_
 
@@ -96,7 +96,7 @@ Resources
 
 .. toctree::
    :maxdepth: 2
-   :caption: Modules:
+   :caption: APIs:
 
    actuarialmath.actuarial
    actuarialmath.interest

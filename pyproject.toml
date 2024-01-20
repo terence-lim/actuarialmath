@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "actuarialmath"
-#version =  "0.0.106"
-version = "0.0.15" 
+#version =  "0.1.1"
+version = "1.0.1" 
 authors = [
   { name="Terence Lim"},
 ]
-description = "A package for actuarial math and life contingent risks"
+description = "A package for solving actuarial math and life contingent risks"
 readme = "index.rst"
 requires-python = ">=3.10"
 classifiers = [
@@ -33,5 +33,5 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://terence-lim.github.io/actuarialmath-guide"
+"Homepage" = "https://github.com/terence-lim/actuarialmath"
 "Bug Tracker" = "https://github.com/terence-lim/actuarialmath/issues"

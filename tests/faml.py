@@ -13,27 +13,28 @@
 # ---
 
 # + [markdown] id="11569414"
-# # Sample Solutions and Hints
+# # FAM-L Exam Solutions and Hints
 #
-# __actuarialmath -- Life Contingent Risks with Python__
+# __actuarialmath -- Solving Life Contingent Risks with Python__
 #
 # This package implements fundamental methods for modeling life contingent risks, and closely follows traditional topics covered in actuarial exams and standard texts such as the "Fundamentals of Actuarial Math - Long-term" exam syllabus by the Society of Actuaries, and "Actuarial Mathematics for Life Contingent Risks" by Dickson, Hardy and Waters.  These code chunks demonstrate how to solve each of the sample FAM-L exam questions released by the SOA.
 #
 # Sources:
 #
-# - SOA FAM-L Sample Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
+# - SOA FAM-L Exam Questions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf)
 #
-# - SOA FAM-L Sample Questions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-quest.pdf)
+# - SOA FAM-L Exam Solutions: [copy retrieved Aug 2022](https://terence-lim.github.io/notes/2022-10-exam-fam-l-sol.pdf)
 #
-# - [Online User Guide](https://terence-lim.github.io/actuarialmath-guide/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
+# - [User Guide](https://actuarialmath-guide.readthedocs.io/en/latest/), or [download pdf](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
 #
-# - [API reference](https://terence-lim.github.io/actuarialmath-docs)
+# - [API reference](https://actuarialmath.readthedocs.io/en/latest/)
 #
 # - [Github repo](https://github.com/terence-lim/actuarialmath.git) and [issues](https://github.com/terence-lim/actuarialmath/issues)
 #
 
 # + colab={"base_uri": "https://localhost:8080/"} id="i9j4jVPE-Fpk" outputId="c2addd37-6cbe-49bf-f4d3-7252d6d3f0c5"
-# #! pip install actuarialmath
+# Uncomment next line to install package
+# #! pip install actuarialmath  
 
 # + id="a0729fd1"
 """Solutions code and hints for SOA FAM-L sample questions
