@@ -8,7 +8,7 @@ import scipy
 import matplotlib.pyplot as plt
 from typing import Callable, Any, Tuple, List
 
-plt.style.use('seaborn-dark') # 'ggplot'
+#plt.style.use('seaborn-dark') # 'ggplot'
 
 class Actuarial(object):
     """Define constants and common utility functions
