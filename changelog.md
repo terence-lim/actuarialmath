@@ -9,3 +9,10 @@
 - downgraded numpy and pandas version dependencies to match Colab
 - bug fixes and improvements to blogging in Recursion module
 - pretty-printing of results in Latex actuarial notation for Jupyter notebook
+
+## [1.1.0] - 2026-04-22
+
+### Added
+
+- scipy.misc.derivative deprecated
+
