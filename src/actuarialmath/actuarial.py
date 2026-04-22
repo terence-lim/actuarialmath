@@ -5,6 +5,10 @@ MIT License. Copyright (c) 2022-2023 Terence Lim
 import math
 import numpy as np
 import scipy
+import scipy.misc
+import scipy.differentiate
+import scipy.integrate
+import scipy.optimize
 import matplotlib.pyplot as plt
 from typing import Callable, Any, Tuple, List
 
@@ -65,7 +69,8 @@ class Actuarial(object):
         Examples:
           >>> print(Actuarial.derivative(fun=lambda x: x/50, x=25))
         """
-        return scipy.misc.derivative(fun, x0=x, dx=1)
+        return float(scipy.differentiate.derivative(fun, x=x, initial_step=1, maxiter=1, preserve_shape=True).df)
+        # return scipy.misc.derivative(fun, x0=x, dx=1)
 
     @staticmethod
     def solve(fun: Callable[[float], float], target: float, 
