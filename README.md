@@ -6,13 +6,13 @@ __actuarialmath -- Solve Life Contingent Risks with Python__
 @book{lim2025actuarialmath,
   author       = {Terence Lim},
   title        = {Solving Actuarial Math with Python},
-  year         = {2025},
+  year         = {2024},
   url          = {https://terence-lim.github.io/notes/actuarialmath-guide.pdf},
   note         = {ActuarialMath User Guide and Reference}
 }
 ```
 
-Lim, Terence (2025). Solving actuarial math with Python. https://terence-lim.github.io/notes/actuarialmath-guide.pdf
+Lim, Terence (2024). Solving actuarial math with Python. https://terence-lim.github.io/notes/actuarialmath-guide.pdf
 
 ## Introduction
 
@@ -92,13 +92,13 @@ print(R-S)   # solution = -277.19
 
 ## Resources
 
-1. [Online User Guide](https://actuarialmath-guide.readthedocs.io/en/latest/) 
+1. [Online Guide](https://actuarialmath-guide.readthedocs.io/en/latest/) 
 
-2. [PDF Notebook](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
+2. [PDF Book](https://terence-lim.github.io/notes/actuarialmath-guide.pdf)
 
-4. [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), or [run in Colab](https://colab.research.google.com/github/terence-lim/terence-lim.github.io/blob/master/notes/faml.ipynb), to solve all sample SOA FAM-L exam questions
+3. [Jupyter notebook](https://terence-lim.github.io/notes/faml.ipynb), or [run in Colab](https://colab.research.google.com/github/terence-lim/terence-lim.github.io/blob/master/notes/faml.ipynb), to solve all SOA FAM-L sample exam questions
 
-3. [API reference](https://actuarialmath.readthedocs.io/en/latest/)
+4. [API reference](https://actuarialmath.readthedocs.io/en/latest/)
 
 5. [Github repo](https://github.com/terence-lim/actuarialmath.git) and [issues](https://github.com/terence-lim/actuarialmath/issues)
 
