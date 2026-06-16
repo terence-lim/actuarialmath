@@ -8,7 +8,7 @@
 
 project = 'actuarialmath'
 copyright = '2023, Terence Lim'
-author = 'Terence Lim'
+author = 'Terence Lim PhD ASA CAIA CFA CFP CMA CPA FRM'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
